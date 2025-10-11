@@ -1,0 +1,20 @@
+<svg:g xmlns:svg="http://www.w3.org/2000/svg">
+	<line
+		[id]="eventId()"
+		[attr.x1]="marker().left"
+		[attr.y1]="marker().top"
+		[attr.x2]="marker().left"
+		[attr.y2]="marker().bottom"
+		[attr.stroke]="lineStyle().color"
+		[attr.stroke-width]="lineStyle().width"
+	/>
+	<text
+		[id]="eventId() + '-text'"
+		[attr.x]="labelPos().x" 
+		[attr.y]="labelPos().y"
+		[attr.font-family]="textStyle().font"
+		[attr.font-size]="textStyle().size"
+		[attr.font-weight]="textStyle().weight"
+		[attr.transform]="'rotate(' + textStyle().rotation + ' ' + labelPos().x + ' ' + labelPos().y + ')'"
+	>{{label()}}</text>
+</svg:g>

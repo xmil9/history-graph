@@ -1,0 +1,48 @@
+<svg:g xmlns:svg="http://www.w3.org/2000/svg">
+	<line
+		id="time-axis"
+		[attr.x1]="startPos().x"
+		[attr.y1]="startPos().y"
+		[attr.x2]="endPos().x"
+		[attr.y2]="endPos().y"
+		[attr.stroke]="lineStyle().color"
+		[attr.stroke-width]="lineStyle().width"
+	/>
+	<line
+		id="start-marker"
+		[attr.x1]="startMarker().left"
+		[attr.y1]="startMarker().top"
+		[attr.x2]="startMarker().left"
+		[attr.y2]="startMarker().bottom"
+		[attr.stroke]="lineStyle().color"
+		[attr.stroke-width]="lineStyle().width"
+	/>
+	<text
+		id="start-text"
+		[attr.x]="startLabelPos().x"
+		[attr.y]="startLabelPos().y"
+		[attr.font-family]="textStyle().font"
+		[attr.font-size]="textStyle().size"
+		[attr.font-weight]="textStyle().weight"
+		[attr.transform]="'rotate(' + textStyle().rotation + ' ' + startLabelPos().x + ' ' + startLabelPos().y + ')'"
+	>{{startLabel()}}</text>
+	<line
+		id="end-marker"
+		[attr.x1]="endMarker().left"
+		[attr.y1]="endMarker().top"
+		[attr.x2]="endMarker().left"
+		[attr.y2]="endMarker().bottom"
+		[attr.stroke]="lineStyle().color"
+		[attr.stroke-width]="lineStyle().width"
+	/>
+	<text
+		id="end-text"
+		[attr.x]="endLabelPos().x"
+		[attr.y]="endLabelPos().y"
+		[attr.font-family]="textStyle().font"
+		[attr.font-size]="textStyle().size"
+		[attr.font-weight]="textStyle().weight"
+		[attr.transform]="'rotate(' + textStyle().rotation + ' ' + endLabelPos().x + ' ' + endLabelPos().y + ')'"
+	>{{endLabel()}}</text>
+</svg:g>
+
