@@ -1,6 +1,5 @@
 <svg:g xmlns:svg="http://www.w3.org/2000/svg">
 	<line
-		[id]="eventId()"
 		[attr.x1]="marker().left"
 		[attr.y1]="marker().top"
 		[attr.x2]="marker().left"
@@ -9,7 +8,6 @@
 		[attr.stroke-width]="lineStyle().width"
 	/>
 	<text
-		[id]="eventId() + '-text'"
 		[attr.x]="labelPos().x" 
 		[attr.y]="labelPos().y"
 		[attr.font-family]="textStyle().font"

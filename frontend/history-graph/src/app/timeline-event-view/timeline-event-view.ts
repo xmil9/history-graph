@@ -1,6 +1,8 @@
 import { Component, computed, input } from '@angular/core';
 import { Point2D, Rect2D } from '../graphics/gfx-coord-2d';
 import { DEFAULT_LINE_STYLE, DEFAULT_TEXT_STYLE, LineStyle, TextStyle } from '../graphics/gfx-style';
+import { HEvent } from '../model/historic-event';
+import { HDateFormat } from '../model/historic-date';
 
 @Component({
   selector: '[tl-event]',
@@ -9,9 +11,12 @@ import { DEFAULT_LINE_STYLE, DEFAULT_TEXT_STYLE, LineStyle, TextStyle } from '..
 })
 export class TimelineEventView {
 	// Content
-	label = input.required<string>();
-	eventId = input.required<string>();
-	
+	event = input.required<HEvent>();
+	dateFormat = input.required<HDateFormat>();
+	label = computed(() => {
+		return this.dateFormat().format(this.event().when) + ' - ' + this.event().label;
+	});
+
 	// Positioning
 	position = input.required<Point2D>();
 	markerLength = input<number>(8);

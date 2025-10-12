@@ -11,9 +11,9 @@
 		@for (event of timeline()!.events; track event.when; let i = $index) {
 			@if (eventPositions()[i]) {
 				<g tl-event
+					[event]="event"
+					[dateFormat]="dateFormat()"
 					[position]="eventPositions()[i]"
-					[label]="eventLabels()[i]"
-					[eventId]="'event-marker-' + i"
 					[textStyle]="textStyle()"
 					[lineStyle]="lineStyle()"
 				/>
