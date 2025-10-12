@@ -1,4 +1,4 @@
-import { Component, computed, effect, input, Signal, signal } from '@angular/core';
+import { Component, computed, effect, HostListener, input, Signal, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TimelineService } from '../services/timeline.service';
 import { Timeline } from '../model/timeline';
@@ -34,7 +34,7 @@ export class TimelineView {
 		return timeline ? this.dateFormat.format(timeline.to) : '';
 	});
 	eventLabels = signal<string[]>([]);
-	
+
 	// Positioning
 	viewSize = signal(new Size2D(1500, 400));
 	axisStartPos = signal(new Point2D(50, 200));
@@ -44,6 +44,10 @@ export class TimelineView {
 	// Styling
 	textStyle = input<TextStyle>(DEFAULT_TL_TEXT_STYLE);
 	lineStyle = input<LineStyle>(DEFAULT_LINE_STYLE);
+
+	// Interactions
+	private panning = false;
+	private panStartPos = signal(new Point2D(0, 0));
 
 	constructor(private timelineService: TimelineService) {
 		this.timeline = toSignal(this.timelineService.timeline$, {
@@ -55,6 +59,33 @@ export class TimelineView {
 		});
 	}
 
+	@HostListener('mousedown', ['$event'])
+	onMouseDown(event: MouseEvent): void {
+		this.panning = true;
+		this.panStartPos.set(new Point2D(event.clientX, event.clientY));
+	}
+
+	@HostListener('mousemove', ['$event'])
+	onMouseMove(event: MouseEvent): void {
+		if (this.panning) {
+			const delta = new Point2D(event.clientX - this.panStartPos().x, 0);
+			this.pan(delta);
+			this.panStartPos.set(new Point2D(event.clientX, event.clientY));
+		}
+	}
+
+	@HostListener('mouseup', ['$event'])
+	onMouseUp(event: MouseEvent): void {
+		this.panning = false;
+	}
+
+	@HostListener('wheel', ['$event'])
+	onWheel(event: WheelEvent): void {
+		event.preventDefault();
+		const zoomFactor = event.deltaY > 0 ? 0.9 : 1.1;
+		this.zoom(new Point2D(event.clientX, event.clientY), zoomFactor);
+	}
+
 	private updateEvents(tl?: Timeline): void {
 		if (!tl || tl.events.length === 0) {
 			this.eventPositions.set([]);
@@ -64,24 +95,51 @@ export class TimelineView {
 
 		const eventPositions: Point2D[] = [];
 		const eventLabels = [];
-		
+
 		const tlDuration = duration(tl.from, tl.to);
 		const tlLength = this.axisEndPos().x - this.axisStartPos().x;
-		
+
 		console.debug('Timeline events:', tl.events.length);
 		console.debug('Timeline duration (time):', tlDuration);
 		console.debug('Timeline length (space):', tlLength);
-		
+
 		for (const event of tl.events) {
 			// Calculate position based on event date relative to timeline range.
 			const eventRatio = duration(tl.from, event.when) / tlDuration;
 			const eventX = this.axisStartPos().x + (eventRatio * tlLength);
-			
+
 			eventPositions.push(new Point2D(eventX, this.axisStartPos().y));
 			eventLabels.push(this.dateFormat.format(event.when) + ' - ' + event.description);
 		}
-		
+
 		this.eventPositions.set(eventPositions);
 		this.eventLabels.set(eventLabels);
+	}
+
+	private pan(delta: Point2D): void {
+		this.axisStartPos.update(pos =>
+			new Point2D(pos.x + delta.x, pos.y + delta.y)
+		);
+		this.axisEndPos.update(pos =>
+			new Point2D(pos.x + delta.x, pos.y + delta.y)
+		);
+	}
+
+	private zoom(at: Point2D, factor: number): void {
+		let centerX = at.x;
+		if (centerX < this.axisStartPos().x) {
+			centerX = this.axisStartPos().x;
+		} else if (centerX > this.axisEndPos().x) {
+			centerX = this.axisEndPos().x;
+		}
+		const startDelta = (this.axisStartPos().x - centerX) * factor;
+		const endDelta = (this.axisEndPos().x - centerX) * factor;
+
+		this.axisStartPos.update(pos =>
+			new Point2D(centerX + startDelta, pos.y)
+		);
+		this.axisEndPos.update(pos =>
+			new Point2D(centerX + endDelta, pos.y)
+		);
 	}
 }
