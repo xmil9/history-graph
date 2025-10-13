@@ -1,15 +1,20 @@
 import { Component, computed, input } from '@angular/core';
-import { Point2D, Rect2D } from '../graphics/gfx-coord-2d';
+import { Point2D, Rect2D, Size2D } from '../graphics/gfx-coord-2d';
 import { DEFAULT_LINE_STYLE, DEFAULT_TEXT_STYLE, LineStyle, TextStyle } from '../graphics/gfx-style';
 import { HEvent } from '../model/historic-event';
 import { HDateFormat } from '../model/historic-date';
+import { AppIcon, IconOrigin } from '../app-icon/app-icon';
 
 @Component({
-  selector: '[tl-event]',
-  templateUrl: './timeline-event-view.html',
-  styleUrl: './timeline-event-view.css'
+  	selector: '[tl-event]',
+	imports: [AppIcon],
+	templateUrl: './timeline-event-view.html',
+  	styleUrl: './timeline-event-view.css'
 })
 export class TimelineEventView {
+	// Expose enum for template
+	IconOrigin = IconOrigin;
+
 	// Content
 	event = input.required<HEvent>();
 	dateFormat = input.required<HDateFormat>();
@@ -19,13 +24,12 @@ export class TimelineEventView {
 
 	// Positioning
 	position = input.required<Point2D>();
-	markerLength = input<number>(8);
-	marker = computed(() => { return new Rect2D(
-		new Point2D(this.position().x, this.position().y - this.markerLength()),
-		new Point2D(this.position().x, this.position().y + this.markerLength())
-	)});
+	markerSize = input<Size2D>(new Size2D(16));
 	labelPos = computed(() => {
-		return new Point2D(this.marker().left - this.textStyle().size / 3, this.marker().bottom + 5);
+		return new Point2D(
+			this.position().x - this.textStyle().size / 3,
+			this.position().y + this.markerSize().height / 2 + 5
+		);
 	});
 
 	// Styling

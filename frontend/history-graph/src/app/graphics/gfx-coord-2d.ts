@@ -60,8 +60,11 @@ export class Rect2D {
 }
 
 export class Size2D {
-	constructor(
-		public width: number,
-		public height: number,
-	) {}
+	public width: number;
+	public height: number;
+	
+	constructor(width: number, height?: number) {
+		this.width = width;
+		this.height = height ?? width;
+	}
 }

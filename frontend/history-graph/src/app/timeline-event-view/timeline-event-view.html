@@ -1,12 +1,5 @@
 <svg:g xmlns:svg="http://www.w3.org/2000/svg">
-	<line
-		[attr.x1]="marker().left"
-		[attr.y1]="marker().top"
-		[attr.x2]="marker().left"
-		[attr.y2]="marker().bottom"
-		[attr.stroke]="lineStyle().color"
-		[attr.stroke-width]="lineStyle().width"
-	/>
+	<g app-icon [name]="'tl-date'" [origin]="IconOrigin.Center" [position]="position()" [size]="markerSize()"></g>
 	<text
 		[attr.x]="labelPos().x" 
 		[attr.y]="labelPos().y"
