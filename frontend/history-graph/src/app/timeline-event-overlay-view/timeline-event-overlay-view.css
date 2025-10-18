@@ -1,0 +1,35 @@
+.event-overlay {
+	position: fixed;
+	pointer-events: none;
+	background: white;
+	border: 1px solid #333;
+	border-radius: 4px;
+	padding: 12px;
+	box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+	max-width: 250px;
+	font-family: Arial, sans-serif;
+	z-index: 1000;
+}
+
+.overlay-title {
+	font-size: 14px;
+	font-weight: bold;
+	color: #333;
+	margin-bottom: 6px;
+}
+
+.overlay-date {
+	font-size: 12px;
+	color: #666;
+	margin-bottom: 6px;
+}
+
+.overlay-description {
+	font-size: 11px;
+	color: #666;
+	line-height: 1.4;
+	margin-top: 8px;
+	padding-top: 8px;
+	border-top: 1px solid #eee;
+}
+

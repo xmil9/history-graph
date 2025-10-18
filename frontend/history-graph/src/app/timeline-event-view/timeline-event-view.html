@@ -1,5 +1,15 @@
 <svg:g xmlns:svg="http://www.w3.org/2000/svg">
-	<g app-icon [name]="'tl-date'" [origin]="IconOrigin.Center" [position]="position()" [size]="markerSize()"></g>
+	<g 
+		app-icon 
+		[name]="'tl-date'" 
+		[origin]="IconOrigin.Center" 
+		[position]="position()" 
+		[size]="markerSize()"
+		(mouseenter)="onMarkerMouseEnter($event)"
+		(mousemove)="onMarkerMouseMove($event)"
+		(mouseleave)="onMarkerMouseLeave()"
+		class="event-marker"
+	></g>
 	<text
 		[attr.x]="labelPos().x" 
 		[attr.y]="labelPos().y"

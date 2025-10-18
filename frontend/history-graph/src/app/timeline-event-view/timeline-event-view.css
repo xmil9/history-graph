@@ -1,0 +1,9 @@
+.event-marker {
+	cursor: pointer;
+	transition: opacity 0.2s ease;
+}
+
+.event-marker:hover {
+	opacity: 0.8;
+}
+

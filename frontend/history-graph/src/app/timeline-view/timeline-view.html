@@ -1,23 +1,28 @@
-<svg [attr.width]="viewSize().width" [attr.height]="viewSize().height" xmlns="http://www.w3.org/2000/svg">
-	<g tl-axis
-		[startPos]="axisStartPos()"
-		[endPos]="axisEndPos()"
-		[startLabel]="startLabel()"
-		[endLabel]="endLabel()"
-		[textStyle]="textStyle()"
-		[lineStyle]="lineStyle()"
-	/>
-	@if (timeline()?.events && eventPositions().length > 0) {
-		@for (event of timeline()!.events; track event.when; let i = $index) {
-			@if (eventPositions()[i]) {
-				<g tl-event
-					[event]="event"
-					[dateFormat]="dateFormat()"
-					[position]="eventPositions()[i]"
-					[textStyle]="textStyle()"
-					[lineStyle]="lineStyle()"
-				/>
+<div class="timeline-container">
+	<svg [attr.width]="viewSize().width" [attr.height]="viewSize().height" xmlns="http://www.w3.org/2000/svg">
+		<g tl-axis
+			[startPos]="axisStartPos()"
+			[endPos]="axisEndPos()"
+			[startLabel]="startLabel()"
+			[endLabel]="endLabel()"
+			[textStyle]="textStyle()"
+			[lineStyle]="lineStyle()"
+		/>
+		@if (timeline()?.events && tlEventPositions().length > 0) {
+			@for (tlEvent of timeline()!.events; track tlEvent.when; let i = $index) {
+				@if (tlEventPositions()[i]) {
+					<g tl-event
+						[tlEvent]="tlEvent"
+						[dateFormat]="dateFormat()"
+						[position]="tlEventPositions()[i]"
+						[textStyle]="textStyle()"
+						[lineStyle]="lineStyle()"
+					/>
+				}
 			}
 		}
-	}
-</svg>
+	</svg>
+
+	<!-- Global overlay component for timeline events -->
+	<tl-event-overlay [dateFormat]="dateFormat()" />
+</div>

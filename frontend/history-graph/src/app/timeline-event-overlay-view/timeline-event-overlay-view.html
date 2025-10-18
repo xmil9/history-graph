@@ -1,0 +1,16 @@
+@if (overlay()) {
+	<div 
+		class="event-overlay"
+		[style.left.px]="position().x"
+		[style.top.px]="position().y"
+	>
+		<div class="overlay-title">{{overlay()!.tlEvent.label}}</div>
+		<div class="overlay-date">{{dateRange()}}</div>
+		@if (overlay()!.tlEvent.description) {
+			<div class="overlay-description">
+				{{overlay()!.tlEvent.description}}
+			</div>
+		}
+	</div>
+}
+
