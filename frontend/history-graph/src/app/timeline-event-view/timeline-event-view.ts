@@ -3,12 +3,12 @@ import { Point2D, Rect2D, Size2D } from '../graphics/gfx-coord-2d';
 import { DEFAULT_LINE_STYLE, DEFAULT_TEXT_STYLE, LineStyle, TextStyle } from '../graphics/gfx-style';
 import { HEvent } from '../model/historic-event';
 import { HDateFormat } from '../model/historic-date';
-import { AppIcon, IconOrigin } from '../app-icon/app-icon';
+import { SvgIcon, SvgIconOrigin } from '../svg-icon/svg-icon';
 import { TimelineEventOverlayService } from '../services/timeline-event-overlay.service';
 
 @Component({
   	selector: '[tl-event]',
-	imports: [AppIcon],
+	imports: [SvgIcon],
 	templateUrl: './timeline-event-view.html',
   	styleUrl: './timeline-event-view.css'
 })
@@ -16,7 +16,7 @@ export class TimelineEventView {
 	private overlayService = inject(TimelineEventOverlayService);
 
 	// Expose enum for template
-	IconOrigin = IconOrigin;
+	SvgIconOrigin = SvgIconOrigin;
 
 	// Content
 	tlEvent = input.required<HEvent>();

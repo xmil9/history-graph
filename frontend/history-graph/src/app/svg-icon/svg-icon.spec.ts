@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { AppIcon } from './app-icon';
+import { SvgIcon } from './svg-icon';
 
-describe('AppIcon', () => {
-  let component: AppIcon;
-  let fixture: ComponentFixture<AppIcon>;
+describe('SvgIcon', () => {
+  let component: SvgIcon;
+  let fixture: ComponentFixture<SvgIcon>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AppIcon]
+      imports: [SvgIcon]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(AppIcon);
+    fixture = TestBed.createComponent(SvgIcon);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
@@ -21,3 +21,4 @@ describe('AppIcon', () => {
     expect(component).toBeTruthy();
   });
 });
+
