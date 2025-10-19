@@ -10,12 +10,14 @@
 		(mouseleave)="onMarkerMouseLeave()"
 		class="event-marker"
 	></g>
-	<text
+	@if (labelLayout() !== TimelineEventLabelLayout.None) {
+		<text
 		[attr.x]="labelPos().x" 
 		[attr.y]="labelPos().y"
 		[attr.font-family]="textStyle().font"
 		[attr.font-size]="textStyle().size"
 		[attr.font-weight]="textStyle().weight"
 		[attr.transform]="'rotate(' + textStyle().rotation + ' ' + labelPos().x + ' ' + labelPos().y + ')'"
-	>{{label()}}</text>
+		>{{label()}}</text>
+	}
 </svg:g>

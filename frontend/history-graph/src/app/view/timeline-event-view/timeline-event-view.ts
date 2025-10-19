@@ -5,6 +5,7 @@ import { HEvent } from '../../model/historic-event';
 import { HDateFormat } from '../../model/historic-date';
 import { SvgIcon, SvgIconOrigin } from '../svg-icon/svg-icon';
 import { TimelineEventOverlayService } from '../../services/timeline-event-overlay.service';
+import { TimelineEventLabelLayout, TimelineEventLayoutService } from '../../services/timeline-event-layout.service';
 
 @Component({
   	selector: '[tl-event]',
@@ -14,9 +15,11 @@ import { TimelineEventOverlayService } from '../../services/timeline-event-overl
 })
 export class TimelineEventView {
 	private overlayService = inject(TimelineEventOverlayService);
+	private layoutService = inject(TimelineEventLayoutService);
 
-	// Expose enum for template
+	// Expose types for template
 	SvgIconOrigin = SvgIconOrigin;
+	TimelineEventLabelLayout = TimelineEventLabelLayout;
 
 	// Content
 	tlEvent = input.required<HEvent>();
@@ -28,11 +31,24 @@ export class TimelineEventView {
 	// Positioning
 	position = input.required<Point2D>();
 	markerSize = input<Size2D>(new Size2D(8));
+	labelLayout = computed(() => this.layoutService.labelLayout());
 	labelPos = computed(() => {
-		return new Point2D(
-			this.position().x - this.textStyle().size / 3,
-			this.position().y + this.markerSize().height / 2 + 5
-		);
+		switch (this.labelLayout()) {
+			case TimelineEventLabelLayout.Vertical:
+				this.textStyle().rotation = 90;
+				return new Point2D(
+					this.position().x - this.textStyle().size / 3,
+					this.position().y + this.markerSize().height / 2 + 5
+				);
+			case TimelineEventLabelLayout.Horizontal:
+				this.textStyle().rotation = 0;
+				return new Point2D(
+					this.position().x - this.textStyle().size / 3,
+					this.position().y + this.markerSize().height / 2 + 20
+				);
+			default:
+				return this.position();
+		}
 	});
 
 	// Styling
