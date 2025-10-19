@@ -1,10 +1,10 @@
 import { Component, computed, inject, input } from '@angular/core';
-import { Point2D, Rect2D, Size2D } from '../graphics/gfx-coord-2d';
-import { DEFAULT_LINE_STYLE, DEFAULT_TEXT_STYLE, LineStyle, TextStyle } from '../graphics/gfx-style';
-import { HEvent } from '../model/historic-event';
-import { HDateFormat } from '../model/historic-date';
+import { Point2D, Rect2D, Size2D } from '../../graphics/gfx-coord-2d';
+import { DEFAULT_LINE_STYLE, DEFAULT_TEXT_STYLE, LineStyle, TextStyle } from '../../graphics/gfx-style';
+import { HEvent } from '../../model/historic-event';
+import { HDateFormat } from '../../model/historic-date';
 import { SvgIcon, SvgIconOrigin } from '../svg-icon/svg-icon';
-import { TimelineEventOverlayService } from '../services/timeline-event-overlay.service';
+import { TimelineEventOverlayService } from '../../services/timeline-event-overlay.service';
 
 @Component({
   	selector: '[tl-event]',

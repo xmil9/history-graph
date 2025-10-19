@@ -1,6 +1,6 @@
 import { Component, computed, input } from '@angular/core';
-import { Point2D, Rect2D } from '../graphics/gfx-coord-2d';
-import { DEFAULT_LINE_STYLE, DEFAULT_TEXT_STYLE, LineStyle, TextStyle } from '../graphics/gfx-style';
+import { Point2D, Rect2D } from '../../graphics/gfx-coord-2d';
+import { DEFAULT_LINE_STYLE, DEFAULT_TEXT_STYLE, LineStyle, TextStyle } from '../../graphics/gfx-style';
 
 @Component({
   selector: '[tl-axis]',

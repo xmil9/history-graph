@@ -1,13 +1,13 @@
 import { Component, computed, effect, HostListener, input, Signal, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { TimelineService } from '../services/timeline.service';
-import { Timeline } from '../model/timeline';
-import { Point2D, Size2D } from '../graphics/gfx-coord-2d';
-import { duration, HDateFormat, MDYYYYFormat } from '../model/historic-date';
+import { TimelineService } from '../../services/timeline.service';
+import { Timeline } from '../../model/timeline';
+import { Point2D, Size2D } from '../../graphics/gfx-coord-2d';
+import { duration, HDateFormat, MDYYYYFormat } from '../../model/historic-date';
 import { TimelineEventView } from '../timeline-event-view/timeline-event-view';
 import { TimelineAxisView } from '../timeline-axis-view/timeline-axis-view';
 import { TimelineEventOverlayView } from '../timeline-event-overlay-view/timeline-event-overlay-view';
-import { DEFAULT_LINE_STYLE, DEFAULT_TEXT_STYLE, LineStyle, TextStyle } from '../graphics/gfx-style';
+import { DEFAULT_LINE_STYLE, DEFAULT_TEXT_STYLE, LineStyle, TextStyle } from '../../graphics/gfx-style';
 
 const DEFAULT_TL_TEXT_STYLE: TextStyle = {
 	...DEFAULT_TEXT_STYLE,

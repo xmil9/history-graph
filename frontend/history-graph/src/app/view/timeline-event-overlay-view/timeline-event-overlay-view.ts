@@ -1,6 +1,6 @@
 import { Component, computed, inject, input } from '@angular/core';
-import { TimelineEventOverlayService } from '../services/timeline-event-overlay.service';
-import { HDateFormat, MDYYYYFormat } from '../model/historic-date';
+import { TimelineEventOverlayService } from '../../services/timeline-event-overlay.service';
+import { HDateFormat, MDYYYYFormat } from '../../model/historic-date';
 
 @Component({
 	selector: 'tl-event-overlay',

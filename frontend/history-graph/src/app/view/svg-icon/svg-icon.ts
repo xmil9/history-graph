@@ -1,5 +1,5 @@
 import { Component, computed, input } from '@angular/core';
-import { Point2D, Size2D } from '../graphics/gfx-coord-2d';
+import { Point2D, Size2D } from '../../graphics/gfx-coord-2d';
 
 export enum SvgIconOrigin {
 	TopLeft,
