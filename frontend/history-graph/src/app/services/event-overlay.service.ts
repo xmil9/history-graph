@@ -1,7 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 import { HEvent } from '../model/historic-event';
 
-export interface TimelineEventOverlay {
+export interface EventOverlay {
 	tlEvent: HEvent;
 	x: number;
 	y: number;
@@ -10,8 +10,8 @@ export interface TimelineEventOverlay {
 @Injectable({
 	providedIn: 'root'
 })
-export class TimelineEventOverlayService {
-	overlay = signal<TimelineEventOverlay | null>(null);
+export class EventOverlayService {
+	overlay = signal<EventOverlay | null>(null);
 
 	setOverlay(tlEvent: HEvent, x: number, y: number) {
 		this.overlay.set({ tlEvent, x, y });

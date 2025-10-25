@@ -4,7 +4,7 @@ import { DEFAULT_LINE_STYLE, DEFAULT_TEXT_STYLE, LineStyle, TextStyle } from '..
 import { HEvent } from '../../model/historic-event';
 import { HDateFormat } from '../../model/historic-date';
 import { SvgIcon, SvgIconOrigin } from '../svg-icon/svg-icon';
-import { TimelineEventOverlayService } from '../../services/timeline-event-overlay.service';
+import { EventOverlayService } from '../../services/event-overlay.service';
 import { EventLabelLayoutFormat, EventLayoutService } from '../../services/event-layout.service';
 
 @Component({
@@ -14,7 +14,7 @@ import { EventLabelLayoutFormat, EventLayoutService } from '../../services/event
   	styleUrl: './timeline-event-view.css'
 })
 export class TimelineEventView {
-	private overlayService = inject(TimelineEventOverlayService);
+	private overlayService = inject(EventOverlayService);
 	private layoutService = inject(EventLayoutService);
 
 	// Expose types for template

@@ -1,5 +1,5 @@
 import { Component, computed, inject, input } from '@angular/core';
-import { TimelineEventOverlayService } from '../../services/timeline-event-overlay.service';
+import { EventOverlayService } from '../../services/event-overlay.service';
 import { HDateFormat, MDYYYYFormat } from '../../model/historic-date';
 
 @Component({
@@ -9,7 +9,7 @@ import { HDateFormat, MDYYYYFormat } from '../../model/historic-date';
 	styleUrl: './timeline-event-overlay-view.css'
 })
 export class TimelineEventOverlayView {
-	private overlayService = inject(TimelineEventOverlayService);
+	private overlayService = inject(EventOverlayService);
 
 	// Inputs
 	dateFormat = input<HDateFormat>(new MDYYYYFormat('-'));
