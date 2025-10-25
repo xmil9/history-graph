@@ -10,14 +10,24 @@
 		(mouseleave)="onMarkerMouseLeave()"
 		class="event-marker"
 	></g>
-	@if (labelLayout() !== TimelineEventLabelLayout.None) {
+	@if (labelLayoutFormat === EventLabelLayoutFormat.Vertical) {
 		<text
-		[attr.x]="labelPos().x" 
-		[attr.y]="labelPos().y"
+		[attr.x]="labelPos.x" 
+		[attr.y]="labelPos.y"
 		[attr.font-family]="textStyle().font"
 		[attr.font-size]="textStyle().size"
 		[attr.font-weight]="textStyle().weight"
-		[attr.transform]="'rotate(' + textStyle().rotation + ' ' + labelPos().x + ' ' + labelPos().y + ')'"
+		[attr.transform]="'rotate(' + labelRotation + ' ' + labelPos.x + ' ' + labelPos.y + ')'"
+		>{{label()}}</text>
+	}
+	@if (labelLayoutFormat === EventLabelLayoutFormat.Horizontal) {
+		<text
+		[attr.x]="labelPos.x" 
+		[attr.y]="labelPos.y"
+		[attr.font-family]="textStyle().font"
+		[attr.font-size]="textStyle().size"
+		[attr.font-weight]="textStyle().weight"
+		[attr.transform]="'rotate(' + labelRotation + ' ' + labelPos.x + ' ' + labelPos.y + ')'"
 		>{{label()}}</text>
 	}
 </svg:g>

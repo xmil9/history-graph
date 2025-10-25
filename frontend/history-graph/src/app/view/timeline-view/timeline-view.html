@@ -8,13 +8,15 @@
 			[textStyle]="textStyle()"
 			[lineStyle]="lineStyle()"
 		/>
-		@if (timeline()?.events && tlEventPositions().length > 0) {
+		@if (timeline()?.events) {
 			@for (tlEvent of timeline()!.events; track tlEvent.when; let i = $index) {
-				@if (tlEventPositions()[i]) {
+				@if (getEventPosition(i)) {
 					<g tl-event
 						[tlEvent]="tlEvent"
+						[index]="i"
 						[dateFormat]="dateFormat()"
-						[position]="tlEventPositions()[i]"
+						[position]="getEventPosition(i)!"
+						[markerSize]="eventMarkerSize()"
 						[textStyle]="textStyle()"
 						[lineStyle]="lineStyle()"
 					/>

@@ -1,13 +1,14 @@
-import { Component, computed, effect, HostListener, input, Signal, signal } from '@angular/core';
+import { Component, computed, effect, HostListener, inject, input, Signal, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TimelineService } from '../../services/timeline.service';
 import { Timeline } from '../../model/timeline';
 import { Point2D, Size2D } from '../../graphics/gfx-coord-2d';
-import { duration, HDateFormat, MDYYYYFormat } from '../../model/historic-date';
+import { HDateFormat, MDYYYYFormat } from '../../model/historic-date';
 import { TimelineEventView } from '../timeline-event-view/timeline-event-view';
 import { TimelineAxisView } from '../timeline-axis-view/timeline-axis-view';
 import { TimelineEventOverlayView } from '../timeline-event-overlay-view/timeline-event-overlay-view';
 import { DEFAULT_LINE_STYLE, DEFAULT_TEXT_STYLE, LineStyle, TextStyle } from '../../graphics/gfx-style';
+import { EventLayoutFactors, EventLayoutService } from '../../services/event-layout.service';
 
 const DEFAULT_TL_TEXT_STYLE: TextStyle = {
 	...DEFAULT_TEXT_STYLE,
@@ -23,6 +24,8 @@ const DEFAULT_TL_TEXT_STYLE: TextStyle = {
 	styleUrl: './timeline-view.css'
 })
 export class TimelineView {
+	private layoutService = inject(EventLayoutService);
+
 	// Content
 	dateFormat: Signal<HDateFormat> = signal(new MDYYYYFormat('-'));
 	timeline: Signal<Timeline | undefined>;
@@ -37,10 +40,14 @@ export class TimelineView {
 	});
 
 	// Positioning
-	viewSize = signal(new Size2D(1500, 400));
+	viewSize = signal(new Size2D(1500, 800));
 	axisStartPos = signal(new Point2D(50, 200));
 	axisEndPos = signal(new Point2D(this.viewSize().width - 50, 200));
-	tlEventPositions = signal<Point2D[]>([]);
+	eventMarkerSize = signal(new Size2D(8));
+
+	getEventPosition(idx: number): Point2D {
+		return this.layoutService.tlEventPos()[idx];
+	}
 
 	// Styling
 	textStyle = input<TextStyle>(DEFAULT_TL_TEXT_STYLE);
@@ -56,7 +63,15 @@ export class TimelineView {
 		});
 
 		effect(() => {
-			this.updateTimelineEvents(this.timeline());
+			this.layoutService.calculateLayout({
+					axisStartPos: this.axisStartPos(),
+					axisEndPos: this.axisEndPos(),
+					markerSize: this.eventMarkerSize(),
+					textStyle: this.textStyle(),
+					lineStyle: this.lineStyle(),
+				} satisfies EventLayoutFactors,
+				this.timeline()
+			);
 		});
 	}
 
@@ -85,32 +100,6 @@ export class TimelineView {
 		event.preventDefault();
 		const zoomFactor = event.deltaY > 0 ? 0.9 : 1.1;
 		this.zoom(new Point2D(event.clientX, event.clientY), zoomFactor);
-	}
-
-	private updateTimelineEvents(tl?: Timeline): void {
-		if (!tl || tl.events.length === 0) {
-			this.tlEventPositions.set([]);
-			return;
-		}
-
-		const tlEventPositions: Point2D[] = [];
-
-		const tlDuration = duration(tl.from, tl.to);
-		const tlDistance = this.axisEndPos().x - this.axisStartPos().x;
-
-		console.debug('Timeline events:', tl.events.length);
-		console.debug('Timeline duration:', tlDuration);
-		console.debug('Timeline distance:', tlDistance);
-
-		for (const event of tl.events) {
-			// Calculate position based on event date relative to timeline range.
-			const eventRatio = duration(tl.from, event.when) / tlDuration;
-			const eventX = this.axisStartPos().x + (eventRatio * tlDistance);
-
-			tlEventPositions.push(new Point2D(eventX, this.axisStartPos().y));
-		}
-
-		this.tlEventPositions.set(tlEventPositions);
 	}
 
 	private pan(delta: Point2D): void {

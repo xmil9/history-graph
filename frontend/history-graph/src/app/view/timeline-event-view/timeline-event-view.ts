@@ -5,7 +5,7 @@ import { HEvent } from '../../model/historic-event';
 import { HDateFormat } from '../../model/historic-date';
 import { SvgIcon, SvgIconOrigin } from '../svg-icon/svg-icon';
 import { TimelineEventOverlayService } from '../../services/timeline-event-overlay.service';
-import { TimelineEventLabelLayout, TimelineEventLayoutService } from '../../services/timeline-event-layout.service';
+import { EventLabelLayoutFormat, EventLayoutService } from '../../services/event-layout.service';
 
 @Component({
   	selector: '[tl-event]',
@@ -15,14 +15,15 @@ import { TimelineEventLabelLayout, TimelineEventLayoutService } from '../../serv
 })
 export class TimelineEventView {
 	private overlayService = inject(TimelineEventOverlayService);
-	private layoutService = inject(TimelineEventLayoutService);
+	private layoutService = inject(EventLayoutService);
 
 	// Expose types for template
 	SvgIconOrigin = SvgIconOrigin;
-	TimelineEventLabelLayout = TimelineEventLabelLayout;
+	EventLabelLayoutFormat = EventLabelLayoutFormat;
 
 	// Content
 	tlEvent = input.required<HEvent>();
+	index = input.required<number>();
 	dateFormat = input.required<HDateFormat>();
 	label = computed(() => {
 		return this.dateFormat().format(this.tlEvent().when) + ' - ' + this.tlEvent().label;
@@ -31,25 +32,15 @@ export class TimelineEventView {
 	// Positioning
 	position = input.required<Point2D>();
 	markerSize = input<Size2D>(new Size2D(8));
-	labelLayout = computed(() => this.layoutService.labelLayout());
-	labelPos = computed(() => {
-		switch (this.labelLayout()) {
-			case TimelineEventLabelLayout.Vertical:
-				this.textStyle().rotation = 90;
-				return new Point2D(
-					this.position().x - this.textStyle().size / 3,
-					this.position().y + this.markerSize().height / 2 + 5
-				);
-			case TimelineEventLabelLayout.Horizontal:
-				this.textStyle().rotation = 0;
-				return new Point2D(
-					this.position().x - this.textStyle().size / 3,
-					this.position().y + this.markerSize().height / 2 + 20
-				);
-			default:
-				return this.position();
-		}
-	});
+	get labelLayoutFormat(): EventLabelLayoutFormat {
+		return this.layoutService.labelLayoutFormat;
+	}
+	get labelPos(): Point2D {
+		return this.layoutService.labelPos[this.index()];
+	}
+	get labelRotation(): number {
+		return this.layoutService.labelRotation;
+	}
 
 	// Styling
 	textStyle = input<TextStyle>(DEFAULT_TEXT_STYLE);
