@@ -1,1 +1,8 @@
 /* You can add global styles to this file, and also import other style files */
+
+.no-text-select {
+	user-select: none;
+	-webkit-user-select: none; /* For WebKit browsers like Chrome and Safari */
+	-moz-user-select: none;    /* For Firefox */
+	-ms-user-select: none;     /* For Internet Explorer/Edge */
+}
