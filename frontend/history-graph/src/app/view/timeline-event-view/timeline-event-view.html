@@ -1,6 +1,7 @@
 <svg:g xmlns:svg="http://www.w3.org/2000/svg">
 	<g 
 		svg-icon 
+		class="event-marker"
 		[name]="'tl-date'" 
 		[origin]="SvgIconOrigin.Center" 
 		[position]="position()" 
@@ -8,26 +9,34 @@
 		(mouseenter)="onMarkerMouseEnter($event)"
 		(mousemove)="onMarkerMouseMove($event)"
 		(mouseleave)="onMarkerMouseLeave()"
-		class="event-marker"
 	></g>
 	@if (labelLayoutFormat === EventLabelLayoutFormat.Vertical) {
 		<text
-		[attr.x]="labelPos.x" 
-		[attr.y]="labelPos.y"
-		[attr.font-family]="textStyle().font"
-		[attr.font-size]="textStyle().size"
-		[attr.font-weight]="textStyle().weight"
-		[attr.transform]="'rotate(' + labelRotation + ' ' + labelPos.x + ' ' + labelPos.y + ')'"
+			class="no-text-select"
+			[attr.x]="labelPos.x" 
+			[attr.y]="labelPos.y"
+			[attr.font-family]="textStyle().font"
+			[attr.font-size]="textStyle().size"
+			[attr.font-weight]="textStyle().weight"
+			[attr.transform]="'rotate(' + labelRotation + ' ' + labelPos.x + ' ' + labelPos.y + ')'"
 		>{{label()}}</text>
 	}
 	@if (labelLayoutFormat === EventLabelLayoutFormat.Horizontal) {
 		<text
-		[attr.x]="labelPos.x" 
-		[attr.y]="labelPos.y"
-		[attr.font-family]="textStyle().font"
-		[attr.font-size]="textStyle().size"
-		[attr.font-weight]="textStyle().weight"
-		[attr.transform]="'rotate(' + labelRotation + ' ' + labelPos.x + ' ' + labelPos.y + ')'"
+			class="no-text-select"
+			[attr.id]="'event-label-' + index()"
+			[attr.x]="labelPos.x" 
+			[attr.y]="labelPos.y"
+			[attr.font-family]="textStyle().font"
+			[attr.font-size]="textStyle().size"
+			[attr.font-weight]="textStyle().weight"
 		>{{label()}}</text>
+		<path
+			class="event-connector"
+			[attr.d]="labelConnectorPath"
+			[attr.stroke]="lineStyle().color"
+			[attr.stroke-width]="lineStyle().width"
+			[attr.fill]="'none'"
+		></path>
 	}
 </svg:g>

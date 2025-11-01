@@ -4,6 +4,26 @@ import { duration } from '../model/historic-date';
 import { Point2D, Size2D } from '../graphics/gfx-coord-2d';
 import { DEFAULT_LINE_STYLE, DEFAULT_TEXT_STYLE, LineStyle, TextStyle } from '../graphics/gfx-style';
 
+
+// External data that affects the layout of events.
+export interface EventLayoutFactors {
+	viewSize: Size2D;
+	axisStartPos: Point2D;
+	axisEndPos: Point2D;
+	markerSize: Size2D;
+	textStyle: TextStyle;
+	lineStyle: LineStyle;
+}
+
+const DEFAULT_FACTORS: EventLayoutFactors = {
+	viewSize: new Size2D(0, 0),
+	axisStartPos: new Point2D(0, 0),
+	axisEndPos: new Point2D(0, 0),
+	markerSize: new Size2D(8),
+	textStyle: DEFAULT_TEXT_STYLE,
+	lineStyle: DEFAULT_LINE_STYLE,
+};
+
 export enum EventLabelLayoutFormat {
 	None = 'none',
 	Vertical = 'vertical',
@@ -11,61 +31,128 @@ export enum EventLabelLayoutFormat {
 }
 
 interface LabelLayout {
-	pos: Point2D[];
+	labelPositions: Point2D[];
 	rotation: number;
+	connectorPaths: string[];
 
 	calculate(tlEventPos: Point2D[], factors: EventLayoutFactors): void;
+	calculateConnectorPaths(tlEventPos: Point2D[]): string[]
 	clear(): void;
 }
 
 class VerticalLabelLayout implements LabelLayout {
-	pos: Point2D[] = [];
-	rotation: number = 0;
+	labelPositions: Point2D[] = [];
+	rotation: number = 90;
+	connectorPaths: string[] = [];
 
 	calculate(tlEventPos: Point2D[], factors: EventLayoutFactors): void {
-		this.pos = tlEventPos.map(pos => new Point2D(
+		this.labelPositions = tlEventPos.map(pos => new Point2D(
 			pos.x - factors.textStyle.size / 3,
 			pos.y + factors.markerSize.height / 2 + 5
 		));
-		this.rotation = 90;
+		this.connectorPaths = [];
+	}
+
+	calculateConnectorPaths(tlEventPos: Point2D[]): string[] {
+		// Nothing to do for vertical label layout.
+		return this.connectorPaths;
 	}
 
 	clear(): void {
-		this.pos = [];
+		this.labelPositions = [];
 		this.rotation = 0;
+		this.connectorPaths = [];
 	}
 }
 
 class HorizontalLabelLayout implements LabelLayout {
-	pos: Point2D[] = [];
+	labelPositions: Point2D[] = [];
 	rotation: number = 0;
+	connectorPaths: string[] = [];
 
 	calculate(tlEventPos: Point2D[], factors: EventLayoutFactors): void {
-		this.pos = tlEventPos.map(pos => new Point2D(
-			pos.x - factors.textStyle.size / 3,
-			pos.y + factors.markerSize.height / 2 + 20
-		));
-		this.rotation = 0;
+		const tlEventsInView = tlEventPos.filter(pos => this.isInView(pos, factors));
+		const tlEventsInViewCount = tlEventsInView.length;
+		const rowHeight = (factors.viewSize.height - factors.axisStartPos.y) / tlEventsInViewCount;
+
+		this.labelPositions = this.calculateLabelPositions(tlEventPos, factors, rowHeight);
+		// Connector paths are calculated in the component after DOM is ready
+		// So we initialize them as empty strings
+		this.connectorPaths = tlEventPos.map(() => '');
+	}
+
+	calculateConnectorPaths(tlEventPos: Point2D[]): string[] {
+		this.connectorPaths = tlEventPos.map((markerPos, index) => {
+			// Find the label text element
+			const labelElement = document.querySelector(`#event-label-${index}`) as SVGTextElement | null;
+			if (!labelElement) {
+				console.warn('Failed to find label element for event ', index);
+				return '';
+			}
+
+			try {
+				const bbox = labelElement.getBBox();
+				const startX = markerPos.x;
+				const startY = markerPos.y;
+				const endX = bbox.x + bbox.width + 5;
+				const endY = bbox.y + bbox.height / 2;
+
+				const path = `M ${startX} ${startY} L ${startX} ${endY} L ${endX} ${endY}`;
+				return path;
+			} catch (e) {
+				console.warn('Failed to calculate connector path for event ', index, ':', e);
+				return '';
+			}
+		});
+		return this.connectorPaths;
 	}
 
 	clear(): void {
-		this.pos = [];
-		this.rotation = 0;
+		this.labelPositions = [];
+		this.connectorPaths = [];
 	}
+
+	private isInView(pos: Point2D, factors: EventLayoutFactors): boolean {
+		return pos.x >= 0 && pos.x <= factors.viewSize.width;
+	}
+
+	private calculateLabelPositions(
+		tlEventPos: Point2D[],
+		factors: EventLayoutFactors,
+		rowHeight: number
+	): Point2D[] {
+		let rowY = factors.axisStartPos.y;
+		const rowX = factors.axisStartPos.x;
+
+		return tlEventPos.map(pos => {
+			if (this.isInView(pos, factors)) {
+				rowY += rowHeight;
+				return new Point2D(rowX, rowY);
+			}
+			return new Point2D(Number.MAX_VALUE, Number.MAX_VALUE);
+		});
+	}
+
 }
 
 class NoneLabelLayout implements LabelLayout {
-	pos: Point2D[] = [];
+	labelPositions: Point2D[] = [];
 	rotation: number = 0;
+	connectorPaths: string[] = [];
 
 	calculate(tlEventPos: Point2D[], factors: EventLayoutFactors): void {
-		this.pos = tlEventPos.map(pos => new Point2D(pos.x, pos.y));
-		this.rotation = 0;
+		this.labelPositions = tlEventPos.map(pos => new Point2D(pos.x, pos.y));
+		this.connectorPaths = [];
+	}
+
+	calculateConnectorPaths(tlEventPos: Point2D[]): string[] {
+		// Nothing to do for none label layout.
+		return this.connectorPaths;
 	}
 
 	clear(): void {
-		this.pos = [];
-		this.rotation = 0;
+		this.labelPositions = [];
+		this.connectorPaths = [];
 	}
 }
 
@@ -80,38 +167,28 @@ function createLabelLayout(layout: EventLabelLayoutFormat): LabelLayout {
 	}
 }
 
-export interface EventLayoutFactors {
-	axisStartPos: Point2D;
-	axisEndPos: Point2D;
-	markerSize: Size2D;
-	textStyle: TextStyle;
-	lineStyle: LineStyle;
-}
-
-const DEFAULT_FACTORS: EventLayoutFactors = {
-	axisStartPos: new Point2D(0, 0),
-	axisEndPos: new Point2D(0, 0),
-	markerSize: new Size2D(8),
-	textStyle: DEFAULT_TEXT_STYLE,
-	lineStyle: DEFAULT_LINE_STYLE,
-};
+///////////////////
 
 @Injectable({
 	providedIn: 'root'
 })
 export class EventLayoutService {
 	tlEventPos = signal<Point2D[]>([]);
-	labelLayoutFormat = EventLabelLayoutFormat.None;
+	labelLayoutFormat = EventLabelLayoutFormat.Horizontal;
 	private labelLayout: LabelLayout = createLabelLayout(this.labelLayoutFormat);
 	private factors = DEFAULT_FACTORS;
 	private timeline?: Timeline;
 
 	get labelPos(): Point2D[] {
-		return this.labelLayout.pos;
+		return this.labelLayout.labelPositions;
 	}
 
 	get labelRotation(): number {
 		return this.labelLayout.rotation;
+	}
+
+	get labelConnectorPath(): string[] {
+		return this.labelLayout.connectorPaths;
 	}
 
 	setLabelLayoutFormat(format: EventLabelLayoutFormat): void {
@@ -130,26 +207,28 @@ export class EventLayoutService {
 			return;
 		}
 
+		this.tlEventPos.set(this.calculateEventPositions(this.timeline));
+		this.labelLayout.calculate(this.tlEventPos(), this.factors);
+	}
+
+	private calculateEventPositions(timeline: Timeline): Point2D[] {
 		const tlEventPositions: Point2D[] = [];
 
-		const tlDuration = duration(this.timeline.from, this.timeline.to);
+		const tlDuration = duration(timeline.from, timeline.to);
 		const tlDistance = this.factors.axisEndPos.x - this.factors.axisStartPos.x;
 
-		console.debug('Timeline events:', this.timeline.events.length);
-		console.debug('Timeline duration:', tlDuration);
-		console.debug('Timeline distance:', tlDistance);
-
-		for (const event of this.timeline.events) {
+		for (const event of timeline.events) {
 			// Calculate position based on event date relative to timeline range.
-			const eventRatio = duration(this.timeline.from, event.when) / tlDuration;
+			const eventRatio = duration(timeline.from, event.when) / tlDuration;
 			const eventX = this.factors.axisStartPos.x + (eventRatio * tlDistance);
 
 			tlEventPositions.push(new Point2D(eventX, this.factors.axisStartPos.y));
 		}
 
-		this.tlEventPos.set(tlEventPositions);
+		return tlEventPositions;
+	}
 
-		this.labelLayout.calculate(tlEventPositions, this.factors);
+	calculateConnectorPaths(): string[] {
+		return this.labelLayout.calculateConnectorPaths(this.tlEventPos());
 	}
 }
-

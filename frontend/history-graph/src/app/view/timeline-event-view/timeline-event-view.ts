@@ -1,4 +1,4 @@
-import { Component, computed, inject, input } from '@angular/core';
+import { AfterViewInit, Component, computed, effect, ElementRef, inject, input, signal } from '@angular/core';
 import { Point2D, Rect2D, Size2D } from '../../graphics/gfx-coord-2d';
 import { DEFAULT_LINE_STYLE, DEFAULT_TEXT_STYLE, LineStyle, TextStyle } from '../../graphics/gfx-style';
 import { HEvent } from '../../model/historic-event';
@@ -13,7 +13,7 @@ import { EventLabelLayoutFormat, EventLayoutService } from '../../services/event
 	templateUrl: './timeline-event-view.html',
   	styleUrl: './timeline-event-view.css'
 })
-export class TimelineEventView {
+export class TimelineEventView implements AfterViewInit {
 	private overlayService = inject(EventOverlayService);
 	private layoutService = inject(EventLayoutService);
 
@@ -38,6 +38,9 @@ export class TimelineEventView {
 	get labelPos(): Point2D {
 		return this.layoutService.labelPos[this.index()];
 	}
+	get labelConnectorPath(): string {
+		return this.layoutService.labelConnectorPath[this.index()];
+	}
 	get labelRotation(): number {
 		return this.layoutService.labelRotation;
 	}
@@ -45,6 +48,13 @@ export class TimelineEventView {
 	// Styling
 	textStyle = input<TextStyle>(DEFAULT_TEXT_STYLE);
 	lineStyle = input<LineStyle>(DEFAULT_LINE_STYLE);
+
+	constructor() {
+	}
+
+	ngAfterViewInit(): void {
+		console.log('ngAfterViewInit EventView ', this.index());
+	}
 
 	onMarkerMouseEnter(mouseEvent: MouseEvent) {
 		this.overlayService.setOverlay(

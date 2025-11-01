@@ -7,3 +7,9 @@
 	opacity: 0.8;
 }
 
+.no-text-select {
+	user-select: none;
+	-webkit-user-select: none; /* For WebKit browsers like Chrome and Safari */
+	-moz-user-select: none;    /* For Firefox */
+	-ms-user-select: none;     /* For Internet Explorer/Edge */
+}

@@ -1,4 +1,4 @@
-import { Component, computed, effect, HostListener, inject, input, Signal, signal } from '@angular/core';
+import { AfterViewInit, Component, computed, effect, HostListener, inject, input, Signal, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TimelineService } from '../../services/timeline.service';
 import { Timeline } from '../../model/timeline';
@@ -23,7 +23,7 @@ const DEFAULT_TL_TEXT_STYLE: TextStyle = {
 	templateUrl: './timeline-view.html',
 	styleUrl: './timeline-view.css'
 })
-export class TimelineView {
+export class TimelineView implements AfterViewInit {
 	private layoutService = inject(EventLayoutService);
 
 	// Content
@@ -64,6 +64,7 @@ export class TimelineView {
 
 		effect(() => {
 			this.layoutService.calculateLayout({
+					viewSize: this.viewSize(),
 					axisStartPos: this.axisStartPos(),
 					axisEndPos: this.axisEndPos(),
 					markerSize: this.eventMarkerSize(),
@@ -72,7 +73,13 @@ export class TimelineView {
 				} satisfies EventLayoutFactors,
 				this.timeline()
 			);
+			setTimeout(() => this.layoutService.calculateConnectorPaths(), 0);
 		});
+	}
+
+	ngAfterViewInit(): void {
+		console.log('ngAfterViewInit TimelineView');
+		setTimeout(() => this.layoutService.calculateConnectorPaths(), 0);
 	}
 
 	@HostListener('mousedown', ['$event'])
