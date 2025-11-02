@@ -7,6 +7,7 @@ import { HDateFormat, MDYYYYFormat } from '../../model/historic-date';
 import { TimelineEventView } from '../timeline-event-view/timeline-event-view';
 import { TimelineAxisView } from '../timeline-axis-view/timeline-axis-view';
 import { TimelineEventOverlayView } from '../timeline-event-overlay-view/timeline-event-overlay-view';
+import { TimelineLabelLayoutSelector } from '../timeline-label-layout-selector/timeline-label-layout-selector';
 import { DEFAULT_LINE_STYLE, DEFAULT_TEXT_STYLE, LineStyle, TextStyle } from '../../graphics/gfx-style';
 import { EventLayoutFactors, EventLayoutService } from '../../services/event-layout.service';
 
@@ -19,7 +20,7 @@ const DEFAULT_TL_TEXT_STYLE: TextStyle = {
 
 @Component({
 	selector: 'timeline',
-	imports: [TimelineEventView, TimelineAxisView, TimelineEventOverlayView],
+	imports: [TimelineEventView, TimelineAxisView, TimelineEventOverlayView, TimelineLabelLayoutSelector],
 	templateUrl: './timeline-view.html',
 	styleUrl: './timeline-view.css'
 })
@@ -73,13 +74,13 @@ export class TimelineView implements AfterViewInit {
 				} satisfies EventLayoutFactors,
 				this.timeline()
 			);
-			setTimeout(() => this.layoutService.calculateConnectorPaths(), 0);
+			this.layoutService.calculateConnectorPathsDeferred();
 		});
 	}
 
 	ngAfterViewInit(): void {
 		console.log('ngAfterViewInit TimelineView');
-		setTimeout(() => this.layoutService.calculateConnectorPaths(), 0);
+		this.layoutService.calculateConnectorPathsDeferred();
 	}
 
 	@HostListener('mousedown', ['$event'])

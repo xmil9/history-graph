@@ -1,6 +1,7 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, effect, inject, input, Signal, signal } from '@angular/core';
 import { Point2D, Rect2D } from '../../graphics/gfx-coord-2d';
 import { DEFAULT_LINE_STYLE, DEFAULT_TEXT_STYLE, LineStyle, TextStyle } from '../../graphics/gfx-style';
+import { EventLabelLayoutFormat, EventLayoutService } from '../../services/event-layout.service';
 
 @Component({
   selector: '[tl-axis]',
@@ -8,6 +9,8 @@ import { DEFAULT_LINE_STYLE, DEFAULT_TEXT_STYLE, LineStyle, TextStyle } from '..
   styleUrl: './timeline-axis-view.css'
 })
 export class TimelineAxisView {
+	private layoutService = inject(EventLayoutService);
+
 	// Content
 	startLabel = input.required<string>();
 	endLabel = input.required<string>();
@@ -25,13 +28,25 @@ export class TimelineAxisView {
 		new Point2D(this.endPos().x, this.endPos().y + this.markerLength())
 	)});
 	startLabelPos = computed(() => {
-		return new Point2D(this.startMarker().left - this.textStyle().size / 3, this.startMarker().bottom + 5);
+		return this.calculateLabelPosition(this.startMarker(), this.layoutService.labelLayoutFormat());
 	});
 	endLabelPos = computed(() => {
-		return new Point2D(this.endMarker().left - this.textStyle().size / 3, this.endMarker().bottom + 5);
+		return this.calculateLabelPosition(this.endMarker(), this.layoutService.labelLayoutFormat());
 	});
 
 	// Styling
 	textStyle = input<TextStyle>(DEFAULT_TEXT_STYLE);
 	lineStyle = input<LineStyle>(DEFAULT_LINE_STYLE);
+	get labelRotation(): Signal<number> {
+		return this.layoutService.labelRotation;
+	}
+
+	private calculateLabelPosition(marker: Rect2D, layoutFormat: EventLabelLayoutFormat): Point2D {
+		if (layoutFormat === EventLabelLayoutFormat.Vertical) {
+			return new Point2D(marker.left - this.textStyle().size / 3, marker.bottom + 5);
+		} else {
+			// Todo - calculate position based on text bbox.
+			return new Point2D(marker.left - 17, marker.bottom + 20);
+		}
+	}
 }

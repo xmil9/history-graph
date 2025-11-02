@@ -25,7 +25,7 @@
 		[attr.font-family]="textStyle().font"
 		[attr.font-size]="textStyle().size"
 		[attr.font-weight]="textStyle().weight"
-		[attr.transform]="'rotate(' + textStyle().rotation + ' ' + startLabelPos().x + ' ' + startLabelPos().y + ')'"
+		[attr.transform]="'rotate(' + labelRotation() + ' ' + startLabelPos().x + ' ' + startLabelPos().y + ')'"
 	>{{startLabel()}}</text>
 	<line
 		id="end-marker"
@@ -44,7 +44,7 @@
 		[attr.font-family]="textStyle().font"
 		[attr.font-size]="textStyle().size"
 		[attr.font-weight]="textStyle().weight"
-		[attr.transform]="'rotate(' + textStyle().rotation + ' ' + endLabelPos().x + ' ' + endLabelPos().y + ')'"
+		[attr.transform]="'rotate(' + labelRotation() + ' ' + endLabelPos().x + ' ' + endLabelPos().y + ')'"
 	>{{endLabel()}}</text>
 </svg:g>
 

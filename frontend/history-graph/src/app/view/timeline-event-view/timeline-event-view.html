@@ -10,7 +10,7 @@
 		(mousemove)="onMarkerMouseMove($event)"
 		(mouseleave)="onMarkerMouseLeave()"
 	></g>
-	@if (labelLayoutFormat === EventLabelLayoutFormat.Vertical) {
+	@if (labelLayoutFormat() === EventLabelLayoutFormat.Vertical) {
 		<text
 			class="no-text-select"
 			[attr.x]="labelPos.x" 
@@ -18,10 +18,10 @@
 			[attr.font-family]="textStyle().font"
 			[attr.font-size]="textStyle().size"
 			[attr.font-weight]="textStyle().weight"
-			[attr.transform]="'rotate(' + labelRotation + ' ' + labelPos.x + ' ' + labelPos.y + ')'"
+			[attr.transform]="'rotate(' + labelRotation() + ' ' + labelPos.x + ' ' + labelPos.y + ')'"
 		>{{label()}}</text>
 	}
-	@if (labelLayoutFormat === EventLabelLayoutFormat.Horizontal) {
+	@if (labelLayoutFormat() === EventLabelLayoutFormat.Horizontal) {
 		<text
 			class="no-text-select"
 			[attr.id]="'event-label-' + index()"

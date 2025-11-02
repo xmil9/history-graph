@@ -1,4 +1,4 @@
-import { computed, Injectable, input, signal } from '@angular/core';
+import { computed, Injectable, input, Signal, signal } from '@angular/core';
 import { Timeline } from '../model/timeline';
 import { duration } from '../model/historic-date';
 import { Point2D, Size2D } from '../graphics/gfx-coord-2d';
@@ -176,8 +176,8 @@ function createLabelLayout(layout: EventLabelLayoutFormat): LabelLayout {
 })
 export class EventLayoutService {
 	tlEventPos = signal<Point2D[]>([]);
-	labelLayoutFormat = EventLabelLayoutFormat.Horizontal;
-	private labelLayout: LabelLayout = createLabelLayout(this.labelLayoutFormat);
+	labelLayoutFormat = signal<EventLabelLayoutFormat>(EventLabelLayoutFormat.Horizontal);
+	private labelLayout: LabelLayout = createLabelLayout(this.labelLayoutFormat());
 	private factors = DEFAULT_FACTORS;
 	private timeline?: Timeline;
 
@@ -185,8 +185,8 @@ export class EventLayoutService {
 		return this.labelLayout.labelPositions;
 	}
 
-	get labelRotation(): number {
-		return this.labelLayout.rotation;
+	get labelRotation(): Signal<number> {
+		return computed(() => this.labelLayout.rotation);
 	}
 
 	get labelConnectorPath(): string[] {
@@ -194,9 +194,12 @@ export class EventLayoutService {
 	}
 
 	setLabelLayoutFormat(format: EventLabelLayoutFormat): void {
-		this.labelLayoutFormat = format;
-		this.labelLayout = createLabelLayout(format);
+		this.labelLayoutFormat.set(format);
+		this.labelLayout = createLabelLayout(this.labelLayoutFormat());
 		this.calculateLayout(this.factors, this.timeline);
+
+		// Recalculate connector paths after layout change
+		this.calculateConnectorPathsDeferred();
 	}
 
 	calculateLayout(factors: EventLayoutFactors, timeline?: Timeline): void {
@@ -232,5 +235,12 @@ export class EventLayoutService {
 
 	calculateConnectorPaths(): string[] {
 		return this.labelLayout.calculateConnectorPaths(this.tlEventPos());
+	}
+
+	// Defer connector path calculation to after DOM is ready.
+	calculateConnectorPathsDeferred(): void {
+		setTimeout(() => {
+			this.calculateConnectorPaths();
+		}, 0);
 	}
 }
