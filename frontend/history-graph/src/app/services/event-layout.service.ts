@@ -71,11 +71,12 @@ class HorizontalLabelLayout implements LabelLayout {
 	connectorPaths: string[] = [];
 	// Offset for the first row of labels to avoid overlapping with the axis.
 	private readonly firstRowOffsetY = 20;
+	private readonly lastRowOffsetY = 20;
 
 	calculate(tlEventPos: Point2D[], factors: EventLayoutFactors): void {
 		const tlEventsInView = tlEventPos.filter(pos => this.isInView(pos, factors));
 		const tlEventsInViewCount = tlEventsInView.length;
-		const rowHeight = (factors.viewSize.height - factors.axisStartPos.y - this.firstRowOffsetY) / tlEventsInViewCount;
+		const rowHeight = (factors.viewSize.height - factors.axisStartPos.y - this.firstRowOffsetY - this.lastRowOffsetY) / tlEventsInViewCount;
 
 		this.labelPositions = this.calculateLabelPositions(tlEventPos, factors, rowHeight);
 		// Connector paths are calculated in the component after DOM is ready.

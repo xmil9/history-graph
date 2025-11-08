@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, computed, effect, HostListener, inject, input, Signal, signal } from '@angular/core';
+import { AfterViewInit, Component, computed, effect, ElementRef, HostListener, inject, input, Signal, signal, ViewChild } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TimelineService } from '../../services/timeline.service';
 import { Timeline } from '../../model/timeline';
@@ -26,6 +26,8 @@ const DEFAULT_TL_TEXT_STYLE: TextStyle = {
 })
 export class TimelineView implements AfterViewInit {
 	private layoutService = inject(EventLayoutService);
+	
+	@ViewChild('container', { read: ElementRef }) containerRef!: ElementRef<HTMLDivElement>;
 
 	// Content
 	dateFormat: Signal<HDateFormat> = signal(new MDYYYYFormat('-'));
@@ -41,9 +43,11 @@ export class TimelineView implements AfterViewInit {
 	});
 
 	// Positioning
-	viewSize = signal(new Size2D(1500, 800));
-	axisStartPos = signal(new Point2D(50, 200));
-	axisEndPos = signal(new Point2D(this.viewSize().width - 50, 200));
+	viewSize = signal(new Size2D(0));
+	private readonly axisHOffset = 50;
+	private readonly axisTopOffset = 100;
+	axisStartPos = signal(new Point2D(this.axisHOffset, this.axisTopOffset));
+	axisEndPos = computed(() => new Point2D(this.viewSize().width - this.axisHOffset, this.axisStartPos().y));
 	eventMarkerSize = signal(new Size2D(8));
 
 	getEventPosition(idx: number): Point2D {
@@ -80,7 +84,20 @@ export class TimelineView implements AfterViewInit {
 
 	ngAfterViewInit(): void {
 		console.log('ngAfterViewInit TimelineView');
+		this.updateViewSize();
 		this.layoutService.calculateConnectorPathsDeferred();
+	}
+
+	private updateViewSize(): void {
+		if (this.containerRef?.nativeElement) {
+			const rect = this.containerRef.nativeElement.getBoundingClientRect();
+			this.viewSize.set(new Size2D(rect.width, rect.height));
+		}
+	}
+
+	@HostListener('window:resize')
+	onResize(): void {
+		this.updateViewSize();
 	}
 
 	@HostListener('mousedown', ['$event'])
@@ -114,9 +131,6 @@ export class TimelineView implements AfterViewInit {
 		this.axisStartPos.update(pos =>
 			new Point2D(pos.x + delta.x, pos.y + delta.y)
 		);
-		this.axisEndPos.update(pos =>
-			new Point2D(pos.x + delta.x, pos.y + delta.y)
-		);
 	}
 
 	private zoom(at: Point2D, factor: number): void {
@@ -131,9 +145,6 @@ export class TimelineView implements AfterViewInit {
 
 		this.axisStartPos.update(pos =>
 			new Point2D(centerX + startDelta, pos.y)
-		);
-		this.axisEndPos.update(pos =>
-			new Point2D(centerX + endDelta, pos.y)
 		);
 	}
 }
