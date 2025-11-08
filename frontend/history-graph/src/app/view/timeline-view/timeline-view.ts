@@ -47,7 +47,7 @@ export class TimelineView implements AfterViewInit {
 	private readonly axisHOffset = 50;
 	private readonly axisTopOffset = 100;
 	axisStartPos = signal(new Point2D(this.axisHOffset, this.axisTopOffset));
-	axisEndPos = computed(() => new Point2D(this.viewSize().width - this.axisHOffset, this.axisStartPos().y));
+	axisEndPos = signal(new Point2D(this.viewSize().width - this.axisHOffset, this.axisStartPos().y));
 	eventMarkerSize = signal(new Size2D(8));
 
 	getEventPosition(idx: number): Point2D {
@@ -92,6 +92,7 @@ export class TimelineView implements AfterViewInit {
 		if (this.containerRef?.nativeElement) {
 			const rect = this.containerRef.nativeElement.getBoundingClientRect();
 			this.viewSize.set(new Size2D(rect.width, rect.height));
+			this.axisEndPos.set(new Point2D(this.viewSize().width - this.axisHOffset, this.axisStartPos().y));
 		}
 	}
 
@@ -131,6 +132,9 @@ export class TimelineView implements AfterViewInit {
 		this.axisStartPos.update(pos =>
 			new Point2D(pos.x + delta.x, pos.y + delta.y)
 		);
+		this.axisEndPos.update(pos =>
+			new Point2D(pos.x + delta.x, pos.y + delta.y)
+		);
 	}
 
 	private zoom(at: Point2D, factor: number): void {
@@ -145,6 +149,9 @@ export class TimelineView implements AfterViewInit {
 
 		this.axisStartPos.update(pos =>
 			new Point2D(centerX + startDelta, pos.y)
+		);
+		this.axisEndPos.update(pos =>
+			new Point2D(centerX + endDelta, pos.y)
 		);
 	}
 }
