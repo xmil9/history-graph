@@ -1,6 +1,6 @@
 import { computed, Injectable, Signal, signal } from "@angular/core";
 import { LayoutFormat } from "./layout-types";
-import { Point2D, Rect2D, Size2D } from "../graphics/gfx-coord-2d";
+import { Point2D, Rect2D, Size2D, INVALID_POSITION_SENTINEL } from "../graphics/gfx-coord-2d";
 import { DEFAULT_TEXT_STYLE, TextStyle } from "../graphics/gfx-style";
 
 // External data that affects the layout of events.
@@ -38,6 +38,7 @@ class VerticalAxisLayout implements AxisLayout {
 	startLabelPos: Point2D = new Point2D(0, 0);
 	endLabelPos: Point2D = new Point2D(0, 0);
 	labelRotation: number = 90;
+	private input = DEFAULT_INPUT;
 	// The length of the start and end marker dashes.
 	private readonly markerLength = 10;
 
@@ -58,12 +59,21 @@ class VerticalAxisLayout implements AxisLayout {
 	}
 
 	private calculateLabelPosition(pos: Point2D, marker: Rect2D, input: AxisLayoutInput): Point2D {
+		if (!this.isInDisplay(pos)) {
+			return new Point2D(INVALID_POSITION_SENTINEL, INVALID_POSITION_SENTINEL);
+		}
 		return new Point2D(pos.x - input.textStyle.size / 3, marker.bottom + 5);
+	}
+
+	private isInDisplay(pos: Point2D): boolean {
+		return this.displayBounds.contains(pos);
 	}
 
 	pan(delta: Point2D): void {
 		this.startPos = new Point2D(this.startPos.x + delta.x, this.startPos.y + delta.y);
 		this.endPos = new Point2D(this.endPos.x + delta.x, this.endPos.y + delta.y);
+		this.startLabelPos = this.calculateLabelPosition(this.startPos, this.startMarker, this.input);
+		this.endLabelPos = this.calculateLabelPosition(this.endPos, this.endMarker, this.input);
 	}
 
 	zoom(at: Point2D, factor: number): void {
@@ -84,6 +94,9 @@ class VerticalAxisLayout implements AxisLayout {
 
 		const endDelta = (this.endPos.x - centerX) * factor;
 		this.endPos = new Point2D(centerX + endDelta, this.endPos.y);
+
+		this.startLabelPos = this.calculateLabelPosition(this.startPos, this.startMarker, this.input);
+		this.endLabelPos = this.calculateLabelPosition(this.endPos, this.endMarker, this.input);
 	}
 }
 
@@ -119,7 +132,14 @@ class HorizontalAxisLayout implements AxisLayout {
 	}
 
 	private calculateLabelPosition(pos: Point2D, marker: Rect2D, input: AxisLayoutInput): Point2D {
+		if (!this.isInDisplay(pos)) {
+			return new Point2D(INVALID_POSITION_SENTINEL, INVALID_POSITION_SENTINEL);
+		}
 		return new Point2D(pos.x - 17, marker.bottom + 20);
+	}
+
+	private isInDisplay(pos: Point2D): boolean {
+		return this.displayBounds.contains(pos);
 	}
 
 	pan(delta: Point2D): void {
@@ -162,10 +182,12 @@ class NoneAxisLayout implements AxisLayout {
 	startLabelPos: Point2D = new Point2D(0, 0);
 	endLabelPos: Point2D = new Point2D(0, 0);
 	labelRotation: number = 0;
-	// The length of the start and end marker dashes.
+	private input = DEFAULT_INPUT;
 	private readonly markerLength = 10;
 
 	calculate(input: AxisLayoutInput): void {
+		this.input = input;
+
 		this.displayBounds = Rect2D.fromCoordinates(50, 100, input.viewSize.width - 50, 200);
 		this.startPos = new Point2D(this.displayBounds.left, this.displayBounds.center.y);
 		this.endPos = new Point2D(this.displayBounds.right, this.displayBounds.center.y);
@@ -182,12 +204,21 @@ class NoneAxisLayout implements AxisLayout {
 	}
 
 	private calculateLabelPosition(pos: Point2D, marker: Rect2D, input: AxisLayoutInput): Point2D {
+		if (!this.isInDisplay(pos)) {
+			return new Point2D(INVALID_POSITION_SENTINEL, INVALID_POSITION_SENTINEL);
+		}
 		return new Point2D(pos.x - 17, marker.bottom + 20);
+	}
+
+	private isInDisplay(pos: Point2D): boolean {
+		return this.displayBounds.contains(pos);
 	}
 
 	pan(delta: Point2D): void {
 		this.startPos = new Point2D(this.startPos.x + delta.x, this.startPos.y + delta.y);
 		this.endPos = new Point2D(this.endPos.x + delta.x, this.endPos.y + delta.y);
+		this.startLabelPos = this.calculateLabelPosition(this.startPos, this.startMarker, this.input);
+		this.endLabelPos = this.calculateLabelPosition(this.endPos, this.endMarker, this.input);
 	}
 
 	zoom(at: Point2D, factor: number): void {
@@ -208,6 +239,9 @@ class NoneAxisLayout implements AxisLayout {
 
 		const endDelta = (this.endPos.x - centerX) * factor;
 		this.endPos = new Point2D(centerX + endDelta, this.endPos.y);
+
+		this.startLabelPos = this.calculateLabelPosition(this.startPos, this.startMarker, this.input);
+		this.endLabelPos = this.calculateLabelPosition(this.endPos, this.endMarker, this.input);
 	}
 }
 

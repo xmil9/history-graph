@@ -1,7 +1,7 @@
 import { computed, Injectable, input, Signal, signal } from '@angular/core';
 import { Timeline } from '../model/timeline';
 import { duration } from '../model/historic-date';
-import { Point2D, Size2D } from '../graphics/gfx-coord-2d';
+import { Point2D, Size2D, INVALID_POSITION_SENTINEL } from '../graphics/gfx-coord-2d';
 import { DEFAULT_LINE_STYLE, DEFAULT_TEXT_STYLE, LineStyle, TextStyle } from '../graphics/gfx-style';
 import { LayoutFormat } from './layout-types';
 
@@ -126,7 +126,7 @@ class HorizontalLabelLayout implements LabelLayout {
 				rowY += rowHeight;
 				return new Point2D(rowX, rowY);
 			}
-			return new Point2D(Number.MAX_VALUE, Number.MAX_VALUE);
+			return new Point2D(INVALID_POSITION_SENTINEL, INVALID_POSITION_SENTINEL);
 		});
 	}
 

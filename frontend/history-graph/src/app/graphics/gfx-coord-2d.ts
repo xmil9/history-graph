@@ -1,3 +1,10 @@
+/**
+ * Sentinel value used to indicate an out-of-bounds or invalid position.
+ * This value is large enough to be extremely unlikely as a real coordinate,
+ * but small enough to be valid for SVG parsing (unlike Number.MAX_VALUE).
+ */
+export const INVALID_POSITION_SENTINEL = 1e10; // 10,000,000,000
+
 export class Point2D {
 	constructor(
 		public x: number,
@@ -7,8 +14,8 @@ export class Point2D {
 
 export class Rect2D {
 	constructor(
-		private tr: Point2D,
-		private bl: Point2D,
+		private tl: Point2D,
+		private br: Point2D,
 	) {}
 
 	static fromCoordinates(left: number, top: number, right: number, bottom: number): Rect2D {
@@ -16,50 +23,54 @@ export class Rect2D {
 	}
 
 	get width(): number {
-		return this.bl.x - this.tr.x;
+		return this.br.x - this.tl.x;
 	}
 
 	get height(): number {
-		return this.bl.y - this.tr.y;
+		return this.br.y - this.tl.y;
 	}
 
 	get center(): Point2D {
 		return new Point2D(
-			(this.tr.x + this.bl.x) / 2,
-			(this.tr.y + this.bl.y) / 2,
+			(this.tl.x + this.br.x) / 2,
+			(this.tl.y + this.br.y) / 2,
 		);
 	}
 
 	get top(): number {
-		return this.tr.y;
+		return this.tl.y;
 	}
 
 	get bottom(): number {
-		return this.bl.y;
+		return this.br.y;
 	}
 
 	get left(): number {
-		return this.tr.x;
+		return this.tl.x;
 	}
 
 	get right(): number {
-		return this.bl.x;
+		return this.br.x;
 	}
 
 	get topLeft(): Point2D {
-		return new Point2D(this.tr.x, this.tr.y);
+		return new Point2D(this.tl.x, this.tl.y);
 	}
 
 	get topRight(): Point2D {
-		return new Point2D(this.bl.x, this.tr.y);
+		return new Point2D(this.br.x, this.tl.y);
 	}
 
 	get bottomLeft(): Point2D {
-		return new Point2D(this.tr.x, this.bl.y);
+		return new Point2D(this.tl.x, this.br.y);
 	}
 
 	get bottomRight(): Point2D {
-		return new Point2D(this.bl.x, this.bl.y);
+		return new Point2D(this.br.x, this.br.y);
+	}
+
+	contains(pos: Point2D): boolean {
+		return pos.x >= this.tl.x && pos.x <= this.br.x && pos.y >= this.tl.y && pos.y <= this.br.y;
 	}
 }
 
