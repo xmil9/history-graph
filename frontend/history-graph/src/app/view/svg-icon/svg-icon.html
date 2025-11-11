@@ -1,10 +1,16 @@
-<svg
+<svg xmlns="http://www.w3.org/2000/svg"
 	[attr.x]="x()"
 	[attr.y]="y()"
 	[attr.width]="size().width"
 	[attr.height]="size().height"
-	xmlns="http://www.w3.org/2000/svg"
+	[attr.viewBox]="'0 0 ' + size().width + ' ' + size().height"
+	preserveAspectRatio="xMidYMid meet"
 >
-	<use [attr.xlink:href]="icon()"></use>
+	<image
+		[attr.href]="icon()"
+		[attr.width]="size().width"
+		[attr.height]="size().height"
+		preserveAspectRatio="xMidYMid meet"
+	/>
 </svg>
 

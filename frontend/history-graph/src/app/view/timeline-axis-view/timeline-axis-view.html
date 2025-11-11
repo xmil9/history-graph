@@ -1,6 +1,6 @@
 <svg:g xmlns:svg="http://www.w3.org/2000/svg">
 	<line
-		id="time-axis"
+		id="axis"
 		[attr.x1]="displayBounds().left"
 		[attr.y1]="displayBounds().center.y"
 		[attr.x2]="displayBounds().right"
@@ -9,7 +9,7 @@
 		[attr.stroke-width]="lineStyle().width"
 	/>
 	<line
-		id="start-marker"
+		id="axis-start-marker"
 		[attr.x1]="startMarker().left"
 		[attr.y1]="startMarker().top"
 		[attr.x2]="startMarker().left"
@@ -17,6 +17,14 @@
 		[attr.stroke]="lineStyle().color"
 		[attr.stroke-width]="lineStyle().width"
 	/>
+	<g 
+		svg-icon 
+		class="timeline-start-position"
+		[name]="'tl-start'" 
+		[origin]="SvgIconOrigin.Center" 
+		[position]="startIconPos()" 
+		[size]="markerSize()"
+	></g>
 	<text
 		id="start-text"
 		class="no-text-select"
@@ -27,15 +35,14 @@
 		[attr.font-weight]="textStyle().weight"
 		[attr.transform]="'rotate(' + labelRotation() + ' ' + startLabelPos().x + ' ' + startLabelPos().y + ')'"
 	>{{startLabel()}}</text>
-	<line
-		id="end-marker"
-		[attr.x1]="endMarker().left"
-		[attr.y1]="endMarker().top"
-		[attr.x2]="endMarker().left"
-		[attr.y2]="endMarker().bottom"
-		[attr.stroke]="lineStyle().color"
-		[attr.stroke-width]="lineStyle().width"
-	/>
+	<g 
+		svg-icon 
+		class="timeline-end-position"
+		[name]="'tl-end'" 
+		[origin]="SvgIconOrigin.Center" 
+		[position]="endIconPos()" 
+		[size]="markerSize()"
+	></g>
 	<text
 		id="end-text"
 		class="no-text-select"
@@ -46,5 +53,14 @@
 		[attr.font-weight]="textStyle().weight"
 		[attr.transform]="'rotate(' + labelRotation() + ' ' + endLabelPos().x + ' ' + endLabelPos().y + ')'"
 	>{{endLabel()}}</text>
+	<line
+		id="axis-end-marker"
+		[attr.x1]="endMarker().left"
+		[attr.y1]="endMarker().top"
+		[attr.x2]="endMarker().left"
+		[attr.y2]="endMarker().bottom"
+		[attr.stroke]="lineStyle().color"
+		[attr.stroke-width]="lineStyle().width"
+	/>
 </svg:g>
 
