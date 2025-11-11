@@ -9,7 +9,7 @@
 		/>
 		@if (timeline()?.events) {
 			@for (tlEvent of timeline()!.events; track tlEvent.when; let i = $index) {
-				@if (getEventPosition(i)) {
+				@if (getEventPosition(i) !== undefined) {
 					<g tl-event
 						[tlEvent]="tlEvent"
 						[index]="i"

@@ -54,8 +54,8 @@ export class TimelineView implements AfterViewInit {
 	}
 	eventMarkerSize = signal(new Size2D(8));
 
-	getEventPosition(idx: number): Point2D {
-		return this.layoutService.tlEventPos()[idx];
+	getEventPosition(idx: number): Point2D | undefined {
+		return this.layoutService.getEventPositionInDisplay(idx);
 	}
 
 	// Styling
