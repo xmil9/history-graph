@@ -25,24 +25,35 @@ export class TimelineAxisView {
 	get endPos(): Signal<Point2D> {
 		return this.axisLayoutService.endPos;
 	}
+	get displayBounds(): Signal<Rect2D> {
+		return this.axisLayoutService.displayBounds;
+	}
 	markerLength = input<number>(10);
 	startMarker = computed(() => {
 		return new Rect2D(
-			new Point2D(this.startPos().x, this.startPos().y - this.markerLength()),
-			new Point2D(this.startPos().x, this.startPos().y + this.markerLength())
+			new Point2D(this.displayBounds().left, this.displayBounds().center.y - this.markerLength()),
+			new Point2D(this.displayBounds().left, this.displayBounds().center.y + this.markerLength())
 		);
 	});
 	endMarker = computed(() => {
 		return new Rect2D(
-			new Point2D(this.endPos().x, this.endPos().y - this.markerLength()),
-			new Point2D(this.endPos().x, this.endPos().y + this.markerLength())
+			new Point2D(this.displayBounds().right, this.displayBounds().center.y - this.markerLength()),
+			new Point2D(this.displayBounds().right, this.displayBounds().center.y + this.markerLength())
 		);
 	});
 	startLabelPos = computed(() => {
-		return this.calculateLabelPosition(this.startMarker(), this.eventLayoutService.labelLayoutFormat());
+		return this.calculateLabelPosition(
+			this.startPos(),
+			this.startMarker(),
+			this.eventLayoutService.labelLayoutFormat()
+		);
 	});
 	endLabelPos = computed(() => {
-		return this.calculateLabelPosition(this.endMarker(), this.eventLayoutService.labelLayoutFormat());
+		return this.calculateLabelPosition(
+			this.endPos(),
+			this.endMarker(),
+			this.eventLayoutService.labelLayoutFormat()
+		);
 	});
 
 	// Styling
@@ -53,12 +64,12 @@ export class TimelineAxisView {
 		return this.eventLayoutService.labelRotation;
 	}
 
-	private calculateLabelPosition(marker: Rect2D, layoutFormat: LayoutFormat): Point2D {
+	private calculateLabelPosition(virtualPos: Point2D, marker: Rect2D, layoutFormat: LayoutFormat): Point2D {
 		if (layoutFormat === LayoutFormat.Vertical) {
-			return new Point2D(marker.left - this.textStyle().size / 3, marker.bottom + 5);
+			return new Point2D(virtualPos.x - this.textStyle().size / 3, marker.bottom + 5);
 		} else {
 			// Todo - calculate position based on text bbox.
-			return new Point2D(marker.left - 17, marker.bottom + 20);
+			return new Point2D(virtualPos.x - 17, marker.bottom + 20);
 		}
 	}
 }

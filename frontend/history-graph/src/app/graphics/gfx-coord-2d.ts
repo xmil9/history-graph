@@ -11,6 +11,10 @@ export class Rect2D {
 		private bl: Point2D,
 	) {}
 
+	static fromCoordinates(left: number, top: number, right: number, bottom: number): Rect2D {
+		return new Rect2D(new Point2D(left, top), new Point2D(right, bottom));
+	}
+
 	get width(): number {
 		return this.bl.x - this.tr.x;
 	}

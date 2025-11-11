@@ -1,6 +1,6 @@
 import { computed, Injectable, Signal, signal } from "@angular/core";
 import { LayoutFormat } from "./layout-types";
-import { Point2D, Size2D } from "../graphics/gfx-coord-2d";
+import { Point2D, Rect2D, Size2D } from "../graphics/gfx-coord-2d";
 
 // External data that affects the layout of events.
 export interface AxisLayoutInput {
@@ -14,6 +14,7 @@ const DEFAULT_INPUT: AxisLayoutInput = {
 interface AxisLayout {
 	startPos: Point2D;
 	endPos: Point2D;
+	displayBounds: Rect2D;
 
 	calculate(input: AxisLayoutInput): void;
 	pan(delta: Point2D): void;
@@ -24,15 +25,12 @@ interface AxisLayout {
 class DefaultAxisLayout implements AxisLayout {
 	startPos: Point2D = new Point2D(0, 0);
 	endPos: Point2D = new Point2D(0, 0);
-	static readonly axisHOffset = 50;
-	static readonly axisTopOffset = 100;
+	displayBounds: Rect2D = Rect2D.fromCoordinates(0, 0, 0, 0);
 
 	calculate(input: AxisLayoutInput): void {
-		this.startPos = new Point2D(DefaultAxisLayout.axisHOffset, DefaultAxisLayout.axisTopOffset);
-		this.endPos = new Point2D(
-			input.viewSize.width - DefaultAxisLayout.axisHOffset,
-			DefaultAxisLayout.axisTopOffset
-		);
+		this.displayBounds = Rect2D.fromCoordinates(50, 100, input.viewSize.width - 50, 200);
+		this.startPos = new Point2D(this.displayBounds.left, this.displayBounds.center.y);
+		this.endPos = new Point2D(this.displayBounds.right, this.displayBounds.center.y);
 	}
 
 	pan(delta: Point2D): void {
@@ -66,18 +64,15 @@ class DefaultAxisLayout implements AxisLayout {
 	}
 }
 
-class VerticalAxisLayout implements AxisLayout {
+class HorizontalAxisLayout implements AxisLayout {
 	startPos: Point2D = new Point2D(0, 0);
 	endPos: Point2D = new Point2D(0, 0);
-	static readonly axisHOffset = 50;
-	static readonly axisTopOffset = 100;
+	displayBounds: Rect2D = Rect2D.fromCoordinates(0, 0, 0, 0);
 
 	calculate(input: AxisLayoutInput): void {
-		this.startPos = new Point2D(DefaultAxisLayout.axisHOffset, DefaultAxisLayout.axisTopOffset);
-		this.endPos = new Point2D(
-			input.viewSize.width - DefaultAxisLayout.axisHOffset,
-			DefaultAxisLayout.axisTopOffset
-		);
+		this.displayBounds = Rect2D.fromCoordinates(300, 100, input.viewSize.width - 50, 200);
+		this.startPos = new Point2D(this.displayBounds.left, this.displayBounds.center.y);
+		this.endPos = new Point2D(this.displayBounds.right, this.displayBounds.center.y);
 	}
 
 	pan(delta: Point2D): void {
@@ -113,9 +108,9 @@ class VerticalAxisLayout implements AxisLayout {
 
 function createAxisLayout(format: LayoutFormat): AxisLayout {
 	switch (format) {
-		case LayoutFormat.Vertical:
-			return new VerticalAxisLayout();
 		case LayoutFormat.Horizontal:
+			return new HorizontalAxisLayout();
+			case LayoutFormat.Vertical:
 		case LayoutFormat.None:
 			return new DefaultAxisLayout();
 		default:
@@ -135,6 +130,7 @@ export class AxisLayoutService {
 	
 	private _startPos = signal<Point2D>(new Point2D(0, 0));
 	private _endPos = signal<Point2D>(new Point2D(0, 0));
+	private _displayBounds = signal<Rect2D>(Rect2D.fromCoordinates(0, 0, 0, 0));
 
 	get startPos(): Signal<Point2D> {
 		return this._startPos.asReadonly();
@@ -142,6 +138,10 @@ export class AxisLayoutService {
 
 	get endPos(): Signal<Point2D> {
 		return this._endPos.asReadonly();
+	}
+
+	get displayBounds(): Signal<Rect2D> {
+		return this._displayBounds.asReadonly();
 	}
 
 	setLayoutFormat(format: LayoutFormat): void {
@@ -156,17 +156,27 @@ export class AxisLayoutService {
 		this.axisLayout.calculate(this.input);
 		this._startPos.set(this.axisLayout.startPos);
 		this._endPos.set(this.axisLayout.endPos);
+		this._displayBounds.set(this.axisLayout.displayBounds);
 	}
 
 	pan(delta: Point2D): void {
 		this.axisLayout.pan(delta);
 		this._startPos.set(this.axisLayout.startPos);
 		this._endPos.set(this.axisLayout.endPos);
+		this._displayBounds.set(this.axisLayout.displayBounds);
 	}
 
 	zoom(at: Point2D, factor: number): void {
 		this.axisLayout.zoom(at, factor);
 		this._startPos.set(this.axisLayout.startPos);
 		this._endPos.set(this.axisLayout.endPos);
+		this._displayBounds.set(this.axisLayout.displayBounds);
+	}
+
+	clear(): void {
+		this.axisLayout.clear();
+		this._startPos.set(this.axisLayout.startPos);
+		this._endPos.set(this.axisLayout.endPos);
+		this._displayBounds.set(this.axisLayout.displayBounds);
 	}
 }
