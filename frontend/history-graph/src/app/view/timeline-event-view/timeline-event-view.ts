@@ -45,6 +45,38 @@ export class TimelineEventView implements AfterViewInit {
 	get labelRotation(): Signal<number> {
 		return this.layoutService.labelRotation;
 	}
+	
+	// Get text bounding box for clipping (only for horizontal layout)
+	get textBBox(): { x: number; y: number; width: number; height: number } | null {
+		if (this.layoutFormat() !== LayoutFormat.Horizontal) {
+			return null;
+		}
+		// Get the text element's bounding box
+		const labelElement = document.querySelector(`#event-label-${this.index()}`) as SVGTextElement | null;
+		if (!labelElement) {
+			return null;
+		}
+		try {
+			return labelElement.getBBox();
+		} catch (e) {
+			return null;
+		}
+	}
+	
+	// Check if the connector path extends into the text area (needs masking).
+	get needsMask(): boolean {
+		if (this.layoutFormat() !== LayoutFormat.Horizontal) {
+			return false;
+		}
+		const path = this.labelConnectorPath;
+		if (!path) {
+			return false;
+		}
+		// If the path contains two line-to ('L') commands, it's an L-shaped path that extends horizontally
+		// and might go into the text area, so it needs masking.
+		const lCount = (path.match(/L/g) || []).length;
+		return lCount >= 2;
+	}
 
 	// Styling
 	textStyle = input<TextStyle>(DEFAULT_TEXT_STYLE);

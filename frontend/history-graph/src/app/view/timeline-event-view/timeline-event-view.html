@@ -22,6 +22,7 @@
 		>{{label()}}</text>
 	}
 	@if (layoutFormat() === LayoutFormat.Horizontal) {
+		<!-- Render text first so it exists when mask is evaluated -->
 		<text
 			class="no-text-select"
 			[attr.id]="'event-label-' + index()"
@@ -31,12 +32,29 @@
 			[attr.font-size]="textStyle().size"
 			[attr.font-weight]="textStyle().weight"
 		>{{label()}}</text>
+		<!-- Define mask to exclude text area from connector -->
+		<defs>
+			<mask [attr.id]="'connector-mask-' + index()">
+				<!-- White = visible, Black = hidden -->
+				<rect x="0" y="0" width="10000" height="10000" fill="white"/>
+				@if (textBBox) {
+					<rect
+						[attr.x]="textBBox.x"
+						[attr.y]="textBBox.y"
+						[attr.width]="textBBox.width"
+						[attr.height]="textBBox.height"
+						fill="black"
+					/>
+				}
+			</mask>
+		</defs>
 		<path
 			class="event-connector"
 			[attr.d]="labelConnectorPath"
 			[attr.stroke]="lineStyle().color"
 			[attr.stroke-width]="lineStyle().width"
 			[attr.fill]="'none'"
+			[attr.mask]="needsMask ? 'url(#connector-mask-' + index() + ')' : null"
 		></path>
 	}
 </svg:g>

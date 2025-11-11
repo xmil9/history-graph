@@ -65,7 +65,7 @@ class HorizontalLabelLayout implements LabelLayout {
 	rotation: number = 0;
 	connectorPaths: string[] = [];
 	// Offset for the first row of labels to avoid overlapping with the axis.
-	private readonly firstRowOffsetY = 20;
+	private readonly firstRowOffsetY = 50;
 	private readonly lastRowOffsetY = 20;
 	private readonly labelOffsetX = 50;
 
@@ -94,8 +94,12 @@ class HorizontalLabelLayout implements LabelLayout {
 				const endX = bbox.x + bbox.width + 5;
 				const endY = bbox.y + bbox.height / 2;
 
-				const path = `M ${startX} ${startY} L ${startX} ${endY} L ${endX} ${endY}`;
-				return path;
+				if (endX < startX) {
+					// Label is to the left of marker: draw full L-shaped path.
+					return `M ${startX} ${startY} L ${startX} ${endY} L ${endX} ${endY}`;
+				}
+				// Label is to the right of marker: draw only vertical line.
+				return `M ${startX} ${startY} L ${startX} ${endY - 10}`;
 			} catch (e) {
 				console.warn('Failed to calculate connector path for event ', index, ':', e);
 				return '';
