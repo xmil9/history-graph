@@ -5,7 +5,8 @@ import { HEvent } from '../../model/historic-event';
 import { HDateFormat } from '../../model/historic-date';
 import { SvgIcon, SvgIconOrigin } from '../svg-icon/svg-icon';
 import { EventOverlayService } from '../../services/event-overlay.service';
-import { EventLabelLayoutFormat, EventLayoutService } from '../../services/event-layout.service';
+import { EventLayoutService } from '../../services/event-layout.service';
+import { LayoutFormat } from '../../services/layout-types';
 
 @Component({
   	selector: '[tl-event]',
@@ -19,7 +20,7 @@ export class TimelineEventView implements AfterViewInit {
 
 	// Expose types for template
 	SvgIconOrigin = SvgIconOrigin;
-	EventLabelLayoutFormat = EventLabelLayoutFormat;
+	LayoutFormat = LayoutFormat;
 
 	// Content
 	tlEvent = input.required<HEvent>();
@@ -32,7 +33,7 @@ export class TimelineEventView implements AfterViewInit {
 	// Positioning
 	position = input.required<Point2D>();
 	markerSize = input<Size2D>(new Size2D(8));
-	get labelLayoutFormat(): Signal<EventLabelLayoutFormat> {
+	get layoutFormat(): Signal<LayoutFormat> {
 		return this.layoutService.labelLayoutFormat;
 	}
 	get labelPos(): Point2D {

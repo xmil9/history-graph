@@ -3,10 +3,10 @@ import { Timeline } from '../model/timeline';
 import { duration } from '../model/historic-date';
 import { Point2D, Size2D } from '../graphics/gfx-coord-2d';
 import { DEFAULT_LINE_STYLE, DEFAULT_TEXT_STYLE, LineStyle, TextStyle } from '../graphics/gfx-style';
-
+import { LayoutFormat } from './layout-types';
 
 // External data that affects the layout of events.
-export interface EventLayoutFactors {
+export interface EventLayoutInput {
 	viewSize: Size2D;
 	axisStartPos: Point2D;
 	axisEndPos: Point2D;
@@ -15,7 +15,7 @@ export interface EventLayoutFactors {
 	lineStyle: LineStyle;
 }
 
-const DEFAULT_FACTORS: EventLayoutFactors = {
+const DEFAULT_INPUT: EventLayoutInput = {
 	viewSize: new Size2D(0, 0),
 	axisStartPos: new Point2D(0, 0),
 	axisEndPos: new Point2D(0, 0),
@@ -24,18 +24,12 @@ const DEFAULT_FACTORS: EventLayoutFactors = {
 	lineStyle: DEFAULT_LINE_STYLE,
 };
 
-export enum EventLabelLayoutFormat {
-	None = 'none',
-	Vertical = 'vertical',
-	Horizontal = 'horizontal',
-}
-
 interface LabelLayout {
 	labelPositions: Point2D[];
 	rotation: number;
 	connectorPaths: string[];
 
-	calculate(tlEventPos: Point2D[], factors: EventLayoutFactors): void;
+	calculate(tlEventPos: Point2D[], factors: EventLayoutInput): void;
 	calculateConnectorPaths(tlEventPos: Point2D[]): string[]
 	clear(): void;
 }
@@ -45,7 +39,7 @@ class VerticalLabelLayout implements LabelLayout {
 	rotation: number = 90;
 	connectorPaths: string[] = [];
 
-	calculate(tlEventPos: Point2D[], factors: EventLayoutFactors): void {
+	calculate(tlEventPos: Point2D[], factors: EventLayoutInput): void {
 		this.labelPositions = tlEventPos.map(pos => new Point2D(
 			pos.x - factors.textStyle.size / 3,
 			pos.y + factors.markerSize.height / 2 + 5
@@ -72,11 +66,11 @@ class HorizontalLabelLayout implements LabelLayout {
 	// Offset for the first row of labels to avoid overlapping with the axis.
 	private readonly firstRowOffsetY = 20;
 	private readonly lastRowOffsetY = 20;
+	private readonly labelOffsetX = 50;
 
-	calculate(tlEventPos: Point2D[], factors: EventLayoutFactors): void {
+	calculate(tlEventPos: Point2D[], factors: EventLayoutInput): void {
 		const tlEventsInView = tlEventPos.filter(pos => this.isInView(pos, factors));
-		const tlEventsInViewCount = tlEventsInView.length;
-		const rowHeight = (factors.viewSize.height - factors.axisStartPos.y - this.firstRowOffsetY - this.lastRowOffsetY) / tlEventsInViewCount;
+		const rowHeight = this.calculateRowHeight(factors, tlEventsInView.length);
 
 		this.labelPositions = this.calculateLabelPositions(tlEventPos, factors, rowHeight);
 		// Connector paths are calculated in the component after DOM is ready.
@@ -115,17 +109,17 @@ class HorizontalLabelLayout implements LabelLayout {
 		this.connectorPaths = [];
 	}
 
-	private isInView(pos: Point2D, factors: EventLayoutFactors): boolean {
+	private isInView(pos: Point2D, factors: EventLayoutInput): boolean {
 		return pos.x >= 0 && pos.x <= factors.viewSize.width;
 	}
 
 	private calculateLabelPositions(
 		tlEventPos: Point2D[],
-		factors: EventLayoutFactors,
+		factors: EventLayoutInput,
 		rowHeight: number
 	): Point2D[] {
 		let rowY = factors.axisStartPos.y + this.firstRowOffsetY;
-		const rowX = factors.axisStartPos.x;
+		const rowX = this.labelOffsetX;
 
 		return tlEventPos.map(pos => {
 			if (this.isInView(pos, factors)) {
@@ -136,6 +130,40 @@ class HorizontalLabelLayout implements LabelLayout {
 		});
 	}
 
+	private calculateRowHeight(factors: EventLayoutInput, tlEventsInViewCount: number): number {
+		let rowHeight = (factors.viewSize.height - factors.axisStartPos.y - this.firstRowOffsetY - this.lastRowOffsetY) / tlEventsInViewCount;
+
+		const maxRowHeight = this.estimateTextHeight(factors.textStyle) * 2;
+		if (rowHeight > maxRowHeight) {
+			rowHeight = maxRowHeight;
+		}
+
+		const minRowHeight = 10;
+		if (rowHeight < minRowHeight) {
+			rowHeight = minRowHeight;
+		}
+
+		return rowHeight;
+	}
+
+	private estimateTextHeight(textStyle: TextStyle): number {
+		// Rough estimate.
+		let height = textStyle.size * 1.5;
+
+		// Try to get a more accurate height.
+		const canvas = document.createElement('canvas');
+		const context = canvas.getContext('2d');
+		if (context) {
+			context.font = `${textStyle.size}px ${textStyle.font}`;
+			const metrics = context.measureText('Gg');
+			height = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
+		}
+
+		if (canvas)
+			canvas.remove();
+
+		return height;
+	  }
 }
 
 class NoneLabelLayout implements LabelLayout {
@@ -143,7 +171,7 @@ class NoneLabelLayout implements LabelLayout {
 	rotation: number = 0;
 	connectorPaths: string[] = [];
 
-	calculate(tlEventPos: Point2D[], factors: EventLayoutFactors): void {
+	calculate(tlEventPos: Point2D[], factors: EventLayoutInput): void {
 		this.labelPositions = tlEventPos.map(pos => new Point2D(pos.x, pos.y));
 		this.connectorPaths = [];
 	}
@@ -159,14 +187,16 @@ class NoneLabelLayout implements LabelLayout {
 	}
 }
 
-function createLabelLayout(layout: EventLabelLayoutFormat): LabelLayout {
-	switch (layout) {
-		case EventLabelLayoutFormat.Vertical:
+function createLabelLayout(format: LayoutFormat): LabelLayout {
+	switch (format) {
+		case LayoutFormat.Vertical:
 			return new VerticalLabelLayout();
-		case EventLabelLayoutFormat.Horizontal:
+		case LayoutFormat.Horizontal:
 			return new HorizontalLabelLayout();
-		case EventLabelLayoutFormat.None:
+		case LayoutFormat.None:
 			return new NoneLabelLayout();
+		default:
+			throw new Error(`[EventLayoutService] - Invalid layout format: ${format}`);
 	}
 }
 
@@ -177,9 +207,9 @@ function createLabelLayout(layout: EventLabelLayoutFormat): LabelLayout {
 })
 export class EventLayoutService {
 	tlEventPos = signal<Point2D[]>([]);
-	labelLayoutFormat = signal<EventLabelLayoutFormat>(EventLabelLayoutFormat.Horizontal);
+	labelLayoutFormat = signal<LayoutFormat>(LayoutFormat.Horizontal);
 	private labelLayout: LabelLayout = createLabelLayout(this.labelLayoutFormat());
-	private factors = DEFAULT_FACTORS;
+	private input = DEFAULT_INPUT;
 	private timeline?: Timeline;
 
 	get labelPos(): Point2D[] {
@@ -194,17 +224,17 @@ export class EventLayoutService {
 		return this.labelLayout.connectorPaths;
 	}
 
-	setLabelLayoutFormat(format: EventLabelLayoutFormat): void {
+	setLabelLayoutFormat(format: LayoutFormat): void {
 		this.labelLayoutFormat.set(format);
 		this.labelLayout = createLabelLayout(this.labelLayoutFormat());
-		this.calculateLayout(this.factors, this.timeline);
+		this.calculateLayout(this.input, this.timeline);
 
 		// Recalculate connector paths after layout change
 		this.calculateConnectorPathsDeferred();
 	}
 
-	calculateLayout(factors: EventLayoutFactors, timeline?: Timeline): void {
-		this.factors = factors;
+	calculateLayout(input: EventLayoutInput, timeline?: Timeline): void {
+		this.input = input;
 		this.timeline = timeline;
 
 		if (this.timeline === undefined || this.timeline.events.length === 0) {
@@ -214,21 +244,21 @@ export class EventLayoutService {
 		}
 
 		this.tlEventPos.set(this.calculateEventPositions(this.timeline));
-		this.labelLayout.calculate(this.tlEventPos(), this.factors);
+		this.labelLayout.calculate(this.tlEventPos(), this.input);
 	}
 
 	private calculateEventPositions(timeline: Timeline): Point2D[] {
 		const tlEventPositions: Point2D[] = [];
 
 		const tlDuration = duration(timeline.from, timeline.to);
-		const tlDistance = this.factors.axisEndPos.x - this.factors.axisStartPos.x;
+		const tlDistance = this.input.axisEndPos.x - this.input.axisStartPos.x;
 
 		for (const event of timeline.events) {
 			// Calculate position based on event date relative to timeline range.
 			const eventRatio = duration(timeline.from, event.when) / tlDuration;
-			const eventX = this.factors.axisStartPos.x + (eventRatio * tlDistance);
+			const eventX = this.input.axisStartPos.x + (eventRatio * tlDistance);
 
-			tlEventPositions.push(new Point2D(eventX, this.factors.axisStartPos.y));
+			tlEventPositions.push(new Point2D(eventX, this.input.axisStartPos.y));
 		}
 
 		return tlEventPositions;

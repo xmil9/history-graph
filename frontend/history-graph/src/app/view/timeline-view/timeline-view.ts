@@ -7,9 +7,10 @@ import { HDateFormat, MDYYYYFormat } from '../../model/historic-date';
 import { TimelineEventView } from '../timeline-event-view/timeline-event-view';
 import { TimelineAxisView } from '../timeline-axis-view/timeline-axis-view';
 import { TimelineEventOverlayView } from '../timeline-event-overlay-view/timeline-event-overlay-view';
-import { TimelineLabelLayoutSelector } from '../timeline-label-layout-selector/timeline-label-layout-selector';
+import { TimelineLayoutSelector } from '../timeline-layout-selector/timeline-layout-selector';
 import { DEFAULT_LINE_STYLE, DEFAULT_TEXT_STYLE, LineStyle, TextStyle } from '../../graphics/gfx-style';
-import { EventLayoutFactors, EventLayoutService } from '../../services/event-layout.service';
+import { EventLayoutInput, EventLayoutService } from '../../services/event-layout.service';
+import { AxisLayoutInput, AxisLayoutService } from '../../services/axis-layout.service';
 
 const DEFAULT_TL_TEXT_STYLE: TextStyle = {
 	...DEFAULT_TEXT_STYLE,
@@ -20,12 +21,13 @@ const DEFAULT_TL_TEXT_STYLE: TextStyle = {
 
 @Component({
 	selector: 'timeline',
-	imports: [TimelineEventView, TimelineAxisView, TimelineEventOverlayView, TimelineLabelLayoutSelector],
+	imports: [TimelineEventView, TimelineAxisView, TimelineEventOverlayView, TimelineLayoutSelector],
 	templateUrl: './timeline-view.html',
 	styleUrl: './timeline-view.css'
 })
 export class TimelineView implements AfterViewInit {
 	private layoutService = inject(EventLayoutService);
+	private axisLayoutService = inject(AxisLayoutService);
 	
 	@ViewChild('container', { read: ElementRef }) containerRef!: ElementRef<HTMLDivElement>;
 
@@ -44,10 +46,12 @@ export class TimelineView implements AfterViewInit {
 
 	// Positioning
 	viewSize = signal(new Size2D(0));
-	private readonly axisHOffset = 50;
-	private readonly axisTopOffset = 100;
-	axisStartPos = signal(new Point2D(this.axisHOffset, this.axisTopOffset));
-	axisEndPos = signal(new Point2D(this.viewSize().width - this.axisHOffset, this.axisStartPos().y));
+	get axisStartPos(): Signal<Point2D> {
+		return this.axisLayoutService.startPos;
+	}
+	get axisEndPos(): Signal<Point2D> {
+		return this.axisLayoutService.endPos;
+	}
 	eventMarkerSize = signal(new Size2D(8));
 
 	getEventPosition(idx: number): Point2D {
@@ -68,6 +72,12 @@ export class TimelineView implements AfterViewInit {
 		});
 
 		effect(() => {
+			this.axisLayoutService.calculateLayout({
+				viewSize: this.viewSize(),
+			} satisfies AxisLayoutInput);
+		});
+
+		effect(() => {
 			this.layoutService.calculateLayout({
 					viewSize: this.viewSize(),
 					axisStartPos: this.axisStartPos(),
@@ -75,7 +85,7 @@ export class TimelineView implements AfterViewInit {
 					markerSize: this.eventMarkerSize(),
 					textStyle: this.textStyle(),
 					lineStyle: this.lineStyle(),
-				} satisfies EventLayoutFactors,
+				} satisfies EventLayoutInput,
 				this.timeline()
 			);
 			this.layoutService.calculateConnectorPathsDeferred();
@@ -92,7 +102,6 @@ export class TimelineView implements AfterViewInit {
 		if (this.containerRef?.nativeElement) {
 			const rect = this.containerRef.nativeElement.getBoundingClientRect();
 			this.viewSize.set(new Size2D(rect.width, rect.height));
-			this.axisEndPos.set(new Point2D(this.viewSize().width - this.axisHOffset, this.axisStartPos().y));
 		}
 	}
 
@@ -129,29 +138,10 @@ export class TimelineView implements AfterViewInit {
 	}
 
 	private pan(delta: Point2D): void {
-		this.axisStartPos.update(pos =>
-			new Point2D(pos.x + delta.x, pos.y + delta.y)
-		);
-		this.axisEndPos.update(pos =>
-			new Point2D(pos.x + delta.x, pos.y + delta.y)
-		);
+		this.axisLayoutService.pan(delta);
 	}
 
 	private zoom(at: Point2D, factor: number): void {
-		let centerX = at.x;
-		if (centerX < this.axisStartPos().x) {
-			centerX = this.axisStartPos().x;
-		} else if (centerX > this.axisEndPos().x) {
-			centerX = this.axisEndPos().x;
-		}
-		const startDelta = (this.axisStartPos().x - centerX) * factor;
-		const endDelta = (this.axisEndPos().x - centerX) * factor;
-
-		this.axisStartPos.update(pos =>
-			new Point2D(centerX + startDelta, pos.y)
-		);
-		this.axisEndPos.update(pos =>
-			new Point2D(centerX + endDelta, pos.y)
-		);
+		this.axisLayoutService.zoom(at, factor);
 	}
 }

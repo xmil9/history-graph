@@ -1,9 +1,7 @@
 <div #container class="timeline-container">
-	<tl-label-layout-selector />
+	<tl-layout-selector />
 	<svg [attr.width]="viewSize().width" [attr.height]="viewSize().height" xmlns="http://www.w3.org/2000/svg">
 		<g tl-axis
-			[startPos]="axisStartPos()"
-			[endPos]="axisEndPos()"
 			[startLabel]="startLabel()"
 			[endLabel]="endLabel()"
 			[textStyle]="textStyle()"
