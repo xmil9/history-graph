@@ -74,6 +74,7 @@ export class TimelineView implements AfterViewInit {
 		effect(() => {
 			this.axisLayoutService.calculateLayout({
 				viewSize: this.viewSize(),
+				textStyle: this.textStyle(),
 			} satisfies AxisLayoutInput);
 		});
 
