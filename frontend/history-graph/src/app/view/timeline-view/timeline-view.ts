@@ -26,7 +26,7 @@ const DEFAULT_TL_TEXT_STYLE: TextStyle = {
 	styleUrl: './timeline-view.css'
 })
 export class TimelineView implements AfterViewInit {
-	private layoutService = inject(EventLayoutService);
+	private eventLayoutService = inject(EventLayoutService);
 	private axisLayoutService = inject(AxisLayoutService);
 	
 	@ViewChild('container', { read: ElementRef }) containerRef!: ElementRef<HTMLDivElement>;
@@ -54,10 +54,6 @@ export class TimelineView implements AfterViewInit {
 	}
 	eventMarkerSize = signal(new Size2D(8));
 
-	getEventPosition(idx: number): Point2D | undefined {
-		return this.layoutService.getEventPositionInDisplay(idx);
-	}
-
 	// Styling
 	textStyle = input<TextStyle>(DEFAULT_TL_TEXT_STYLE);
 	lineStyle = input<LineStyle>(DEFAULT_LINE_STYLE);
@@ -79,7 +75,7 @@ export class TimelineView implements AfterViewInit {
 		});
 
 		effect(() => {
-			this.layoutService.calculateLayout({
+			this.eventLayoutService.calculateLayout({
 					viewSize: this.viewSize(),
 					axisStartPos: this.axisStartPos(),
 					axisEndPos: this.axisEndPos(),
@@ -89,14 +85,14 @@ export class TimelineView implements AfterViewInit {
 				} satisfies EventLayoutInput,
 				this.timeline()
 			);
-			this.layoutService.calculateConnectorPathsDeferred();
+			this.eventLayoutService.calculateConnectorPathsDeferred();
 		});
 	}
 
 	ngAfterViewInit(): void {
 		console.log('ngAfterViewInit TimelineView');
 		this.updateViewSize();
-		this.layoutService.calculateConnectorPathsDeferred();
+		this.eventLayoutService.calculateConnectorPathsDeferred();
 	}
 
 	private updateViewSize(): void {

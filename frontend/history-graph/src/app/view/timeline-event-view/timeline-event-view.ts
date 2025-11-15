@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, computed, effect, ElementRef, inject, input, Signal, signal } from '@angular/core';
-import { Point2D, Rect2D, Size2D } from '../../graphics/gfx-coord-2d';
+import { INVALID_POSITION_SENTINEL, Point2D, Rect2D, Size2D } from '../../graphics/gfx-coord-2d';
 import { DEFAULT_LINE_STYLE, DEFAULT_TEXT_STYLE, LineStyle, TextStyle } from '../../graphics/gfx-style';
 import { HEvent } from '../../model/historic-event';
 import { HDateFormat } from '../../model/historic-date';
@@ -31,7 +31,13 @@ export class TimelineEventView implements AfterViewInit {
 	});
 
 	// Positioning
-	position = input.required<Point2D>();
+	get position(): Point2D {
+		const pos = this.layoutService.getEventPositionInDisplay(this.index());
+		if (pos === undefined) {
+			return new Point2D(INVALID_POSITION_SENTINEL, INVALID_POSITION_SENTINEL);
+		}
+		return pos;
+	}
 	markerSize = input<Size2D>(new Size2D(8));
 	get layoutFormat(): Signal<LayoutFormat> {
 		return this.layoutService.labelLayoutFormat;
@@ -40,6 +46,10 @@ export class TimelineEventView implements AfterViewInit {
 		return this.layoutService.labelPos[this.index()];
 	}
 	get labelConnectorPath(): string {
+		const pos = this.layoutService.getEventPositionInDisplay(this.index());
+		if (pos === undefined) {
+			return '';
+		}
 		return this.layoutService.labelConnectorPath[this.index()];
 	}
 	get labelRotation(): Signal<number> {
