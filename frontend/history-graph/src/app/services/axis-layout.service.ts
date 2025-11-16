@@ -23,6 +23,9 @@ interface AxisLayout {
 	startLabelPos: Point2D;
 	endLabelPos: Point2D;
 	labelRotation: number;
+	overviewBounds: Rect2D;
+	overviewAxisBounds: Rect2D;
+	overviewDisplayedBounds: Rect2D;
 
 	calculate(input: AxisLayoutInput): void;
 	pan(delta: Point2D): void;
@@ -38,6 +41,9 @@ class BaseAxisLayout implements AxisLayout {
 	startLabelPos: Point2D = new Point2D(0, 0);
 	endLabelPos: Point2D = new Point2D(0, 0);
 	labelRotation: number = 0;
+	overviewBounds: Rect2D = Rect2D.fromCoordinates(0, 0, 0, 0);
+	overviewAxisBounds: Rect2D = Rect2D.fromCoordinates(0, 0, 0, 0);
+	overviewDisplayedBounds: Rect2D = Rect2D.fromCoordinates(0, 0, 0, 0);
 	protected input = DEFAULT_INPUT;
 	protected readonly markerLength = 10;
 
@@ -51,10 +57,53 @@ class BaseAxisLayout implements AxisLayout {
 		this.endMarker = this.calculateEndMarker(input);
 		this.startLabelPos = this.calculateStartLabelPos(input);
 		this.endLabelPos = this.calculateEndLabelPos(input);
+		this.overviewBounds = this.calculateOverviewBounds(input);
+		this.overviewAxisBounds = this.calculateOverviewAxisBounds(input);
+		this.overviewDisplayedBounds = this.calculateOverviewDisplayedBounds(input);
 	}
 
 	protected calculateDisplayBounds(input: AxisLayoutInput): Rect2D {
-		return Rect2D.fromCoordinates(50, 100, input.viewSize.width - 50, 200);
+		return Rect2D.fromCoordinates(50, 300, input.viewSize.width - 50, 400);
+	}
+
+	protected calculateOverviewBounds(input: AxisLayoutInput): Rect2D {
+		return Rect2D.fromCoordinates(
+			50, 200,
+			input.viewSize.width - 50, 250);
+	}
+
+	protected calculateOverviewAxisBounds(input: AxisLayoutInput): Rect2D {
+		const bounds = this.calculateOverviewBounds(input);
+		return Rect2D.fromCoordinates(
+			bounds.left + this.markerLength, bounds.top, bounds.right - this.markerLength, bounds.bottom);
+	}
+
+	protected calculateOverviewDisplayedBounds(input: AxisLayoutInput): Rect2D {
+		const virtualTimelineWidth = this.endPos.x - this.startPos.x;
+
+		const displayedLeftRatio = (this.startPos.x - this.displayBounds.left) / virtualTimelineWidth;
+		let displayedLeft =
+			this.overviewAxisBounds.left - (displayedLeftRatio * this.overviewAxisBounds.width);
+		if (displayedLeft < this.overviewAxisBounds.left) {
+			displayedLeft = this.overviewAxisBounds.left;
+		}
+		if (displayedLeft > this.overviewAxisBounds.right) {
+			displayedLeft = this.overviewAxisBounds.right;
+		}
+
+		const displayedRightRatio = (this.endPos.x - this.displayBounds.right) / virtualTimelineWidth;
+		let displayedRight =
+			this.overviewAxisBounds.right - (displayedRightRatio * this.overviewAxisBounds.width);
+		if (displayedRight < this.overviewAxisBounds.left) {
+			displayedRight = this.overviewAxisBounds.left;
+		}
+		if (displayedRight > this.overviewAxisBounds.right) {
+			displayedRight = this.overviewAxisBounds.right;
+		}
+
+		return Rect2D.fromCoordinates(
+			displayedLeft, this.overviewAxisBounds.top,
+			displayedRight, this.overviewAxisBounds.bottom);
 	}
 
 	protected calculateStartPos(input: AxisLayoutInput): Point2D {
@@ -107,6 +156,7 @@ class BaseAxisLayout implements AxisLayout {
 		this.endPos = new Point2D(this.endPos.x + delta.x, this.endPos.y + delta.y);
 		this.startLabelPos = this.calculateLabelPosition(this.startPos, this.startMarker, this.input);
 		this.endLabelPos = this.calculateLabelPosition(this.endPos, this.endMarker, this.input);
+		this.overviewDisplayedBounds = this.calculateOverviewDisplayedBounds(this.input);
 	}
 
 	zoom(at: Point2D, factor: number): void {
@@ -130,6 +180,8 @@ class BaseAxisLayout implements AxisLayout {
 
 		this.startLabelPos = this.calculateLabelPosition(this.startPos, this.startMarker, this.input);
 		this.endLabelPos = this.calculateLabelPosition(this.endPos, this.endMarker, this.input);
+
+		this.overviewDisplayedBounds = this.calculateOverviewDisplayedBounds(this.input);
 	}
 }
 
@@ -147,7 +199,13 @@ class VerticalAxisLayout extends BaseAxisLayout {
 class HorizontalAxisLayout extends BaseAxisLayout {
 
 	protected override calculateDisplayBounds(input: AxisLayoutInput): Rect2D {
-		return Rect2D.fromCoordinates(300, 100, input.viewSize.width - 50, 200);
+		return Rect2D.fromCoordinates(300, 300, input.viewSize.width - 50, 400);
+	}
+
+	protected override calculateOverviewBounds(input: AxisLayoutInput): Rect2D {
+		return Rect2D.fromCoordinates(
+			300, 200,
+			input.viewSize.width - 50, 250);
 	}
 }
 
@@ -188,6 +246,13 @@ export class AxisLayoutService {
 	// The position of the start and end marker labels.
 	private _startLabelPos = signal<Point2D>(new Point2D(0, 0));
 	private _endLabelPos = signal<Point2D>(new Point2D(0, 0));
+	// The visible area of the overview.
+	private _overviewBounds = signal<Rect2D>(Rect2D.fromCoordinates(0, 0, 0, 0));
+	// The area of the overview axis. Usually slightly smaller than the overview bounds.
+	private _overviewAxisBounds = signal<Rect2D>(Rect2D.fromCoordinates(0, 0, 0, 0));
+	// The area of the overview axis that is displayed in the timeline.
+	private _overviewDisplayedBounds = signal<Rect2D>(Rect2D.fromCoordinates(0, 0, 0, 0));
+
 
 	get startPos(): Signal<Point2D> {
 		return this._startPos.asReadonly();
@@ -212,6 +277,15 @@ export class AxisLayoutService {
 	}
 	get labelRotation(): Signal<number> {
 		return computed(() => this.axisLayout.labelRotation);
+	}
+	get overviewBounds(): Signal<Rect2D> {
+		return this._overviewBounds.asReadonly();
+	}
+	get overviewAxisBounds(): Signal<Rect2D> {
+		return this._overviewAxisBounds.asReadonly();
+	}
+	get overviewDisplayedBounds(): Signal<Rect2D> {
+		return this._overviewDisplayedBounds.asReadonly();
 	}
 
 	setLayoutFormat(format: LayoutFormat): void {
@@ -244,5 +318,8 @@ export class AxisLayoutService {
 		this._endMarker.set(this.axisLayout.endMarker);
 		this._startLabelPos.set(this.axisLayout.startLabelPos);
 		this._endLabelPos.set(this.axisLayout.endLabelPos);
+		this._overviewBounds.set(this.axisLayout.overviewBounds);
+		this._overviewAxisBounds.set(this.axisLayout.overviewAxisBounds);
+		this._overviewDisplayedBounds.set(this.axisLayout.overviewDisplayedBounds);
 	}
 }

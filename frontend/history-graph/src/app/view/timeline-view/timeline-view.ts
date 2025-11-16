@@ -11,6 +11,7 @@ import { TimelineLayoutSelector } from '../timeline-layout-selector/timeline-lay
 import { DEFAULT_LINE_STYLE, DEFAULT_TEXT_STYLE, LineStyle, TextStyle } from '../../graphics/gfx-style';
 import { EventLayoutInput, EventLayoutService } from '../../services/event-layout.service';
 import { AxisLayoutInput, AxisLayoutService } from '../../services/axis-layout.service';
+import { TimelineOverviewView } from '../timeline-overview-view/timeline-overview-view';
 
 const DEFAULT_TL_TEXT_STYLE: TextStyle = {
 	...DEFAULT_TEXT_STYLE,
@@ -21,7 +22,7 @@ const DEFAULT_TL_TEXT_STYLE: TextStyle = {
 
 @Component({
 	selector: 'timeline',
-	imports: [TimelineEventView, TimelineAxisView, TimelineEventOverlayView, TimelineLayoutSelector],
+	imports: [TimelineOverviewView, TimelineAxisView, TimelineEventView, TimelineEventOverlayView, TimelineLayoutSelector],
 	templateUrl: './timeline-view.html',
 	styleUrl: './timeline-view.css'
 })
