@@ -53,7 +53,6 @@ export class TimelineView implements AfterViewInit {
 	get axisEndPos(): Signal<Point2D> {
 		return this.axisLayoutService.endPos;
 	}
-	eventMarkerSize = signal(new Size2D(8));
 
 	// Styling
 	textStyle = input<TextStyle>(DEFAULT_TL_TEXT_STYLE);
@@ -78,7 +77,6 @@ export class TimelineView implements AfterViewInit {
 		effect(() => {
 			this.eventLayoutService.calculateLayout({
 					viewSize: this.viewSize(),
-					markerSize: this.eventMarkerSize(),
 					textStyle: this.textStyle(),
 					lineStyle: this.lineStyle(),
 				} satisfies EventLayoutInput,

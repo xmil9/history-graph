@@ -41,13 +41,13 @@ export class TimelineOverviewView {
 		return computed(() => new Point2D(this.axisBounds().right, this.axisBounds().center.y));
 	}
 	get markerSize(): Signal<Size2D> {
-		return signal(new Size2D(10));
+		return this.axisLayoutService.overviewMarkerSize;
 	}
 	get overviewEventPos(): Signal<Point2D[]> {
 		return this.eventLayoutService.overviewEventPos;
 	}
-	get eventSize(): Signal<Size2D> {
-		return signal(new Size2D(5));
+	get eventMarkerSize(): Signal<Size2D> {
+		return this.axisLayoutService.overviewEventMarkerSize;
 	}
 
 	// Styling

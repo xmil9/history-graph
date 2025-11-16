@@ -9,14 +9,12 @@ import { AxisLayoutService } from './axis-layout.service';
 // External data that affects the layout of events.
 export interface EventLayoutInput {
 	viewSize: Size2D;
-	markerSize: Size2D;
 	textStyle: TextStyle;
 	lineStyle: LineStyle;
 }
 
 const DEFAULT_INPUT: EventLayoutInput = {
 	viewSize: new Size2D(0, 0),
-	markerSize: new Size2D(8),
 	textStyle: DEFAULT_TEXT_STYLE,
 	lineStyle: DEFAULT_LINE_STYLE,
 };
@@ -39,7 +37,7 @@ class VerticalLabelLayout implements LabelLayout {
 	calculate(tlEventPos: Point2D[], input: EventLayoutInput, axisLayout: AxisLayoutService): void {
 		this.labelPositions = tlEventPos.map(pos => new Point2D(
 			pos.x - input.textStyle.size / 3,
-			pos.y + input.markerSize.height / 2 + 5
+			pos.y + axisLayout.eventMarkerSize().height / 2 + 7
 		));
 		this.connectorPaths = [];
 	}
@@ -207,7 +205,7 @@ function createLabelLayout(format: LayoutFormat): LabelLayout {
 	providedIn: 'root'
 })
 export class EventLayoutService {
-	axisLayoutService = inject(AxisLayoutService);
+	private axisLayoutService = inject(AxisLayoutService);
 
 	tlEventPos = signal<Point2D[]>([]);
 	overviewEventPos = signal<Point2D[]>([]);

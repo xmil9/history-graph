@@ -4,6 +4,8 @@ import { DEFAULT_LINE_STYLE, DEFAULT_TEXT_STYLE, LineStyle, TextStyle } from '..
 import { AxisLayoutService } from '../../services/axis-layout.service';
 import { SvgIcon, SvgIconOrigin } from '../svg-icon/svg-icon';
 
+export const DEFAULT_AXIS_BACKGROUND = '#f8f8f8';
+
 @Component({
   	selector: '[tl-axis]',
 	imports: [SvgIcon],
@@ -21,7 +23,6 @@ export class TimelineAxisView {
 	endLabel = input.required<string>();
 	
 	// Positioning
-	markerSize = signal(new Size2D(16));
 	get startPos(): Signal<Point2D> {
 		return this.axisLayoutService.startPos;
 	}
@@ -49,11 +50,8 @@ export class TimelineAxisView {
 	get displayBounds(): Signal<Rect2D> {
 		return this.axisLayoutService.displayBounds;
 	}
-	get startMarker(): Signal<Rect2D> {
-		return this.axisLayoutService.startMarker;
-	}
-	get endMarker(): Signal<Rect2D> {
-		return this.axisLayoutService.endMarker;
+	get axisMarkerSize(): Signal<Size2D> {
+		return this.axisLayoutService.axisMarkerSize;
 	}
 	get startLabelPos(): Signal<Point2D> {
 		return this.axisLayoutService.startLabelPos;
@@ -65,6 +63,7 @@ export class TimelineAxisView {
 	// Styling
 	textStyle = input<TextStyle>(DEFAULT_TEXT_STYLE);
 	lineStyle = input<LineStyle>(DEFAULT_LINE_STYLE);
+	background = input<string>(DEFAULT_AXIS_BACKGROUND);
 	get labelRotation(): Signal<number> {
 		return this.axisLayoutService.labelRotation;
 	}

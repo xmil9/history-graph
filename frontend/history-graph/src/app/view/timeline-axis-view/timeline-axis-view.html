@@ -1,4 +1,15 @@
 <svg:g xmlns:svg="http://www.w3.org/2000/svg">
+	<rect
+		[attr.x]="displayBounds().left"
+		[attr.y]="displayBounds().top"
+		[attr.width]="displayBounds().width"
+		[attr.height]="displayBounds().height"
+		[attr.fill]="background()"
+		[attr.stroke]="lineStyle().color"
+		stroke-width="0.2"
+		rx="4"
+		ry="4"
+	/>
 	<line
 		id="axis"
 		[attr.x1]="displayBounds().left"
@@ -8,22 +19,13 @@
 		[attr.stroke]="lineStyle().color"
 		[attr.stroke-width]="lineStyle().width"
 	/>
-	<line
-		id="axis-start-marker"
-		[attr.x1]="startMarker().left"
-		[attr.y1]="startMarker().top"
-		[attr.x2]="startMarker().left"
-		[attr.y2]="startMarker().bottom"
-		[attr.stroke]="lineStyle().color"
-		[attr.stroke-width]="lineStyle().width"
-	/>
 	<g 
 		svg-icon 
 		class="timeline-start-position"
 		[name]="'tl-start'" 
 		[origin]="SvgIconOrigin.Center" 
 		[position]="startIconPos()" 
-		[size]="markerSize()"
+		[size]="axisMarkerSize()"
 	></g>
 	<text
 		id="start-text"
@@ -41,7 +43,7 @@
 		[name]="'tl-end'" 
 		[origin]="SvgIconOrigin.Center" 
 		[position]="endIconPos()" 
-		[size]="markerSize()"
+		[size]="axisMarkerSize()"
 	></g>
 	<text
 		id="end-text"
@@ -53,14 +55,5 @@
 		[attr.font-weight]="textStyle().weight"
 		[attr.transform]="'rotate(' + labelRotation() + ' ' + endLabelPos().x + ' ' + endLabelPos().y + ')'"
 	>{{endLabel()}}</text>
-	<line
-		id="axis-end-marker"
-		[attr.x1]="endMarker().left"
-		[attr.y1]="endMarker().top"
-		[attr.x2]="endMarker().left"
-		[attr.y2]="endMarker().bottom"
-		[attr.stroke]="lineStyle().color"
-		[attr.stroke-width]="lineStyle().width"
-	/>
 </svg:g>
 

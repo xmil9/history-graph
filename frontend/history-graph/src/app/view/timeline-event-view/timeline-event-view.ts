@@ -7,6 +7,7 @@ import { SvgIcon, SvgIconOrigin } from '../svg-icon/svg-icon';
 import { EventOverlayService } from '../../services/event-overlay.service';
 import { EventLayoutService } from '../../services/event-layout.service';
 import { LayoutFormat } from '../../services/layout-types';
+import { AxisLayoutService } from '../../services/axis-layout.service';
 
 @Component({
   	selector: '[tl-event]',
@@ -17,6 +18,7 @@ import { LayoutFormat } from '../../services/layout-types';
 export class TimelineEventView implements AfterViewInit {
 	private overlayService = inject(EventOverlayService);
 	private layoutService = inject(EventLayoutService);
+	private axisLayoutService = inject(AxisLayoutService);
 
 	// Expose types for template
 	SvgIconOrigin = SvgIconOrigin;
@@ -38,7 +40,9 @@ export class TimelineEventView implements AfterViewInit {
 		}
 		return pos;
 	}
-	markerSize = input<Size2D>(new Size2D(8));
+	get eventMarkerSize(): Signal<Size2D> {
+		return this.axisLayoutService.eventMarkerSize;
+	}
 	get layoutFormat(): Signal<LayoutFormat> {
 		return this.layoutService.labelLayoutFormat;
 	}
