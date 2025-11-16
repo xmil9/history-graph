@@ -207,8 +207,8 @@ function createLabelLayout(format: LayoutFormat): LabelLayout {
 export class EventLayoutService {
 	private axisLayoutService = inject(AxisLayoutService);
 
-	tlEventPos = signal<Point2D[]>([]);
-	overviewEventPos = signal<Point2D[]>([]);
+	tlEventPositions = signal<Point2D[]>([]);
+	overviewEventPositions = signal<Point2D[]>([]);
 	labelLayoutFormat = signal<LayoutFormat>(LayoutFormat.Horizontal);
 	private labelLayout: LabelLayout = createLabelLayout(this.labelLayoutFormat());
 	private input = DEFAULT_INPUT;
@@ -225,7 +225,7 @@ export class EventLayoutService {
 	}
 
 	getEventPositionInDisplay(index: number): Point2D | undefined {
-		const pos = this.tlEventPos()[index];
+		const pos = this.tlEventPositions()[index];
 		if (pos === undefined) {
 			return undefined;
 		}
@@ -246,15 +246,15 @@ export class EventLayoutService {
 		this.timeline = timeline;
 
 		if (this.timeline === undefined || this.timeline.events.length === 0) {
-			this.tlEventPos.set([]);
+			this.tlEventPositions.set([]);
 			this.labelLayout.clear();
 			return;
 		}
 
-		this.tlEventPos.set(this.calculateEventPositions(this.timeline));
-		this.labelLayout.calculate(this.tlEventPos(), this.input, this.axisLayoutService);
+		this.tlEventPositions.set(this.calculateEventPositions(this.timeline));
+		this.labelLayout.calculate(this.tlEventPositions(), this.input, this.axisLayoutService);
 
-		this.overviewEventPos.set(this.calculateOverviewEventPositions(this.timeline));
+		this.overviewEventPositions.set(this.calculateOverviewEventPositions(this.timeline));
 
 	}
 
@@ -296,7 +296,7 @@ export class EventLayoutService {
 	}
 
 	calculateConnectorPaths(): string[] {
-		return this.labelLayout.calculateConnectorPaths(this.tlEventPos());
+		return this.labelLayout.calculateConnectorPaths(this.tlEventPositions());
 	}
 
 	// Defer connector path calculation to after DOM is ready.

@@ -35,7 +35,7 @@
 		[position]="endPos()" 
 		[size]="markerSize()"
 	></g>
-	@for (eventPos of overviewEventPos(); track eventPos.x; let i = $index) {
+	@for (eventPos of overviewEventPositions(); track eventPos.x; let i = $index) {
 		<g 
 			svg-icon 
 			class="overview-event-position"

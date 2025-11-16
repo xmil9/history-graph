@@ -43,8 +43,8 @@ export class TimelineOverviewView {
 	get markerSize(): Signal<Size2D> {
 		return this.axisLayoutService.overviewMarkerSize;
 	}
-	get overviewEventPos(): Signal<Point2D[]> {
-		return this.eventLayoutService.overviewEventPos;
+	get overviewEventPositions(): Signal<Point2D[]> {
+		return this.eventLayoutService.overviewEventPositions;
 	}
 	get eventMarkerSize(): Signal<Size2D> {
 		return this.axisLayoutService.overviewEventMarkerSize;
