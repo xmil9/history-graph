@@ -78,8 +78,6 @@ export class TimelineView implements AfterViewInit {
 		effect(() => {
 			this.eventLayoutService.calculateLayout({
 					viewSize: this.viewSize(),
-					axisStartPos: this.axisStartPos(),
-					axisEndPos: this.axisEndPos(),
 					markerSize: this.eventMarkerSize(),
 					textStyle: this.textStyle(),
 					lineStyle: this.lineStyle(),
