@@ -47,14 +47,14 @@ export class TimelineEventView implements AfterViewInit {
 		return this.layoutService.labelLayoutFormat;
 	}
 	get labelPos(): Point2D {
-		return this.layoutService.labelPos[this.index()];
+		return this.layoutService.labelPositions[this.index()];
 	}
 	get labelConnectorPath(): string {
 		const pos = this.layoutService.getEventPositionInDisplay(this.index());
 		if (pos === undefined) {
 			return '';
 		}
-		return this.layoutService.labelConnectorPath[this.index()];
+		return this.layoutService.labelConnectorPaths[this.index()];
 	}
 	get labelRotation(): Signal<number> {
 		return this.layoutService.labelRotation;

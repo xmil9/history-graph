@@ -214,13 +214,13 @@ export class EventLayoutService {
 	private input = DEFAULT_INPUT;
 	private timeline?: Timeline;
 
-	get labelPos(): Point2D[] {
+	get labelPositions(): Point2D[] {
 		return this.labelLayout.labelPositions;
 	}
 	get labelRotation(): Signal<number> {
 		return computed(() => this.labelLayout.rotation);
 	}
-	get labelConnectorPath(): string[] {
+	get labelConnectorPaths(): string[] {
 		return this.labelLayout.connectorPaths;
 	}
 
