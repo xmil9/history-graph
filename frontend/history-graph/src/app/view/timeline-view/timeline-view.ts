@@ -61,6 +61,7 @@ export class TimelineView implements AfterViewInit {
 
 	// Interactions
 	private panning = false;
+	private panDeltaStartPos = signal(new Point2D(0, 0));
 	private panStartPos = signal(new Point2D(0, 0));
 
 	constructor(private timelineService: TimelineService) {
@@ -109,14 +110,15 @@ export class TimelineView implements AfterViewInit {
 	onMouseDown(event: MouseEvent): void {
 		this.panning = true;
 		this.panStartPos.set(new Point2D(event.clientX, event.clientY));
+		this.panDeltaStartPos.set(this.panStartPos());
 	}
 
 	@HostListener('mousemove', ['$event'])
 	onMouseMove(event: MouseEvent): void {
 		if (this.panning) {
-			const delta = new Point2D(event.clientX - this.panStartPos().x, 0);
-			this.pan(delta);
-			this.panStartPos.set(new Point2D(event.clientX, event.clientY));
+			const delta = new Point2D(event.clientX - this.panDeltaStartPos().x, 0);
+			this.pan(this.panStartPos(), delta);
+			this.panDeltaStartPos.set(new Point2D(event.clientX, event.clientY));
 		}
 	}
 
@@ -132,8 +134,8 @@ export class TimelineView implements AfterViewInit {
 		this.zoom(new Point2D(event.clientX, event.clientY), zoomFactor);
 	}
 
-	private pan(delta: Point2D): void {
-		this.axisLayoutService.pan(delta);
+	private pan(start: Point2D, delta: Point2D): void {
+		this.axisLayoutService.pan(start, delta);
 	}
 
 	private zoom(at: Point2D, factor: number): void {

@@ -30,7 +30,7 @@ interface AxisLayout {
 	overviewEventMarkerSize: Size2D;
 
 	calculate(input: AxisLayoutInput): void;
-	pan(delta: Point2D): void;
+	pan(start: Point2D, delta: Point2D): void;
 	zoom(at: Point2D, factor: number): void;
 }
 
@@ -49,9 +49,9 @@ class BaseAxisLayout implements AxisLayout {
 	overviewMarkerSize: Size2D = new Size2D(10);
 	overviewEventMarkerSize: Size2D = new Size2D(5);
 	protected input = DEFAULT_INPUT;
-	protected readonly displayMargins = Rect2D.fromCoordinates(50, 300, 50, 0);
-	protected readonly displayHeight = 100;
-	protected readonly overviewMargins = Rect2D.fromCoordinates(50, 275, 50, 0);
+	protected readonly displayMargins = Rect2D.fromCoordinates(50, 150, 50, 0);
+	protected readonly displayHeight = 150;
+	protected readonly overviewMargins = Rect2D.fromCoordinates(50, 125, 50, 0);
 	protected readonly overviewHeight = 20;
 
 	calculate(input: AxisLayoutInput): void {
@@ -138,17 +138,25 @@ class BaseAxisLayout implements AxisLayout {
 	}
 
 	protected calculateLabelPosition(pos: Point2D, input: AxisLayoutInput): Point2D {
-		if (!this.isInDisplay(pos)) {
+		if (!this.isInAxisView(pos)) {
 			return new Point2D(INVALID_POSITION_SENTINEL, INVALID_POSITION_SENTINEL);
 		}
 		return new Point2D(pos.x - 15, pos.y + this.overviewMarkerSize.height / 2 + 20);
 	}
 
-	protected isInDisplay(pos: Point2D): boolean {
+	protected isInAxisView(pos: Point2D): boolean {
 		return this.displayBounds.contains(pos);
 	}
 
-	pan(delta: Point2D): void {
+	protected isInOverviewView(pos: Point2D): boolean {
+		return this.overviewBounds.contains(pos);
+	}
+
+	pan(start: Point2D, delta: Point2D): void {
+		if (!this.isInAxisView(start) && !this.isInOverviewView(start)) {
+			return;
+		}
+
 		this.startPos = new Point2D(this.startPos.x + delta.x, this.startPos.y + delta.y);
 		this.endPos = new Point2D(this.endPos.x + delta.x, this.endPos.y + delta.y);
 		this.startLabelPos = this.calculateLabelPosition(this.startPos, this.input);
@@ -157,8 +165,7 @@ class BaseAxisLayout implements AxisLayout {
 	}
 
 	zoom(at: Point2D, factor: number): void {
-		const zoomAreaOffsetY = 50;
-		if (at.y > this.startPos.y + zoomAreaOffsetY || at.y < this.endPos.y - zoomAreaOffsetY) {
+		if (!this.isInAxisView(at) && !this.isInOverviewView(at)) {
 			return;
 		}
 
@@ -186,7 +193,7 @@ class VerticalAxisLayout extends BaseAxisLayout {
 	override labelRotation: number = 90;
 
 	protected override calculateLabelPosition(pos: Point2D, input: AxisLayoutInput): Point2D {
-		if (!super.isInDisplay(pos)) {
+		if (!super.isInAxisView(pos)) {
 			return new Point2D(INVALID_POSITION_SENTINEL, INVALID_POSITION_SENTINEL);
 		}
 		return new Point2D(pos.x - 5, pos.y + this.overviewMarkerSize.height / 2 + 7);
@@ -310,8 +317,8 @@ export class AxisLayoutService {
 		this.updateSignals();
 	}
 
-	pan(delta: Point2D): void {
-		this.axisLayout.pan(delta);
+	pan(start: Point2D, delta: Point2D): void {
+		this.axisLayout.pan(start, delta);
 		this.updateSignals();
 	}
 

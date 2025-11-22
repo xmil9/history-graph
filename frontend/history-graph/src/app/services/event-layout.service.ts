@@ -59,7 +59,7 @@ class HorizontalLabelLayout implements LabelLayout {
 	rotation: number = 0;
 	connectorPaths: string[] = [];
 	// Offset for the first row of labels to avoid overlapping with the axis.
-	private readonly firstRowOffsetY = 50;
+	private readonly firstRowOffsetY = 75;
 	private readonly lastRowOffsetY = 20;
 	private readonly labelOffsetX = 50;
 
