@@ -5,11 +5,20 @@ import { AxisLayoutService } from '../../services/axis-layout.service';
 import { LineStyle } from '../../graphics/gfx-style';
 import { EventLayoutService } from '../../services/event-layout.service';
 
+export const DEFAULT_OVERVIEW_BACKGROUND = '#d0d0d0';
 export const DEFAULT_OVERVIEW_LINE_STYLE: LineStyle = {
 	color: '#333333',
 	width: 1
 };
-export const DEFAULT_OVERVIEW_BACKGROUND = '#f8f8f8';
+
+export const DEFAULT_OVERVIEW_DISPLAYED_BACKGROUND = '#f8f8f8';
+export const DEFAULT_OVERVIEW_DISPLAYED_LINE_STYLE: LineStyle = {
+	color: DEFAULT_OVERVIEW_BACKGROUND,
+	width: 0.2
+};
+
+export const NON_DISPLAYED_ICON_OPACITY = 0.6;
+export const DISPLAYED_ICON_OPACITY = 0.9;
 
 @Component({
   selector: '[tl-overview]',
@@ -53,4 +62,27 @@ export class TimelineOverviewView {
 	// Styling
 	lineStyle = input<LineStyle>(DEFAULT_OVERVIEW_LINE_STYLE);
 	background = input<string>(DEFAULT_OVERVIEW_BACKGROUND);
+	displayedBackground = input<string>(DEFAULT_OVERVIEW_DISPLAYED_BACKGROUND);
+	displayedLineStyle = input<LineStyle>(DEFAULT_OVERVIEW_DISPLAYED_LINE_STYLE);
+	
+	get startIconOpacity(): number {
+		if (this.axisLayoutService.displayBounds().contains(this.axisLayoutService.startPos())) {
+			return DISPLAYED_ICON_OPACITY;
+		}
+		return NON_DISPLAYED_ICON_OPACITY;
+	}
+	get endIconOpacity(): number {
+		if (this.axisLayoutService.displayBounds().contains(this.axisLayoutService.endPos())) {
+			return DISPLAYED_ICON_OPACITY;
+		}
+		return NON_DISPLAYED_ICON_OPACITY;
+	}
+
+	getEventIconOpacity(index: number): number {
+		const pos = this.eventLayoutService.getEventPositionInDisplay(index);
+		if (pos !== undefined) {
+			return DISPLAYED_ICON_OPACITY;
+		}
+		return NON_DISPLAYED_ICON_OPACITY;
+	}
 }	

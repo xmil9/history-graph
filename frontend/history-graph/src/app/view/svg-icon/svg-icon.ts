@@ -27,5 +27,5 @@ export class SvgIcon {
 	y = computed(() => {
 		return this.origin() === SvgIconOrigin.TopLeft ? this.position().y : this.position().y - this.size().height / 2;
 	});
+	opacity = input<number>(1.0);
 }
-

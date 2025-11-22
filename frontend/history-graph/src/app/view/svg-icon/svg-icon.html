@@ -4,12 +4,14 @@
 	[attr.width]="size().width"
 	[attr.height]="size().height"
 	[attr.viewBox]="'0 0 ' + size().width + ' ' + size().height"
+	[attr.opacity]="opacity()"
 	preserveAspectRatio="xMidYMid meet"
->
+	>
 	<image
 		[attr.href]="icon()"
 		[attr.width]="size().width"
 		[attr.height]="size().height"
+		[attr.opacity]="opacity()"
 		preserveAspectRatio="xMidYMid meet"
 	/>
 </svg>
