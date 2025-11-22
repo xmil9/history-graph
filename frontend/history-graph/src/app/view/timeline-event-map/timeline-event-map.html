@@ -1,0 +1,41 @@
+<svg:g xmlns:svg="http://www.w3.org/2000/svg">
+	@if (axisStartPos()) {
+		<line
+			id="start-mapping"
+			[attr.x1]="overviewStartPos().x"
+			[attr.y1]="overviewStartPos().y"
+			[attr.x2]="axisStartPos()!.x"
+			[attr.y2]="axisStartPos()!.y"
+			[attr.stroke]="lineStyle().color"
+			[attr.stroke-width]="lineStyle().width"
+			[attr.opacity]="opacity()"
+		/>
+	}
+	@for (overviewEventPos of overviewEventPositions(); track overviewEventPos.x; let i = $index) {
+		@let tlEventPos = getEventPositionsInView(i);
+		@if (tlEventPos) {
+			<line
+				id="event-mapping"
+				[attr.x1]="overviewEventPos.x"
+				[attr.y1]="overviewEventPos.y"
+				[attr.x2]="tlEventPos.x"
+				[attr.y2]="tlEventPos.y"
+				[attr.stroke]="lineStyle().color"
+				[attr.stroke-width]="lineStyle().width"
+				[attr.opacity]="opacity()"
+			/>
+		}
+	}
+	@if (axisEndPos()) {
+		<line
+			id="end-mapping"
+			[attr.x1]="overviewEndPos().x"
+			[attr.y1]="overviewEndPos().y"
+			[attr.x2]="axisEndPos()!.x"
+			[attr.y2]="axisEndPos()!.y"
+			[attr.stroke]="lineStyle().color"
+			[attr.stroke-width]="lineStyle().width"
+			[attr.opacity]="opacity()"
+		/>
+	}
+</svg:g>

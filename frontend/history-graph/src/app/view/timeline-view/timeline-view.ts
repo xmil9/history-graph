@@ -12,6 +12,7 @@ import { DEFAULT_LINE_STYLE, DEFAULT_TEXT_STYLE, LineStyle, TextStyle } from '..
 import { EventLayoutInput, EventLayoutService } from '../../services/event-layout.service';
 import { AxisLayoutInput, AxisLayoutService } from '../../services/axis-layout.service';
 import { TimelineOverviewView } from '../timeline-overview-view/timeline-overview-view';
+import { TimelineEventMap } from '../timeline-event-map/timeline-event-map';
 
 const DEFAULT_TL_TEXT_STYLE: TextStyle = {
 	...DEFAULT_TEXT_STYLE,
@@ -22,7 +23,7 @@ const DEFAULT_TL_TEXT_STYLE: TextStyle = {
 
 @Component({
 	selector: 'timeline',
-	imports: [TimelineOverviewView, TimelineAxisView, TimelineEventView, TimelineEventOverlayView, TimelineLayoutSelector],
+	imports: [TimelineOverviewView, TimelineAxisView, TimelineEventView, TimelineEventOverlayView, TimelineLayoutSelector, TimelineEventMap],
 	templateUrl: './timeline-view.html',
 	styleUrl: './timeline-view.css'
 })
