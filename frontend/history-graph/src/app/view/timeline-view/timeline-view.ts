@@ -31,13 +31,13 @@ const DEFAULT_TL_TEXT_STYLE: TextStyle = {
 export class TimelineView implements AfterViewInit {
 	private eventLayoutService = inject(EventLayoutService);
 	private axisLayoutService = inject(AxisLayoutService);
-	
+
 	@ViewChild('container', { read: ElementRef }) containerRef!: ElementRef<HTMLDivElement>;
 
 	// Content
 	dateFormat: Signal<HDateFormat> = signal(new MDYYYYFormat('-'));
 	timeline: Signal<Timeline | undefined>;
-	
+
 	startLabel = computed(() => {
 		const timeline = this.timeline();
 		return timeline ? this.dateFormat().format(timeline.from) : '';
@@ -79,20 +79,19 @@ export class TimelineView implements AfterViewInit {
 
 		effect(() => {
 			this.eventLayoutService.calculateLayout({
-					viewSize: this.viewSize(),
-					textStyle: this.textStyle(),
-					lineStyle: this.lineStyle(),
-				} satisfies EventLayoutInput,
+				viewSize: this.viewSize(),
+				textStyle: this.textStyle(),
+				lineStyle: this.lineStyle(),
+				dateFormat: this.dateFormat(),
+			} satisfies EventLayoutInput,
 				this.timeline()
 			);
-			this.eventLayoutService.calculateConnectorPathsDeferred();
 		});
 	}
 
 	ngAfterViewInit(): void {
 		console.log('ngAfterViewInit TimelineView');
 		this.updateViewSize();
-		this.eventLayoutService.calculateConnectorPathsDeferred();
 	}
 
 	private updateViewSize(): void {

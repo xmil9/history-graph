@@ -1,31 +1,37 @@
 import { computed, inject, Injectable, input, Signal, signal } from '@angular/core';
 import { Timeline } from '../model/timeline';
-import { duration } from '../model/historic-date';
+import { duration, HDateFormat, MDYYYYFormat } from '../model/historic-date';
 import { Point2D, Size2D, INVALID_POSITION_SENTINEL, Rect2D } from '../graphics/gfx-coord-2d';
 import { DEFAULT_LINE_STYLE, DEFAULT_TEXT_STYLE, LineStyle, TextStyle } from '../graphics/gfx-style';
 import { LayoutFormat } from './layout-types';
 import { AxisLayoutService } from './axis-layout.service';
+import { HEvent } from '../model/historic-event';
 
 // External data that affects the layout of events.
 export interface EventLayoutInput {
 	viewSize: Size2D;
 	textStyle: TextStyle;
 	lineStyle: LineStyle;
+	dateFormat: HDateFormat;
 }
 
 const DEFAULT_INPUT: EventLayoutInput = {
 	viewSize: new Size2D(0, 0),
 	textStyle: DEFAULT_TEXT_STYLE,
 	lineStyle: DEFAULT_LINE_STYLE,
+	dateFormat: new MDYYYYFormat('-'),
 };
+
+function formatLabel(tlEvent: HEvent, dateFormat: HDateFormat): string {
+	return dateFormat.format(tlEvent.when) + ' - ' + tlEvent.label;
+}
 
 interface LabelLayout {
 	labelPositions: Point2D[];
 	rotation: number;
 	connectorPaths: string[];
 
-	calculate(tlEventPos: Point2D[], input: EventLayoutInput, axisLayout: AxisLayoutService): void;
-	calculateConnectorPaths(tlEventPos: Point2D[]): string[]
+	calculate(tlEventPos: Point2D[], input: EventLayoutInput, axisLayout: AxisLayoutService, timeline: Timeline): void;
 	clear(): void;
 }
 
@@ -34,17 +40,12 @@ class VerticalLabelLayout implements LabelLayout {
 	rotation: number = 90;
 	connectorPaths: string[] = [];
 
-	calculate(tlEventPos: Point2D[], input: EventLayoutInput, axisLayout: AxisLayoutService): void {
+	calculate(tlEventPos: Point2D[], input: EventLayoutInput, axisLayout: AxisLayoutService, timeline: Timeline): void {
 		this.labelPositions = tlEventPos.map(pos => new Point2D(
 			pos.x - input.textStyle.size / 3,
 			pos.y + axisLayout.eventMarkerSize().height / 2 + 7
 		));
 		this.connectorPaths = [];
-	}
-
-	calculateConnectorPaths(tlEventPos: Point2D[]): string[] {
-		// Nothing to do for vertical label layout.
-		return this.connectorPaths;
 	}
 
 	clear(): void {
@@ -63,43 +64,54 @@ class HorizontalLabelLayout implements LabelLayout {
 	private readonly lastRowOffsetY = 20;
 	private readonly labelOffsetX = 50;
 
-	calculate(tlEventPos: Point2D[], input: EventLayoutInput, axisLayout: AxisLayoutService): void {
+	calculate(tlEventPos: Point2D[], input: EventLayoutInput, axisLayout: AxisLayoutService, timeline: Timeline): void {
 		const tlEventsInView = tlEventPos.filter(pos => axisLayout.displayBounds().contains(pos));
 		const rowHeight = this.calculateRowHeight(input, axisLayout, tlEventsInView.length);
 
 		this.labelPositions = this.calculateLabelPositions(tlEventPos, input, axisLayout, rowHeight);
-		// Connector paths are calculated later once the DOM is ready.
-		// So we initialize them as empty strings.
-		this.connectorPaths = tlEventPos.map(() => '');
+		this.connectorPaths = this.calculateConnectorPaths(tlEventPos, this.labelPositions, input, timeline);
 	}
 
-	calculateConnectorPaths(tlEventPos: Point2D[]): string[] {
-		this.connectorPaths = tlEventPos.map((markerPos, index) => {
-			// Find the label text element
-			const labelElement = document.querySelector(`#event-label-${index}`) as SVGTextElement | null;
-			if (!labelElement) {
+	private calculateConnectorPaths(
+		tlEventPos: Point2D[],
+		labelPositions: Point2D[],
+		input: EventLayoutInput,
+		timeline: Timeline
+	): string[] {
+		const canvas = document.createElement('canvas');
+		const context = canvas.getContext('2d');
+		if (!context) return tlEventPos.map(() => '');
+
+		context.font = `${input.textStyle.weight} ${input.textStyle.size}px ${input.textStyle.font}`;
+
+		const paths = tlEventPos.map((markerPos, index) => {
+			const labelPos = labelPositions[index];
+			if (labelPos.x === INVALID_POSITION_SENTINEL) {
 				return '';
 			}
 
-			try {
-				const bbox = labelElement.getBBox();
-				const startX = markerPos.x;
-				const startY = markerPos.y;
-				const endX = bbox.x + bbox.width + 5;
-				const endY = bbox.y + bbox.height / 2;
+			const event = timeline.events[index];
+			const labelText = formatLabel(event, input.dateFormat);
+			const textMetrics = context.measureText(labelText);
+			const textWidth = textMetrics.width;
+			const textHeight = input.textStyle.size; // Approximation usually sufficient for vertical center
 
-				if (endX < startX) {
-					// Label is to the left of marker: draw full L-shaped path.
-					return `M ${startX} ${startY} L ${startX} ${endY} L ${endX} ${endY}`;
-				}
-				// Label is to the right of marker: draw only vertical line.
-				return `M ${startX} ${startY} L ${startX} ${endY - 10}`;
-			} catch (e) {
-				console.warn('Failed to calculate connector path for event ', index, ':', e);
-				return '';
+			const startX = markerPos.x;
+			const startY = markerPos.y;
+			// We want to connect to the right-center side of the text.
+			const endX = labelPos.x + textWidth + 5;
+			const endY = labelPos.y - textHeight / 3;
+
+			if (endX < startX) {
+				// Label is to the left of marker: draw full L-shaped path.
+				return `M ${startX} ${startY} L ${startX} ${endY} L ${endX} ${endY}`;
 			}
+			// Label is to the right of marker: draw only vertical line to the top of the text.
+			return `M ${startX} ${startY} L ${startX} ${endY - 10}`;
 		});
-		return this.connectorPaths;
+
+		canvas.remove();
+		return paths;
 	}
 
 	clear(): void {
@@ -170,14 +182,9 @@ class NoneLabelLayout implements LabelLayout {
 	rotation: number = 0;
 	connectorPaths: string[] = [];
 
-	calculate(tlEventPos: Point2D[], input: EventLayoutInput, axisLayout: AxisLayoutService): void {
+	calculate(tlEventPos: Point2D[], input: EventLayoutInput, axisLayout: AxisLayoutService, timeline: Timeline): void {
 		this.labelPositions = tlEventPos.map(pos => new Point2D(pos.x, pos.y));
 		this.connectorPaths = [];
-	}
-
-	calculateConnectorPaths(tlEventPos: Point2D[]): string[] {
-		// Nothing to do for none label layout.
-		return this.connectorPaths;
 	}
 
 	clear(): void {
@@ -236,9 +243,6 @@ export class EventLayoutService {
 		this.labelLayoutFormat.set(format);
 		this.labelLayout = createLabelLayout(this.labelLayoutFormat());
 		this.calculateLayout(this.input, this.timeline);
-
-		// Recalculate connector paths after layout change
-		this.calculateConnectorPathsDeferred();
 	}
 
 	calculateLayout(input: EventLayoutInput, timeline?: Timeline): void {
@@ -252,7 +256,7 @@ export class EventLayoutService {
 		}
 
 		this.tlEventPositions.set(this.calculateEventPositions(this.timeline));
-		this.labelLayout.calculate(this.tlEventPositions(), this.input, this.axisLayoutService);
+		this.labelLayout.calculate(this.tlEventPositions(), this.input, this.axisLayoutService, this.timeline);
 
 		this.overviewEventPositions.set(this.calculateOverviewEventPositions(this.timeline));
 
@@ -295,14 +299,7 @@ export class EventLayoutService {
 		return overviewEventPositions;
 	}
 
-	calculateConnectorPaths(): string[] {
-		return this.labelLayout.calculateConnectorPaths(this.tlEventPositions());
-	}
-
-	// Defer connector path calculation to after DOM is ready.
-	calculateConnectorPathsDeferred(): void {
-		setTimeout(() => {
-			this.calculateConnectorPaths();
-		}, 0);
+	formatLabel(tlEvent: HEvent): string {
+		return formatLabel(tlEvent, this.input.dateFormat);
 	}
 }
