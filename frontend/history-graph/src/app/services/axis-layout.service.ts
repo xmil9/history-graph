@@ -49,9 +49,9 @@ class BaseAxisLayout implements AxisLayout {
 	overviewMarkerSize: Size2D = new Size2D(10);
 	overviewEventMarkerSize: Size2D = new Size2D(5);
 	protected input = DEFAULT_INPUT;
-	protected readonly displayMargins = Rect2D.fromCoordinates(50, 150, 50, 0);
+	protected readonly displayMargins = Rect2D.fromCoordinates(50, 50, 50, 0);
 	protected readonly displayHeight = 150;
-	protected readonly overviewMargins = Rect2D.fromCoordinates(50, 125, 50, 0);
+	protected readonly overviewMargins = Rect2D.fromCoordinates(50, 25, 50, 0);
 	protected readonly overviewHeight = 20;
 
 	calculate(input: AxisLayoutInput): void {
@@ -153,8 +153,14 @@ class BaseAxisLayout implements AxisLayout {
 	}
 
 	pan(start: Point2D, delta: Point2D): void {
-		if (!this.isInAxisView(start) && !this.isInOverviewView(start)) {
+		const isInOverview = this.isInOverviewView(start);
+		if (!this.isInAxisView(start) && !isInOverview) {
 			return;
+		}
+
+		if (isInOverview) {
+			const acceleration = -10;
+			delta = new Point2D(acceleration * delta.x, acceleration * delta.y);
 		}
 
 		this.startPos = new Point2D(this.startPos.x + delta.x, this.startPos.y + delta.y);

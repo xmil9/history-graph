@@ -1,0 +1,20 @@
+@if (timeline()) {
+	<div class="timeline-header">
+		<div class="header-content">
+			<h1 class="timeline-title">{{ timeline()!.title }}</h1>
+			<div class="timeline-info">
+				<div class="info-item">
+					<span class="info-label">Period:</span>
+					<span class="info-value">{{ dateFormat().format(timeline()!.from) }} - {{ dateFormat().format(timeline()!.to) }}</span>
+				</div>
+				@if (timeline()?.events) {
+					<div class="info-item">
+						<span class="info-label">Events:</span>
+						<span class="info-value">{{ timeline()!.events!.length }}</span>
+					</div>
+				}
+			</div>
+		</div>
+	</div>
+}
+

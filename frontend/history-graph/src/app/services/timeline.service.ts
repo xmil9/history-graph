@@ -9,7 +9,7 @@ import { HEvent } from '../model/historic-event';
 })
 export class TimelineService {
 	private timelineSubject = new BehaviorSubject<Timeline>(
-		new Timeline(new HPeriod(new HDate(1000), new HDate(2000)), [
+		new Timeline('England', new HPeriod(new HDate(1000), new HDate(2000)), [
 			new HEvent(new HDate(1066, 10, 14), 'Battle of Hastings', 'The Battle of Hastings was a decisive battle in the history of England. It was fought between the English and the Norman French, and resulted in the Norman Conquest of England.'),
 			new HEvent(new HPeriod(new HDate(1337), new HDate(1453)), 'Hundred Years\' War', 'The Hundred Years\' War was a series of conflicts between England and France, lasting from 1337 to 1453. It was fought over the issue of succession to the French throne.'),
 			new HEvent(new HPeriod(new HDate(1455), new HDate(1487)), 'War of the Roses', 'The War of the Roses was a series of conflicts between the House of York and the House of Lancaster, lasting from 1455 to 1487. It was fought over the issue of succession to the English throne.'),

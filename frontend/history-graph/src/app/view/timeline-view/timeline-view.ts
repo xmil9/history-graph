@@ -13,6 +13,7 @@ import { EventLayoutInput, EventLayoutService } from '../../services/event-layou
 import { AxisLayoutInput, AxisLayoutService } from '../../services/axis-layout.service';
 import { TimelineOverviewView } from '../timeline-overview-view/timeline-overview-view';
 import { TimelineEventMap } from '../timeline-event-map/timeline-event-map';
+import { TimelineHeader } from '../timeline-header/timeline-header';
 
 const DEFAULT_TL_TEXT_STYLE: TextStyle = {
 	...DEFAULT_TEXT_STYLE,
@@ -23,7 +24,7 @@ const DEFAULT_TL_TEXT_STYLE: TextStyle = {
 
 @Component({
 	selector: 'timeline',
-	imports: [TimelineOverviewView, TimelineAxisView, TimelineEventView, TimelineEventOverlayView, TimelineLayoutSelector, TimelineEventMap],
+	imports: [TimelineOverviewView, TimelineAxisView, TimelineEventView, TimelineEventOverlayView, TimelineLayoutSelector, TimelineEventMap, TimelineHeader],
 	templateUrl: './timeline-view.html',
 	styleUrl: './timeline-view.css'
 })
@@ -109,16 +110,16 @@ export class TimelineView implements AfterViewInit {
 	@HostListener('mousedown', ['$event'])
 	onMouseDown(event: MouseEvent): void {
 		this.panning = true;
-		this.panStartPos.set(new Point2D(event.clientX, event.clientY));
+		this.panStartPos.set(new Point2D(event.offsetX, event.offsetY));
 		this.panDeltaStartPos.set(this.panStartPos());
 	}
 
 	@HostListener('mousemove', ['$event'])
 	onMouseMove(event: MouseEvent): void {
 		if (this.panning) {
-			const delta = new Point2D(event.clientX - this.panDeltaStartPos().x, 0);
+			const delta = new Point2D(event.offsetX - this.panDeltaStartPos().x, 0);
 			this.pan(this.panStartPos(), delta);
-			this.panDeltaStartPos.set(new Point2D(event.clientX, event.clientY));
+			this.panDeltaStartPos.set(new Point2D(event.offsetX, event.offsetY));
 		}
 	}
 
@@ -131,7 +132,7 @@ export class TimelineView implements AfterViewInit {
 	onWheel(event: WheelEvent): void {
 		event.preventDefault();
 		const zoomFactor = event.deltaY > 0 ? 0.9 : 1.1;
-		this.zoom(new Point2D(event.clientX, event.clientY), zoomFactor);
+		this.zoom(new Point2D(event.offsetX, event.offsetY), zoomFactor);
 	}
 
 	private pan(start: Point2D, delta: Point2D): void {

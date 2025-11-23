@@ -3,6 +3,7 @@ import { HEvent } from "./historic-event";
 
 export class Timeline {
 	constructor(
+		public readonly title: string,
 		public readonly period: HPeriod,
 		public readonly events: HEvent[] = [],
 	) {}

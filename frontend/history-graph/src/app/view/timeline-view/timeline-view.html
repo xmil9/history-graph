@@ -1,5 +1,6 @@
 <div #container class="timeline-container">
 	<tl-layout-selector />
+	<tl-header [timeline]="timeline()" [dateFormat]="dateFormat()" />
 	<svg [attr.width]="viewSize().width" [attr.height]="viewSize().height" xmlns="http://www.w3.org/2000/svg">
 		<g tl-overview />
 		<g tl-axis
