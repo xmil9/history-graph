@@ -36,6 +36,7 @@
 		[attr.font-size]="textStyle().size"
 		[attr.font-weight]="textStyle().weight"
 		[attr.transform]="'rotate(' + labelRotation() + ' ' + startLabelPos().x + ' ' + startLabelPos().y + ')'"
+		[attr.fill]="textStyle().color"
 	>{{startLabel()}}</text>
 	<g 
 		svg-icon 

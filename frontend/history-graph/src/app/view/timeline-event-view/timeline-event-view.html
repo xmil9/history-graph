@@ -26,7 +26,8 @@
 			[attr.y]="labelPos.y"
 			[attr.font-family]="textStyle().font"
 			[attr.font-size]="textStyle().size"
-			[attr.font-weight]="textStyle().weight">{{label()}}
+			[attr.font-weight]="textStyle().weight"
+			[attr.fill]="textStyle().color">{{label()}}
 		</text>
 		<path class="event-connector"
 			[attr.d]="labelConnectorPath"
