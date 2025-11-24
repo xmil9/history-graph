@@ -184,7 +184,6 @@ class HorizontalCenterLabelLayout implements LabelLayout {
 	// Offset for the first row of labels to avoid overlapping with the axis.
 	private readonly firstRowOffsetY = 75;
 	private readonly lastRowOffsetY = 20;
-	private readonly labelOffsetX = 50;
 
 	calculate(tlEventPos: Point2D[], input: EventLayoutInput, axisLayout: AxisLayoutService, timeline: Timeline): void {
 		const tlEventsInView = tlEventPos.filter(pos => axisLayout.displayBounds().contains(pos));
@@ -237,24 +236,39 @@ class HorizontalCenterLabelLayout implements LabelLayout {
 
 		context.font = `${input.textStyle.weight} ${input.textStyle.size}px ${input.textStyle.font}`;
 
-		let rowY = axisLayout.startPos().y + this.firstRowOffsetY;
+		const initialRowY = axisLayout.startPos().y + this.firstRowOffsetY;
+		const maxXPerRow: number[] = [];
 
 		const labelPositions = tlEventPos.map((pos, index) => {
 			if (axisLayout.displayBounds().contains(pos)) {
-				rowY += rowHeight;
-
 				const event = timeline.events[index];
 				const labelText = formatLabel(event, input.dateFormat);
 				const textMetrics = context.measureText(labelText);
 				const textWidth = textMetrics.width;
 
-				return new Point2D(pos.x - textWidth / 2, rowY);
+				const labelX = pos.x - textWidth / 2;
+				const rowIdx = this.findRow(labelX, maxXPerRow);
+				const labelY = initialRowY + (rowIdx + 1) * rowHeight;
+
+				// Update max x-coordinate for the used row.
+				maxXPerRow[rowIdx] = Math.max(maxXPerRow[rowIdx] || 0, labelX + textWidth);
+
+				return new Point2D(labelX, labelY);
 			}
 			return new Point2D(INVALID_POSITION_SENTINEL, INVALID_POSITION_SENTINEL);
 		});
 
 		canvas.remove();
 		return labelPositions;
+	}
+
+	private findRow(labelX: number, maxXPerRow: number[]): number {
+		// Find the first row where the label x-coordinate is less than or equal to the max x-coordinate.
+		let rowIdx = 0;
+		while (rowIdx < maxXPerRow.length && labelX <= maxXPerRow[rowIdx]) {
+			rowIdx++;
+		}
+		return rowIdx;
 	}
 
 	private calculateRowHeight(
