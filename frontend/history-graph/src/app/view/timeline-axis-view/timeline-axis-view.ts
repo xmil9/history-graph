@@ -24,14 +24,18 @@ export class TimelineAxisView {
 	
 	// Positioning
 	get startPos(): Signal<Point2D> {
-		return this.axisLayoutService.startPos;
+		return computed(() => {
+			return 	new Point2D(Math.max(this.axisLayoutService.startPos().x, this.displayBounds().left), this.axisLayoutService.startPos().y);
+		});
 	}
 	get endPos(): Signal<Point2D> {
-		return this.axisLayoutService.endPos;
+		return computed(() => {
+			return new Point2D(Math.min(this.axisLayoutService.endPos().x, this.displayBounds().right), this.axisLayoutService.endPos().y);
+		});
 	}
 	get startIconPos(): Signal<Point2D> {
 		return computed(() => {
-			const pos = this.startPos();
+			const pos = this.axisLayoutService.startPos();
 			if (this.displayBounds().contains(pos)) {
 				return pos;
 			}
@@ -40,7 +44,7 @@ export class TimelineAxisView {
 	}
 	get endIconPos(): Signal<Point2D> {
 		return computed(() => {
-			const pos = this.endPos();
+			const pos = this.axisLayoutService.endPos();
 			if (this.displayBounds().contains(pos)) {
 				return pos;
 			}
