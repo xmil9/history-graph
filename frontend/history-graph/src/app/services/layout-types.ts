@@ -1,5 +1,6 @@
 export enum LayoutFormat {
 	None = 'none',
 	Vertical = 'vertical',
-	Horizontal = 'horizontal',
+	HorizontalLeft = 'horizontal-left',
+	HorizontalCenter = 'horizontal-center',
 }

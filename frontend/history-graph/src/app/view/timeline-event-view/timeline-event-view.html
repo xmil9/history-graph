@@ -19,7 +19,7 @@
 			[attr.transform]="'rotate(' + labelRotation() + ' ' + labelPos.x + ' ' + labelPos.y + ')'">{{label()}}
 		</text>
 	}
-	@if (layoutFormat() === LayoutFormat.Horizontal) {
+	@if (layoutFormat() === LayoutFormat.HorizontalLeft || layoutFormat() === LayoutFormat.HorizontalCenter) {
 		<text class="no-text-select"
 			[attr.id]="'event-label-' + index()"
 			[attr.x]="labelPos.x"

@@ -55,7 +55,7 @@ class VerticalLabelLayout implements LabelLayout {
 	}
 }
 
-class HorizontalLabelLayout implements LabelLayout {
+class HorizontalLeftLabelLayout implements LabelLayout {
 	labelPositions: Point2D[] = [];
 	rotation: number = 0;
 	connectorPaths: string[] = [];
@@ -177,6 +177,126 @@ class HorizontalLabelLayout implements LabelLayout {
 	  }
 }
 
+class HorizontalCenterLabelLayout implements LabelLayout {
+	labelPositions: Point2D[] = [];
+	rotation: number = 0;
+	connectorPaths: string[] = [];
+	// Offset for the first row of labels to avoid overlapping with the axis.
+	private readonly firstRowOffsetY = 75;
+	private readonly lastRowOffsetY = 20;
+	private readonly labelOffsetX = 50;
+
+	calculate(tlEventPos: Point2D[], input: EventLayoutInput, axisLayout: AxisLayoutService, timeline: Timeline): void {
+		const tlEventsInView = tlEventPos.filter(pos => axisLayout.displayBounds().contains(pos));
+		const rowHeight = this.calculateRowHeight(input, axisLayout, tlEventsInView.length);
+
+		this.labelPositions = this.calculateLabelPositions(tlEventPos, input, axisLayout, rowHeight, timeline);
+		this.connectorPaths = this.calculateConnectorPaths(tlEventPos, this.labelPositions, input, timeline);
+	}
+
+	private calculateConnectorPaths(
+		tlEventPos: Point2D[],
+		labelPositions: Point2D[],
+		input: EventLayoutInput,
+		timeline: Timeline
+	): string[] {
+		const paths = tlEventPos.map((markerPos, index) => {
+			const labelPos = labelPositions[index];
+			if (labelPos.x === INVALID_POSITION_SENTINEL) {
+				return '';
+			}
+
+			const textHeight = input.textStyle.size;
+			
+			const startX = markerPos.x;
+			const startY = markerPos.y;
+			const endY = labelPos.y - textHeight / 3;
+
+			return `M ${startX} ${startY} L ${startX} ${endY - 10}`;
+		});
+
+		return paths;
+	}
+
+	clear(): void {
+		this.labelPositions = [];
+		this.connectorPaths = [];
+	}
+
+	private calculateLabelPositions(
+		tlEventPos: Point2D[],
+		input: EventLayoutInput,
+		axisLayout: AxisLayoutService,
+		rowHeight: number,
+		timeline: Timeline
+	): Point2D[] {
+		const canvas = document.createElement('canvas');
+		const context = canvas.getContext('2d');
+		if (!context)
+			return tlEventPos.map(() => new Point2D(INVALID_POSITION_SENTINEL, INVALID_POSITION_SENTINEL));
+
+		context.font = `${input.textStyle.weight} ${input.textStyle.size}px ${input.textStyle.font}`;
+
+		let rowY = axisLayout.startPos().y + this.firstRowOffsetY;
+
+		const labelPositions = tlEventPos.map((pos, index) => {
+			if (axisLayout.displayBounds().contains(pos)) {
+				rowY += rowHeight;
+
+				const event = timeline.events[index];
+				const labelText = formatLabel(event, input.dateFormat);
+				const textMetrics = context.measureText(labelText);
+				const textWidth = textMetrics.width;
+
+				return new Point2D(pos.x - textWidth / 2, rowY);
+			}
+			return new Point2D(INVALID_POSITION_SENTINEL, INVALID_POSITION_SENTINEL);
+		});
+
+		canvas.remove();
+		return labelPositions;
+	}
+
+	private calculateRowHeight(
+		input: EventLayoutInput,
+		axisLayout: AxisLayoutService,
+		tlEventsInViewCount: number
+	): number {
+		let rowHeight = (input.viewSize.height - axisLayout.startPos().y - this.firstRowOffsetY - this.lastRowOffsetY) / tlEventsInViewCount;
+
+		const maxRowHeight = this.estimateTextHeight(input.textStyle) * 2;
+		if (rowHeight > maxRowHeight) {
+			rowHeight = maxRowHeight;
+		}
+
+		const minRowHeight = 10;
+		if (rowHeight < minRowHeight) {
+			rowHeight = minRowHeight;
+		}
+
+		return rowHeight;
+	}
+
+	private estimateTextHeight(textStyle: TextStyle): number {
+		// Rough estimate.
+		let height = textStyle.size * 1.5;
+
+		// Try to get a more accurate height.
+		const canvas = document.createElement('canvas');
+		const context = canvas.getContext('2d');
+		if (context) {
+			context.font = `${textStyle.size}px ${textStyle.font}`;
+			const metrics = context.measureText('Gg');
+			height = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
+		}
+
+		if (canvas)
+			canvas.remove();
+
+		return height;
+	  }
+}
+
 class NoneLabelLayout implements LabelLayout {
 	labelPositions: Point2D[] = [];
 	rotation: number = 0;
@@ -197,8 +317,10 @@ function createLabelLayout(format: LayoutFormat): LabelLayout {
 	switch (format) {
 		case LayoutFormat.Vertical:
 			return new VerticalLabelLayout();
-		case LayoutFormat.Horizontal:
-			return new HorizontalLabelLayout();
+		case LayoutFormat.HorizontalLeft:
+			return new HorizontalLeftLabelLayout();
+		case LayoutFormat.HorizontalCenter:
+			return new HorizontalCenterLabelLayout();
 		case LayoutFormat.None:
 			return new NoneLabelLayout();
 		default:
@@ -216,7 +338,7 @@ export class EventLayoutService {
 
 	tlEventPositions = signal<Point2D[]>([]);
 	overviewEventPositions = signal<Point2D[]>([]);
-	labelLayoutFormat = signal<LayoutFormat>(LayoutFormat.Horizontal);
+	labelLayoutFormat = signal<LayoutFormat>(LayoutFormat.HorizontalLeft);
 	private labelLayout: LabelLayout = createLabelLayout(this.labelLayoutFormat());
 	private input = DEFAULT_INPUT;
 	private timeline?: Timeline;

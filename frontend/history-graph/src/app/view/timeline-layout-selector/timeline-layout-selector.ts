@@ -20,7 +20,8 @@ export class TimelineLayoutSelector {
 	layoutOptions = [
 		{ value: LayoutFormat.None, label: 'None' },
 		{ value: LayoutFormat.Vertical, label: 'Vertical' },
-		{ value: LayoutFormat.Horizontal, label: 'Horizontal' }
+		{ value: LayoutFormat.HorizontalLeft, label: 'Horizontal Left' },
+		{ value: LayoutFormat.HorizontalCenter, label: 'Horizontal Centered' }
 	];
 
 	// Check if a layout is active

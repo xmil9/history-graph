@@ -206,7 +206,7 @@ class VerticalAxisLayout extends BaseAxisLayout {
 	}
 }
 
-class HorizontalAxisLayout extends BaseAxisLayout {
+class HorizontalLeftAxisLayout extends BaseAxisLayout {
 	private readonly horzDisplayLeft = 300;
 	private readonly horzOverviewLeft = this.horzDisplayLeft;
 
@@ -229,13 +229,18 @@ class HorizontalAxisLayout extends BaseAxisLayout {
 	}
 }
 
+class HorizontalCenterAxisLayout extends BaseAxisLayout {
+}
+
 class NoneAxisLayout extends BaseAxisLayout {
 }
 
 function createAxisLayout(format: LayoutFormat): AxisLayout {
 	switch (format) {
-		case LayoutFormat.Horizontal:
-			return new HorizontalAxisLayout();
+		case LayoutFormat.HorizontalLeft:
+			return new HorizontalLeftAxisLayout();
+		case LayoutFormat.HorizontalCenter:
+			return new HorizontalCenterAxisLayout();
 		case LayoutFormat.Vertical:
 			return new VerticalAxisLayout();
 		case LayoutFormat.None:
@@ -251,7 +256,7 @@ function createAxisLayout(format: LayoutFormat): AxisLayout {
 	providedIn: 'root'
 })
 export class AxisLayoutService {
-	layoutFormat = signal<LayoutFormat>(LayoutFormat.Horizontal);
+	layoutFormat = signal<LayoutFormat>(LayoutFormat.HorizontalLeft);
 	private axisLayout: AxisLayout = createAxisLayout(this.layoutFormat());
 	private input = DEFAULT_INPUT;
 	
