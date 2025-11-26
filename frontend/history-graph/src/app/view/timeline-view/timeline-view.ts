@@ -87,7 +87,6 @@ export class TimelineView implements AfterViewInit {
 	}
 
 	ngAfterViewInit(): void {
-		console.log('ngAfterViewInit TimelineView');
 		this.updateViewSize();
 	}
 

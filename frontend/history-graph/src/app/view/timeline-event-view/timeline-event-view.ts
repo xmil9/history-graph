@@ -15,7 +15,7 @@ import { AxisLayoutService } from '../../services/axis-layout.service';
 	templateUrl: './timeline-event-view.html',
 	styleUrl: './timeline-event-view.css'
 })
-export class TimelineEventView implements AfterViewInit {
+export class TimelineEventView {
 	private overlayService = inject(EventOverlayService);
 	private layoutService = inject(EventLayoutService);
 	private axisLayoutService = inject(AxisLayoutService);
@@ -76,10 +76,6 @@ export class TimelineEventView implements AfterViewInit {
 	lineStyle = input<LineStyle>(DEFAULT_LINE_STYLE);
 
 	constructor() {
-	}
-
-	ngAfterViewInit(): void {
-		console.log('ngAfterViewInit EventView ', this.index());
 	}
 
 	onMarkerMouseEnter(mouseEvent: MouseEvent) {
