@@ -49,16 +49,37 @@
 		[size]="markerSize()"
 		[opacity]="endIconOpacity"
 	></g>
-	@for (eventPos of overviewEventPositions(); track eventPos.x; let i = $index) {
-		<g 
-			svg-icon 
-			class="overview-event-position"
-			[name]="'tl-date'" 
-			[origin]="SvgIconOrigin.Center" 
-			[position]="eventPos" 
-			[size]="eventMarkerSize()"
-			[opacity]="getEventIconOpacity(i)"
-		></g>
+	@if (timeline()?.events) {
+		@for (tlEvent of timeline()!.events; track tlEvent.when; let i = $index) {
+			@if (tlEvent.isPeriod) {
+				<g 
+					svg-icon 
+					[name]="'tl-period-from'" 
+					[origin]="SvgIconOrigin.CenterLeft" 
+					[position]="overviewEventPositions()[i]" 
+					[size]="eventMarkerSize()"
+					[opacity]="getEventIconOpacity(i)"
+				></g>
+				<g 
+					svg-icon 
+					[name]="'tl-period-to'" 
+					[origin]="SvgIconOrigin.CenterRight" 
+					[position]="getOverviewEventEndPosition(i)()" 
+					[size]="eventMarkerSize()"
+					[opacity]="getEventIconOpacity(i)"
+				></g>
+			} @else {
+				<g 
+					svg-icon 
+					class="overview-event-position"
+					[name]="'tl-date'" 
+					[origin]="SvgIconOrigin.Center" 
+					[position]="overviewEventPositions()[i]" 
+					[size]="eventMarkerSize()"
+					[opacity]="getEventIconOpacity(i)"
+				></g>
+			}
+		}
 	}
 </svg:g>
 

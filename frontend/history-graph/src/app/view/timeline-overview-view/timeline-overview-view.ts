@@ -1,9 +1,13 @@
 import { Component, computed, inject, input, signal, Signal } from '@angular/core';
 import { SvgIcon, SvgIconOrigin } from '../svg-icon/svg-icon';
-import { Point2D, Rect2D, Size2D } from '../../graphics/gfx-coord-2d';
+import { INVALID_POSITION_SENTINEL, Point2D, Rect2D, Size2D } from '../../graphics/gfx-coord-2d';
 import { AxisLayoutService } from '../../services/axis-layout.service';
 import { LineStyle } from '../../graphics/gfx-style';
 import { EventLayoutService } from '../../services/event-layout.service';
+import { TimelineService } from '../../services/timeline.service';
+import { HEvent } from '../../model/historic-event';
+import { Timeline } from '../../model/timeline';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 export const DEFAULT_OVERVIEW_BACKGROUND = '#d0d0d0';
 export const DEFAULT_OVERVIEW_LINE_STYLE: LineStyle = {
@@ -33,6 +37,16 @@ export class TimelineOverviewView {
 	// Expose types for template
 	SvgIconOrigin = SvgIconOrigin;
 
+
+	constructor(private timelineService: TimelineService) {
+		this.timeline = toSignal(this.timelineService.timeline$, {
+			initialValue: this.timelineService.timeline
+		});
+	}
+
+	// Content
+	timeline: Signal<Timeline | undefined>;
+
 	// Positioning
 	get displayBounds(): Signal<Rect2D> {
 		return this.axisLayoutService.overviewBounds;
@@ -54,6 +68,18 @@ export class TimelineOverviewView {
 	}
 	get overviewEventPositions(): Signal<Point2D[]> {
 		return this.eventLayoutService.overviewEventPositions;
+	}
+	get overviewEventEndPositions(): Signal<Array<Point2D | undefined>> {
+		return this.eventLayoutService.overviewEventEndPositions;
+	}
+	getOverviewEventEndPosition(index: number): Signal<Point2D> {
+		return computed(() => {
+			const pos = this.overviewEventEndPositions()[index];
+			if (pos === undefined) {
+				return new Point2D(INVALID_POSITION_SENTINEL, INVALID_POSITION_SENTINEL);
+			}
+			return pos;
+		});
 	}
 	get eventMarkerSize(): Signal<Size2D> {
 		return this.axisLayoutService.overviewEventMarkerSize;

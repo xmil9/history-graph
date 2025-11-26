@@ -353,6 +353,7 @@ export class EventLayoutService {
 	tlEventPositions = signal<Point2D[]>([]);
 	tlEventEndPositions = signal<Array<Point2D | undefined>>([]);
 	overviewEventPositions = signal<Point2D[]>([]);
+	overviewEventEndPositions = signal<Array<Point2D | undefined>>([]);
 	labelLayoutFormat = signal<LayoutFormat>(LayoutFormat.HorizontalLeft);
 	private labelLayout: LabelLayout = createLabelLayout(this.labelLayoutFormat());
 	private input = DEFAULT_INPUT;
@@ -406,10 +407,14 @@ export class EventLayoutService {
 		this.tlEventEndPositions.set(calculated.endPositions);
 		this.labelLayout.calculate(this.tlEventPositions(), this.input, this.axisLayoutService, this.timeline);
 
-		this.overviewEventPositions.set(this.calculateOverviewEventPositions(this.timeline));
+		const calculatedOverview = this.calculateOverviewEventPositions(this.timeline);
+		this.overviewEventPositions.set(calculatedOverview.positions);
+		this.overviewEventEndPositions.set(calculatedOverview.endPositions);
 	}
 
-	private calculateEventPositions(timeline: Timeline): { positions: Point2D[], endPositions: Array<Point2D | undefined> } {
+	private calculateEventPositions(
+		timeline: Timeline
+	): { positions: Point2D[], endPositions: Array<Point2D | undefined> } {
 		const tlEventPositions: Point2D[] = [];
 		const tlEventEndPositions: Array<Point2D | undefined> = [];
 
@@ -440,22 +445,35 @@ export class EventLayoutService {
 		return new Point2D(dateX, axisStartPos.y);
 	}
 
-	private calculateOverviewEventPositions(timeline: Timeline): Point2D[] {
+	private calculateOverviewEventPositions(
+		timeline: Timeline
+	): { positions: Point2D[], endPositions: Array<Point2D | undefined> } {
 		const overviewEventPositions: Point2D[] = [];
-
-		const tlDuration = duration(timeline.from, timeline.to);
-		const tlDistance = this.axisLayoutService.overviewAxisBounds().width;
+		const overviewEventEndPositions: Array<Point2D | undefined> = [];
 
 		for (const event of timeline.events) {
-			// Calculate position based on event date relative to timeline range.
-			const eventRatio = duration(timeline.from, event.when) / tlDuration;
-			const eventX = this.axisLayoutService.overviewAxisBounds().left + (eventRatio * tlDistance);
+			const start = this.calculateOverviewDatePosition(event.when);
+			overviewEventPositions.push(start!);
 
-			overviewEventPositions.push(
-				new Point2D(eventX, this.axisLayoutService.overviewAxisBounds().center.y));
+			const end = this.calculateOverviewDatePosition(event.until);
+			overviewEventEndPositions.push(end);
 		}
 
-		return overviewEventPositions;
+		return { positions: overviewEventPositions, endPositions: overviewEventEndPositions };
+	}
+
+	private calculateOverviewDatePosition(date: HDate | undefined): Point2D | undefined {
+		if (date === undefined || this.timeline === undefined) {
+			return undefined;
+		}
+
+		const overviewAxisBounds = this.axisLayoutService.overviewAxisBounds();
+		const tlDuration = duration(this.timeline.from, this.timeline.to);
+		const tlDistance = overviewAxisBounds.width;
+
+		const dateRatio = duration(this.timeline.from, date) / tlDuration;
+		const dateX = overviewAxisBounds.left + (dateRatio * tlDistance);
+		return new Point2D(dateX, overviewAxisBounds.center.y);
 	}
 
 	formatLabel(tlEvent: HEvent): string {

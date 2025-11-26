@@ -6,11 +6,14 @@ export class HEvent {
 	readonly label: string;
 	readonly description?: string;
 
+	get isPeriod(): boolean {
+		return this.until !== undefined;
+	}
 	get period(): HPeriod | undefined {
-		return this.until ? new HPeriod(this.when, this.until) : undefined;
+		return this.isPeriod ? new HPeriod(this.when, this.until!) : undefined;
 	}
 	get duration(): HDuration {
-		return this.until ? duration(this.when, this.until) : 0;
+		return this.isPeriod ? duration(this.when, this.until!) : 0;
 	}
 
 	constructor(when: HDate, label: string, description?: string);
