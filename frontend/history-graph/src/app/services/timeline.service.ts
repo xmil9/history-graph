@@ -1,8 +1,9 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Signal } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { Timeline } from '../model/timeline';
 import { HDate, HPeriod } from '../model/historic-date';
 import { HEvent } from '../model/historic-event';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 @Injectable({
 	providedIn: 'root'
@@ -37,6 +38,13 @@ export class TimelineService {
 	// Synchronous access to the timeline
 	get timeline(): Timeline {
 		return this.timelineSubject.value;
+	}
+
+	// 
+	timelineAsSignal(): Signal<Timeline> {
+		return toSignal(this.timelineSubject.asObservable(), {
+			initialValue: this.timelineSubject.value
+		});	
 	}
 
 	setTimeline(timeline: Timeline): void {

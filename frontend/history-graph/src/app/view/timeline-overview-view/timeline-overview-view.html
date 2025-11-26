@@ -49,14 +49,14 @@
 		[size]="markerSize()"
 		[opacity]="endIconOpacity"
 	></g>
-	@if (timeline()?.events) {
-		@for (tlEvent of timeline()!.events; track tlEvent.when; let i = $index) {
+	@if (timeline().events) {
+		@for (tlEvent of timeline().events; track tlEvent.when; let i = $index) {
 			@if (tlEvent.isPeriod) {
 				<g 
 					svg-icon 
 					[name]="'tl-period-from'" 
 					[origin]="SvgIconOrigin.CenterLeft" 
-					[position]="overviewEventPositions()[i]" 
+					[position]="getOverviewEventPosition(i)()" 
 					[size]="eventMarkerSize()"
 					[opacity]="getEventIconOpacity(i)"
 				></g>
@@ -74,7 +74,7 @@
 					class="overview-event-position"
 					[name]="'tl-date'" 
 					[origin]="SvgIconOrigin.Center" 
-					[position]="overviewEventPositions()[i]" 
+					[position]="getOverviewEventPosition(i)()" 
 					[size]="eventMarkerSize()"
 					[opacity]="getEventIconOpacity(i)"
 				></g>

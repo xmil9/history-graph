@@ -6,6 +6,7 @@ import { DEFAULT_LINE_STYLE, DEFAULT_TEXT_STYLE, LineStyle, TextStyle } from '..
 import { LayoutFormat } from './layout-types';
 import { AxisLayoutService } from './axis-layout.service';
 import { HEvent } from '../model/historic-event';
+import { TimelineService } from './timeline.service';
 
 // External data that affects the layout of events.
 export interface EventLayoutInput {
@@ -22,16 +23,23 @@ const DEFAULT_INPUT: EventLayoutInput = {
 	dateFormat: new MDYYYYFormat('-'),
 };
 
+export interface EventPosition {
+	start: Point2D;
+	end: Point2D | undefined;
+}
+
 function formatLabel(tlEvent: HEvent, dateFormat: HDateFormat): string {
 	return dateFormat.format(tlEvent.when) + ' - ' + tlEvent.label;
 }
+
+///////////////////
 
 interface LabelLayout {
 	labelPositions: Point2D[];
 	rotation: number;
 	connectorPaths: string[];
 
-	calculate(tlEventPos: Point2D[], input: EventLayoutInput, axisLayout: AxisLayoutService, timeline: Timeline): void;
+	calculate(eventPositions: EventPosition[], input: EventLayoutInput, axisLayout: AxisLayoutService, timeline: Timeline): void;
 	clear(): void;
 }
 
@@ -40,10 +48,10 @@ class VerticalLabelLayout implements LabelLayout {
 	rotation: number = 90;
 	connectorPaths: string[] = [];
 
-	calculate(tlEventPos: Point2D[], input: EventLayoutInput, axisLayout: AxisLayoutService, timeline: Timeline): void {
-		this.labelPositions = tlEventPos.map(pos => new Point2D(
-			pos.x - input.textStyle.size / 3,
-			pos.y + axisLayout.eventMarkerSize().height / 2 + 7
+	calculate(eventPositions: EventPosition[], input: EventLayoutInput, axisLayout: AxisLayoutService, timeline: Timeline): void {
+		this.labelPositions = eventPositions.map(pos => new Point2D(
+			pos.start.x - input.textStyle.size / 3,
+			pos.start.y + axisLayout.eventMarkerSize().height / 2 + 7
 		));
 		this.connectorPaths = [];
 	}
@@ -64,27 +72,27 @@ class HorizontalLeftLabelLayout implements LabelLayout {
 	private readonly lastRowOffsetY = 20;
 	private readonly labelOffsetX = 50;
 
-	calculate(tlEventPos: Point2D[], input: EventLayoutInput, axisLayout: AxisLayoutService, timeline: Timeline): void {
-		const tlEventsInView = tlEventPos.filter(pos => axisLayout.displayBounds().contains(pos));
+	calculate(eventPositions: EventPosition[], input: EventLayoutInput, axisLayout: AxisLayoutService, timeline: Timeline): void {
+		const tlEventsInView = eventPositions.filter(pos => axisLayout.displayBounds().contains(pos.start));
 		const rowHeight = this.calculateRowHeight(input, axisLayout, tlEventsInView.length);
 
-		this.labelPositions = this.calculateLabelPositions(tlEventPos, input, axisLayout, rowHeight);
-		this.connectorPaths = this.calculateConnectorPaths(tlEventPos, this.labelPositions, input, timeline);
+		this.labelPositions = this.calculateLabelPositions(eventPositions, input, axisLayout, rowHeight);
+		this.connectorPaths = this.calculateConnectorPaths(eventPositions, this.labelPositions, input, timeline);
 	}
 
 	private calculateConnectorPaths(
-		tlEventPos: Point2D[],
+		eventPositions: EventPosition[],
 		labelPositions: Point2D[],
 		input: EventLayoutInput,
 		timeline: Timeline
 	): string[] {
 		const canvas = document.createElement('canvas');
 		const context = canvas.getContext('2d');
-		if (!context) return tlEventPos.map(() => '');
+		if (!context) return eventPositions.map(() => '');
 
 		context.font = `${input.textStyle.weight} ${input.textStyle.size}px ${input.textStyle.font}`;
 
-		const paths = tlEventPos.map((markerPos, index) => {
+		const paths = eventPositions.map((eventPos, index) => {
 			const labelPos = labelPositions[index];
 			if (labelPos.x === INVALID_POSITION_SENTINEL) {
 				return '';
@@ -96,8 +104,8 @@ class HorizontalLeftLabelLayout implements LabelLayout {
 			const textWidth = textMetrics.width;
 			const textHeight = input.textStyle.size; // Approximation usually sufficient for vertical center
 
-			const startX = markerPos.x;
-			const startY = markerPos.y;
+			const startX = eventPos.start.x;
+			const startY = eventPos.start.y;
 			// We want to connect to the right-center side of the text.
 			const endX = labelPos.x + textWidth + 5;
 			const endY = labelPos.y - textHeight / 3;
@@ -120,7 +128,7 @@ class HorizontalLeftLabelLayout implements LabelLayout {
 	}
 
 	private calculateLabelPositions(
-		tlEventPos: Point2D[],
+		eventPositions: EventPosition[],
 		input: EventLayoutInput,
 		axisLayout: AxisLayoutService,
 		rowHeight: number
@@ -128,8 +136,8 @@ class HorizontalLeftLabelLayout implements LabelLayout {
 		let rowY = axisLayout.startPos().y + this.firstRowOffsetY;
 		const rowX = this.labelOffsetX;
 
-		return tlEventPos.map(pos => {
-			if (axisLayout.displayBounds().contains(pos)) {
+		return eventPositions.map(pos => {
+			if (axisLayout.displayBounds().contains(pos.start)) {
 				rowY += rowHeight;
 				return new Point2D(rowX, rowY);
 			}
@@ -140,9 +148,9 @@ class HorizontalLeftLabelLayout implements LabelLayout {
 	private calculateRowHeight(
 		input: EventLayoutInput,
 		axisLayout: AxisLayoutService,
-		tlEventsInViewCount: number
+		numEventsInView: number
 	): number {
-		let rowHeight = (input.viewSize.height - axisLayout.startPos().y - this.firstRowOffsetY - this.lastRowOffsetY) / tlEventsInViewCount;
+		let rowHeight = (input.viewSize.height - axisLayout.startPos().y - this.firstRowOffsetY - this.lastRowOffsetY) / numEventsInView;
 
 		const maxRowHeight = this.estimateTextHeight(input.textStyle) * 2;
 		if (rowHeight > maxRowHeight) {
@@ -185,21 +193,21 @@ class HorizontalCenterLabelLayout implements LabelLayout {
 	private readonly firstRowOffsetY = 75;
 	private readonly lastRowOffsetY = 20;
 
-	calculate(tlEventPos: Point2D[], input: EventLayoutInput, axisLayout: AxisLayoutService, timeline: Timeline): void {
-		const tlEventsInView = tlEventPos.filter(pos => axisLayout.displayBounds().contains(pos));
+	calculate(eventPositions: EventPosition[], input: EventLayoutInput, axisLayout: AxisLayoutService, timeline: Timeline): void {
+		const tlEventsInView = eventPositions.filter(pos => axisLayout.displayBounds().contains(pos.start));
 		const rowHeight = this.calculateRowHeight(input, axisLayout, tlEventsInView.length);
 
-		this.labelPositions = this.calculateLabelPositions(tlEventPos, input, axisLayout, rowHeight, timeline);
-		this.connectorPaths = this.calculateConnectorPaths(tlEventPos, this.labelPositions, input, timeline);
+		this.labelPositions = this.calculateLabelPositions(eventPositions, input, axisLayout, rowHeight, timeline);
+		this.connectorPaths = this.calculateConnectorPaths(eventPositions, this.labelPositions, input, timeline);
 	}
 
 	private calculateConnectorPaths(
-		tlEventPos: Point2D[],
+		eventPositions: EventPosition[],
 		labelPositions: Point2D[],
 		input: EventLayoutInput,
 		timeline: Timeline
 	): string[] {
-		const paths = tlEventPos.map((markerPos, index) => {
+		const paths = eventPositions.map((eventPos, index) => {
 			const labelPos = labelPositions[index];
 			if (labelPos.x === INVALID_POSITION_SENTINEL) {
 				return '';
@@ -207,8 +215,8 @@ class HorizontalCenterLabelLayout implements LabelLayout {
 
 			const textHeight = input.textStyle.size;
 			
-			const startX = markerPos.x;
-			const startY = markerPos.y;
+			const startX = eventPos.start.x;
+			const startY = eventPos.start.y;
 			const endY = labelPos.y - textHeight / 3;
 
 			return `M ${startX} ${startY} L ${startX} ${endY - 10}`;
@@ -223,7 +231,7 @@ class HorizontalCenterLabelLayout implements LabelLayout {
 	}
 
 	private calculateLabelPositions(
-		tlEventPos: Point2D[],
+		eventPositions: EventPosition[],
 		input: EventLayoutInput,
 		axisLayout: AxisLayoutService,
 		rowHeight: number,
@@ -232,21 +240,21 @@ class HorizontalCenterLabelLayout implements LabelLayout {
 		const canvas = document.createElement('canvas');
 		const context = canvas.getContext('2d');
 		if (!context)
-			return tlEventPos.map(() => new Point2D(INVALID_POSITION_SENTINEL, INVALID_POSITION_SENTINEL));
+			return eventPositions.map(() => new Point2D(INVALID_POSITION_SENTINEL, INVALID_POSITION_SENTINEL));
 
 		context.font = `${input.textStyle.weight} ${input.textStyle.size}px ${input.textStyle.font}`;
 
 		const initialRowY = axisLayout.startPos().y + this.firstRowOffsetY;
 		const maxXPerRow: number[] = [];
 
-		const labelPositions = tlEventPos.map((pos, index) => {
-			if (axisLayout.displayBounds().contains(pos)) {
+		const labelPositions = eventPositions.map((pos, index) => {
+			if (axisLayout.displayBounds().contains(pos.start)) {
 				const event = timeline.events[index];
 				const labelText = formatLabel(event, input.dateFormat);
 				const textMetrics = context.measureText(labelText);
 				const textWidth = textMetrics.width;
 
-				const labelX = pos.x - textWidth / 2;
+				const labelX = pos.start.x - textWidth / 2;
 				const rowIdx = this.findRow(labelX, maxXPerRow);
 				const labelY = initialRowY + (rowIdx + 1) * rowHeight;
 
@@ -316,8 +324,8 @@ class NoneLabelLayout implements LabelLayout {
 	rotation: number = 0;
 	connectorPaths: string[] = [];
 
-	calculate(tlEventPos: Point2D[], input: EventLayoutInput, axisLayout: AxisLayoutService, timeline: Timeline): void {
-		this.labelPositions = tlEventPos.map(pos => new Point2D(pos.x, pos.y));
+	calculate(eventPositions: EventPosition[], input: EventLayoutInput, axisLayout: AxisLayoutService, timeline: Timeline): void {
+		this.labelPositions = eventPositions.map(pos => new Point2D(pos.start.x, pos.start.y));
 		this.connectorPaths = [];
 	}
 
@@ -348,16 +356,18 @@ function createLabelLayout(format: LayoutFormat): LabelLayout {
 	providedIn: 'root'
 })
 export class EventLayoutService {
+	private timelineService = inject(TimelineService);
 	private axisLayoutService = inject(AxisLayoutService);
 
-	tlEventPositions = signal<Point2D[]>([]);
-	tlEventEndPositions = signal<Array<Point2D | undefined>>([]);
-	overviewEventPositions = signal<Point2D[]>([]);
-	overviewEventEndPositions = signal<Array<Point2D | undefined>>([]);
+	get timeline(): Timeline {
+		return this.timelineService.timeline;
+	}
+
+	eventPositions = signal<EventPosition[]>([]);
+	overviewEventPositions = signal<EventPosition[]>([]);
 	labelLayoutFormat = signal<LayoutFormat>(LayoutFormat.HorizontalLeft);
 	private labelLayout: LabelLayout = createLabelLayout(this.labelLayoutFormat());
 	private input = DEFAULT_INPUT;
-	private timeline?: Timeline;
 
 	get labelPositions(): Point2D[] {
 		return this.labelLayout.labelPositions;
@@ -370,15 +380,12 @@ export class EventLayoutService {
 	}
 
 	getEventPositionInDisplay(index: number): Point2D | undefined {
-		const pos = this.tlEventPositions()[index];
-		if (pos === undefined) {
-			return undefined;
-		}
+		const pos = this.eventPositions()[index].start;
 		return this.axisLayoutService.displayBounds().contains(pos) ? pos : undefined;
 	}
 	
 	getEventEndPositionInDisplay(index: number): Point2D | undefined {
-		const pos = this.tlEventEndPositions()[index];
+		const pos = this.eventPositions()[index].end;
 		if (pos === undefined) {
 			return undefined;
 		}
@@ -388,49 +395,41 @@ export class EventLayoutService {
 	setLabelLayoutFormat(format: LayoutFormat): void {
 		this.labelLayoutFormat.set(format);
 		this.labelLayout = createLabelLayout(this.labelLayoutFormat());
-		this.calculateLayout(this.input, this.timeline);
+		this.calculateLayout(this.input);
 	}
 
-	calculateLayout(input: EventLayoutInput, timeline?: Timeline): void {
+	calculateLayout(input: EventLayoutInput): void {
 		this.input = input;
-		this.timeline = timeline;
 
-		if (this.timeline === undefined || this.timeline.events.length === 0) {
-			this.tlEventPositions.set([]);
-			this.tlEventEndPositions.set([]);
+		if (this.timeline.events.length === 0) {
+			this.eventPositions.set([]);
+			this.overviewEventPositions.set([]);
 			this.labelLayout.clear();
 			return;
 		}
 
-		const calculated = this.calculateEventPositions(this.timeline);
-		this.tlEventPositions.set(calculated.positions);
-		this.tlEventEndPositions.set(calculated.endPositions);
-		this.labelLayout.calculate(this.tlEventPositions(), this.input, this.axisLayoutService, this.timeline);
+		const eventPositions = this.calculateEventPositions();
+		this.eventPositions.set(eventPositions);
+		this.labelLayout.calculate(this.eventPositions(), this.input, this.axisLayoutService, this.timeline);
 
-		const calculatedOverview = this.calculateOverviewEventPositions(this.timeline);
-		this.overviewEventPositions.set(calculatedOverview.positions);
-		this.overviewEventEndPositions.set(calculatedOverview.endPositions);
+		const overviewEventPositions = this.calculateOverviewEventPositions();
+		this.overviewEventPositions.set(overviewEventPositions);
 	}
 
-	private calculateEventPositions(
-		timeline: Timeline
-	): { positions: Point2D[], endPositions: Array<Point2D | undefined> } {
-		const tlEventPositions: Point2D[] = [];
-		const tlEventEndPositions: Array<Point2D | undefined> = [];
+	private calculateEventPositions(): EventPosition[] {
+		const eventPositions: EventPosition[] = [];
 
-		for (const event of timeline.events) {
+		for (const event of this.timeline.events) {
 			const start = this.calculateDatePosition(event.when);
-			tlEventPositions.push(start!);
-
 			const end = this.calculateDatePosition(event.until);
-			tlEventEndPositions.push(end);
+			eventPositions.push({ start: start!, end: end });
 		}
 
-		return { positions: tlEventPositions, endPositions: tlEventEndPositions };
+		return eventPositions;
 	}
 
 	private calculateDatePosition(date: HDate | undefined): Point2D | undefined {
-		if (date === undefined || this.timeline === undefined) {
+		if (date === undefined) {
 			return undefined;
 		}
 
@@ -445,25 +444,20 @@ export class EventLayoutService {
 		return new Point2D(dateX, axisStartPos.y);
 	}
 
-	private calculateOverviewEventPositions(
-		timeline: Timeline
-	): { positions: Point2D[], endPositions: Array<Point2D | undefined> } {
-		const overviewEventPositions: Point2D[] = [];
-		const overviewEventEndPositions: Array<Point2D | undefined> = [];
+	private calculateOverviewEventPositions(): EventPosition[] {
+		const overviewEventPositions: EventPosition[] = [];
 
-		for (const event of timeline.events) {
+		for (const event of this.timeline.events) {
 			const start = this.calculateOverviewDatePosition(event.when);
-			overviewEventPositions.push(start!);
-
 			const end = this.calculateOverviewDatePosition(event.until);
-			overviewEventEndPositions.push(end);
+			overviewEventPositions.push({ start: start!, end: end });
 		}
 
-		return { positions: overviewEventPositions, endPositions: overviewEventEndPositions };
+		return overviewEventPositions;
 	}
 
 	private calculateOverviewDatePosition(date: HDate | undefined): Point2D | undefined {
-		if (date === undefined || this.timeline === undefined) {
+		if (date === undefined) {
 			return undefined;
 		}
 

@@ -1,8 +1,10 @@
 import { Component, computed, inject, input, Signal } from '@angular/core';
-import { EventLayoutService } from '../../services/event-layout.service';
+import { EventLayoutService, EventPosition } from '../../services/event-layout.service';
 import { LineStyle } from '../../graphics/gfx-style';
 import { Point2D } from '../../graphics/gfx-coord-2d';
 import { AxisLayoutService } from '../../services/axis-layout.service';
+import { TimelineService } from '../../services/timeline.service';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 export const DEFAULT_EVENT_MAP_LINE_STYLE: LineStyle = {
 	color: '#333333',
@@ -16,15 +18,23 @@ export const DEFAULT_EVENT_MAP_LINE_STYLE: LineStyle = {
   styleUrl: './timeline-event-map.css'
 })
 export class TimelineEventMap {
+	private timelineService = inject(TimelineService);
 	private eventLayoutService = inject(EventLayoutService);
 	private axisLayoutService = inject(AxisLayoutService);
 
+	timeline = toSignal(this.timelineService.timeline$, {
+		initialValue: this.timelineService.timeline
+	});
+
 	// Positioning
-	get overviewEventPositions(): Signal<Point2D[]> {
-		return this.eventLayoutService.overviewEventPositions;
+	getOverviewEventPositions(index: number): EventPosition {
+		return this.eventLayoutService.overviewEventPositions()[index];
 	}
 	getEventPositionsInView(index: number): Point2D | undefined {
 		return this.eventLayoutService.getEventPositionInDisplay(index);
+	}
+	getEventEndPositionsInView(index: number): Point2D | undefined {
+		return this.eventLayoutService.getEventEndPositionInDisplay(index);
 	}
 	get overviewStartPos(): Signal<Point2D> {
 		return computed(() => new Point2D(

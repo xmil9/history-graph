@@ -3,7 +3,7 @@ import { SvgIcon, SvgIconOrigin } from '../svg-icon/svg-icon';
 import { INVALID_POSITION_SENTINEL, Point2D, Rect2D, Size2D } from '../../graphics/gfx-coord-2d';
 import { AxisLayoutService } from '../../services/axis-layout.service';
 import { LineStyle } from '../../graphics/gfx-style';
-import { EventLayoutService } from '../../services/event-layout.service';
+import { EventLayoutService, EventPosition } from '../../services/event-layout.service';
 import { TimelineService } from '../../services/timeline.service';
 import { HEvent } from '../../model/historic-event';
 import { Timeline } from '../../model/timeline';
@@ -31,21 +31,17 @@ export const DISPLAYED_ICON_OPACITY = 0.9;
   styleUrl: './timeline-overview-view.css'
 })
 export class TimelineOverviewView {
+	private timelineService = inject(TimelineService);
 	private axisLayoutService = inject(AxisLayoutService);
 	private eventLayoutService = inject(EventLayoutService);
 	
 	// Expose types for template
 	SvgIconOrigin = SvgIconOrigin;
 
-
-	constructor(private timelineService: TimelineService) {
-		this.timeline = toSignal(this.timelineService.timeline$, {
+	// Content
+	timeline = toSignal(this.timelineService.timeline$, {
 			initialValue: this.timelineService.timeline
 		});
-	}
-
-	// Content
-	timeline: Signal<Timeline | undefined>;
 
 	// Positioning
 	get displayBounds(): Signal<Rect2D> {
@@ -66,15 +62,14 @@ export class TimelineOverviewView {
 	get markerSize(): Signal<Size2D> {
 		return this.axisLayoutService.overviewMarkerSize;
 	}
-	get overviewEventPositions(): Signal<Point2D[]> {
-		return this.eventLayoutService.overviewEventPositions;
-	}
-	get overviewEventEndPositions(): Signal<Array<Point2D | undefined>> {
-		return this.eventLayoutService.overviewEventEndPositions;
+	getOverviewEventPosition(index: number): Signal<Point2D> {
+		return computed(() => {
+			return this.eventLayoutService.overviewEventPositions()[index].start;
+		});
 	}
 	getOverviewEventEndPosition(index: number): Signal<Point2D> {
 		return computed(() => {
-			const pos = this.overviewEventEndPositions()[index];
+			const pos = this.eventLayoutService.overviewEventPositions()[index].end;
 			if (pos === undefined) {
 				return new Point2D(INVALID_POSITION_SENTINEL, INVALID_POSITION_SENTINEL);
 			}

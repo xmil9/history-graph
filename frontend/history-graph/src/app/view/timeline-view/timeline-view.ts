@@ -29,6 +29,7 @@ const DEFAULT_TL_TEXT_STYLE: TextStyle = {
 	styleUrl: './timeline-view.css'
 })
 export class TimelineView implements AfterViewInit {
+	private timelineService = inject(TimelineService);
 	private eventLayoutService = inject(EventLayoutService);
 	private axisLayoutService = inject(AxisLayoutService);
 
@@ -65,10 +66,8 @@ export class TimelineView implements AfterViewInit {
 	private panDeltaStartPos = signal(new Point2D(0, 0));
 	private panStartPos = signal(new Point2D(0, 0));
 
-	constructor(private timelineService: TimelineService) {
-		this.timeline = toSignal(this.timelineService.timeline$, {
-			initialValue: this.timelineService.timeline
-		});
+	constructor() {
+		this.timeline = this.timelineService.timelineAsSignal();
 
 		effect(() => {
 			this.axisLayoutService.calculateLayout({
@@ -83,9 +82,7 @@ export class TimelineView implements AfterViewInit {
 				textStyle: this.textStyle(),
 				lineStyle: this.lineStyle(),
 				dateFormat: this.dateFormat(),
-			} satisfies EventLayoutInput,
-				this.timeline()
-			);
+			} satisfies EventLayoutInput);
 		});
 	}
 

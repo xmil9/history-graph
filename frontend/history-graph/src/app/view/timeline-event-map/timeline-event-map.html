@@ -11,15 +11,30 @@
 			[attr.opacity]="opacity()"
 		/>
 	}
-	@for (overviewEventPos of overviewEventPositions(); track overviewEventPos.x; let i = $index) {
-		@let tlEventPos = getEventPositionsInView(i);
-		@if (tlEventPos) {
+	@for (tlEvent of timeline().events; track tlEvent.when; let i = $index) {
+		@let eventPos = getEventPositionsInView(i);
+		@let overviewEventPos = getOverviewEventPositions(i);
+		@if (eventPos) {
 			<line
 				id="event-mapping"
-				[attr.x1]="overviewEventPos.x"
-				[attr.y1]="overviewEventPos.y"
-				[attr.x2]="tlEventPos.x"
-				[attr.y2]="tlEventPos.y"
+				[attr.x1]="overviewEventPos.start.x"
+				[attr.y1]="overviewEventPos.start.y"
+				[attr.x2]="eventPos.x"
+				[attr.y2]="eventPos.y"
+				[attr.stroke]="lineStyle().color"
+				[attr.stroke-width]="lineStyle().width"
+				[attr.opacity]="opacity()"
+			/>
+		}
+
+		@let eventEndPos = getEventEndPositionsInView(i);
+		@if (eventEndPos) {
+			<line
+				id="event-end-mapping"
+				[attr.x1]="overviewEventPos.end!.x"
+				[attr.y1]="overviewEventPos.end!.y"
+				[attr.x2]="eventEndPos.x"
+				[attr.y2]="eventEndPos.y"
 				[attr.stroke]="lineStyle().color"
 				[attr.stroke-width]="lineStyle().width"
 				[attr.opacity]="opacity()"
