@@ -39,7 +39,7 @@ class BaseAxisLayout implements AxisLayout {
 	endPos: Point2D = new Point2D(0, 0);
 	displayBounds: Rect2D = Rect2D.fromCoordinates(0, 0, 0, 0);
 	axisMarkerSize: Size2D = new Size2D(16);
-	eventMarkerSize: Size2D = new Size2D(8);
+	eventMarkerSize: Size2D = new Size2D(12);
 	startLabelPos: Point2D = new Point2D(0, 0);
 	endLabelPos: Point2D = new Point2D(0, 0);
 	labelRotation: number = 0;

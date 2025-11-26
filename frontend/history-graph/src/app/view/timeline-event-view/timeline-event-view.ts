@@ -31,10 +31,21 @@ export class TimelineEventView implements AfterViewInit {
 	label = computed(() => {
 		return this.layoutService.formatLabel(this.tlEvent());
 	});
+	
+	isPeriod(): boolean {
+		return this.tlEvent().until !== undefined;
+	}
 
 	// Positioning
 	get position(): Point2D {
 		const pos = this.layoutService.getEventPositionInDisplay(this.index());
+		if (pos === undefined) {
+			return new Point2D(INVALID_POSITION_SENTINEL, INVALID_POSITION_SENTINEL);
+		}
+		return pos;
+	}
+	get endPosition(): Point2D {
+		const pos = this.layoutService.getEventEndPositionInDisplay(this.index());
 		if (pos === undefined) {
 			return new Point2D(INVALID_POSITION_SENTINEL, INVALID_POSITION_SENTINEL);
 		}
@@ -59,8 +70,6 @@ export class TimelineEventView implements AfterViewInit {
 	get labelRotation(): Signal<number> {
 		return this.layoutService.labelRotation;
 	}
-
-
 
 	// Styling
 	textStyle = input<TextStyle>(DEFAULT_TEXT_STYLE);

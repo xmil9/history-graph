@@ -4,6 +4,8 @@ import { Point2D, Size2D } from '../../graphics/gfx-coord-2d';
 export enum SvgIconOrigin {
 	TopLeft,
 	Center,
+	CenterLeft,
+	CenterRight,
 }
 
 @Component({
@@ -22,10 +24,25 @@ export class SvgIcon {
 	position = input.required<Point2D>();
 	size = input<Size2D>(new Size2D(24, 24));
 	x = computed(() => {
-		return this.origin() === SvgIconOrigin.TopLeft ? this.position().x : this.position().x - this.size().width / 2;
+		switch (this.origin()) {
+			case SvgIconOrigin.TopLeft:
+			case SvgIconOrigin.CenterLeft:
+				return this.position().x;
+			case SvgIconOrigin.Center:
+				return this.position().x - this.size().width / 2;
+			case SvgIconOrigin.CenterRight:
+				return this.position().x + this.size().width;
+		}
 	});
 	y = computed(() => {
-		return this.origin() === SvgIconOrigin.TopLeft ? this.position().y : this.position().y - this.size().height / 2;
+		switch (this.origin()) {
+			case SvgIconOrigin.TopLeft:
+				return this.position().y;
+			case SvgIconOrigin.Center:
+			case SvgIconOrigin.CenterLeft:
+			case SvgIconOrigin.CenterRight:
+				return this.position().y - this.size().height / 2;
+			}
 	});
 	opacity = input<number>(1.0);
 }

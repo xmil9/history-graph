@@ -1,6 +1,6 @@
 ///////////////////
 
-const DEFAULT_COLOR = '#222';
+export const DEFAULT_CONTENT_COLOR = '#222';
 
 ///////////////////
 
@@ -16,7 +16,7 @@ export const DEFAULT_TEXT_STYLE: TextStyle = {
 	font: 'Lato',
 	size: 12,
 	weight: 400,
-	color: DEFAULT_COLOR
+	color: DEFAULT_CONTENT_COLOR
 };
 
 ///////////////////
@@ -27,6 +27,6 @@ export interface LineStyle {
 }
 
 export const DEFAULT_LINE_STYLE: LineStyle = {
-	color: DEFAULT_COLOR,
+	color: DEFAULT_CONTENT_COLOR,
 	width: 2
 };

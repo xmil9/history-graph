@@ -1,14 +1,37 @@
 <svg:g xmlns:svg="http://www.w3.org/2000/svg">
-	<g svg-icon
-		class="event-marker"
-		[name]="'tl-date'"
-		[origin]="SvgIconOrigin.Center"
-		[position]="position"
-		[size]="eventMarkerSize()"
-		(mouseenter)="onMarkerMouseEnter($event)"
-		(mousemove)="onMarkerMouseMove($event)"
-		(mouseleave)="onMarkerMouseLeave()">
-	</g>
+	@if (isPeriod()) {
+		<g svg-icon
+			class="event-marker"
+			[name]="'tl-period-from'"
+			[origin]="SvgIconOrigin.CenterLeft"
+			[position]="position"
+			[size]="eventMarkerSize()"
+			(mouseenter)="onMarkerMouseEnter($event)"
+			(mousemove)="onMarkerMouseMove($event)"
+			(mouseleave)="onMarkerMouseLeave()">
+		</g>
+		<g svg-icon
+			class="event-marker"
+			[name]="'tl-period-to'"
+			[origin]="SvgIconOrigin.CenterRight"
+			[position]="endPosition"
+			[size]="eventMarkerSize()"
+			(mouseenter)="onMarkerMouseEnter($event)"
+			(mousemove)="onMarkerMouseMove($event)"
+			(mouseleave)="onMarkerMouseLeave()">
+		</g>
+	} @else {
+		<g svg-icon
+			class="event-marker"
+			[name]="'tl-date'"
+			[origin]="SvgIconOrigin.Center"
+			[position]="position"
+			[size]="eventMarkerSize()"
+			(mouseenter)="onMarkerMouseEnter($event)"
+			(mousemove)="onMarkerMouseMove($event)"
+			(mouseleave)="onMarkerMouseLeave()">
+		</g>
+	}	
 	@if (layoutFormat() === LayoutFormat.Vertical) {
 		<text class="no-text-select"
 			[attr.x]="labelPos.x"
