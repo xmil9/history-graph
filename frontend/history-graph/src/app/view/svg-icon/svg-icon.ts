@@ -31,7 +31,7 @@ export class SvgIcon {
 			case SvgIconOrigin.Center:
 				return this.position().x - this.size().width / 2;
 			case SvgIconOrigin.CenterRight:
-				return this.position().x + this.size().width;
+				return this.position().x - this.size().width;
 		}
 	});
 	y = computed(() => {
