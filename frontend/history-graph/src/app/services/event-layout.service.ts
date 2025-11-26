@@ -365,7 +365,7 @@ export class EventLayoutService {
 
 	eventPositions = signal<EventPosition[]>([]);
 	overviewEventPositions = signal<EventPosition[]>([]);
-	labelLayoutFormat = signal<LayoutFormat>(LayoutFormat.HorizontalLeft);
+	labelLayoutFormat = signal<LayoutFormat>(LayoutFormat.HorizontalCenter);
 	private labelLayout: LabelLayout = createLabelLayout(this.labelLayoutFormat());
 	private input = DEFAULT_INPUT;
 

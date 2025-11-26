@@ -256,7 +256,7 @@ function createAxisLayout(format: LayoutFormat): AxisLayout {
 	providedIn: 'root'
 })
 export class AxisLayoutService {
-	layoutFormat = signal<LayoutFormat>(LayoutFormat.HorizontalLeft);
+	layoutFormat = signal<LayoutFormat>(LayoutFormat.HorizontalCenter);
 	private axisLayout: AxisLayout = createAxisLayout(this.layoutFormat());
 	private input = DEFAULT_INPUT;
 	
