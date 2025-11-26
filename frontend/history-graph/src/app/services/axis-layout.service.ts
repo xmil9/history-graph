@@ -68,19 +68,21 @@ class BaseAxisLayout implements AxisLayout {
 	}
 
 	protected calculateDisplayBounds(input: AxisLayoutInput): Rect2D {
+		const left = this.displayMargins.left;
 		return Rect2D.fromCoordinates(
-			this.displayMargins.left,
+			left,
 			this.displayMargins.top,
-			input.viewSize.width - this.displayMargins.right,
+			Math.max(input.viewSize.width - this.displayMargins.right, left + 1),
 			this.displayMargins.top + this.displayHeight
 		);
 	}
 
 	protected calculateOverviewBounds(input: AxisLayoutInput): Rect2D {
+		const left = this.overviewMargins.left;
 		return Rect2D.fromCoordinates(
-			this.overviewMargins.left,
+			left,
 			this.overviewMargins.top,
-			input.viewSize.width - this.overviewMargins.right,
+			Math.max(input.viewSize.width - this.overviewMargins.right, left + 1),
 			this.overviewMargins.top + this.overviewHeight
 		);
 	}
