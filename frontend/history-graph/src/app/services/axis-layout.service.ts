@@ -39,7 +39,7 @@ class BaseAxisLayout implements AxisLayout {
 	endPos: Point2D = new Point2D(0, 0);
 	displayBounds: Rect2D = Rect2D.fromCoordinates(0, 0, 0, 0);
 	axisMarkerSize: Size2D = new Size2D(16);
-	eventMarkerSize: Size2D = new Size2D(12);
+	eventMarkerSize: Size2D = new Size2D(8);
 	startLabelPos: Point2D = new Point2D(0, 0);
 	endLabelPos: Point2D = new Point2D(0, 0);
 	labelRotation: number = 0;
@@ -261,7 +261,7 @@ export class AxisLayoutService {
 	layoutFormat = signal<LayoutFormat>(LayoutFormat.HorizontalCenter);
 	private axisLayout: AxisLayout = createAxisLayout(this.layoutFormat());
 	private input = DEFAULT_INPUT;
-	
+
 	// Virtual start and end positions of the timeline. They can be outside the visible area.
 	private _startPos = signal<Point2D>(new Point2D(0, 0));
 	private _endPos = signal<Point2D>(new Point2D(0, 0));
