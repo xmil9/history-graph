@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { TimelineHeader } from './timeline-header';
+import { TimelineHeader } from './header-view';
 
 describe('TimelineHeader', () => {
 	let component: TimelineHeader;
@@ -9,7 +9,7 @@ describe('TimelineHeader', () => {
 		await TestBed.configureTestingModule({
 			imports: [TimelineHeader]
 		})
-		.compileComponents();
+			.compileComponents();
 
 		fixture = TestBed.createComponent(TimelineHeader);
 		component = fixture.componentInstance;

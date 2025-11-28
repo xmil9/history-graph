@@ -3,10 +3,8 @@ import { SvgIcon, SvgIconOrigin } from '../svg-icon/svg-icon';
 import { INVALID_POSITION_SENTINEL, Point2D, Rect2D, Size2D } from '../../graphics/gfx-coord-2d';
 import { AxisLayoutService } from '../../services/axis-layout.service';
 import { LineStyle } from '../../graphics/gfx-style';
-import { EventLayoutService, EventPosition } from '../../services/event-layout.service';
+import { EventLayoutService } from '../../services/event-layout.service';
 import { TimelineService } from '../../services/timeline.service';
-import { HEvent } from '../../model/historic-event';
-import { Timeline } from '../../model/timeline';
 import { toSignal } from '@angular/core/rxjs-interop';
 
 export const DEFAULT_OVERVIEW_BACKGROUND = '#d0d0d0';
@@ -25,23 +23,23 @@ export const NON_DISPLAYED_ICON_OPACITY = 0.6;
 export const DISPLAYED_ICON_OPACITY = 0.9;
 
 @Component({
-  selector: '[tl-overview]',
-  imports: [SvgIcon],
-  templateUrl: './timeline-overview-view.html',
-  styleUrl: './timeline-overview-view.css'
+	selector: '[tl-overview]',
+	imports: [SvgIcon],
+	templateUrl: './overview-view.html',
+	styleUrl: './overview-view.css'
 })
-export class TimelineOverviewView {
+export class OverviewView {
 	private timelineService = inject(TimelineService);
 	private axisLayoutService = inject(AxisLayoutService);
 	private eventLayoutService = inject(EventLayoutService);
-	
+
 	// Expose types for template
 	SvgIconOrigin = SvgIconOrigin;
 
 	// Content
 	timeline = toSignal(this.timelineService.timeline$, {
-			initialValue: this.timelineService.timeline
-		});
+		initialValue: this.timelineService.timeline
+	});
 
 	// Positioning
 	get displayBounds(): Signal<Rect2D> {
@@ -85,7 +83,7 @@ export class TimelineOverviewView {
 	background = input<string>(DEFAULT_OVERVIEW_BACKGROUND);
 	displayedBackground = input<string>(DEFAULT_OVERVIEW_DISPLAYED_BACKGROUND);
 	displayedLineStyle = input<LineStyle>(DEFAULT_OVERVIEW_DISPLAYED_LINE_STYLE);
-	
+
 	get startIconOpacity(): number {
 		if (this.axisLayoutService.displayBounds().contains(this.axisLayoutService.startPos())) {
 			return DISPLAYED_ICON_OPACITY;

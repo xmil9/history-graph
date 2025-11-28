@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { TimelineAxisView } from './timeline-axis-view';
+import { TimelineEventView } from './event-view';
 
-describe('TimelineAxisView', () => {
-  let component: TimelineAxisView;
-  let fixture: ComponentFixture<TimelineAxisView>;
+describe('TimelineEventView', () => {
+  let component: TimelineEventView;
+  let fixture: ComponentFixture<TimelineEventView>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TimelineAxisView]
+      imports: [TimelineEventView]
     })
-    .compileComponents();
+      .compileComponents();
 
-    fixture = TestBed.createComponent(TimelineAxisView);
+    fixture = TestBed.createComponent(TimelineEventView);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

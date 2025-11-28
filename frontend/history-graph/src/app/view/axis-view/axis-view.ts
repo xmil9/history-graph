@@ -7,25 +7,25 @@ import { SvgIcon, SvgIconOrigin } from '../svg-icon/svg-icon';
 export const DEFAULT_AXIS_BACKGROUND = '#f8f8f8';
 
 @Component({
-  	selector: '[tl-axis]',
+	selector: '[tl-axis]',
 	imports: [SvgIcon],
-	templateUrl: './timeline-axis-view.html',
-  	styleUrl: './timeline-axis-view.css'
+	templateUrl: './axis-view.html',
+	styleUrl: './axis-view.css'
 })
-export class TimelineAxisView {
+export class AxisView {
 	private axisLayoutService = inject(AxisLayoutService);
 
 	// Expose types for template
 	SvgIconOrigin = SvgIconOrigin;
-	
+
 	// Content
 	startLabel = input.required<string>();
 	endLabel = input.required<string>();
-	
+
 	// Positioning
 	get startPos(): Signal<Point2D> {
 		return computed(() => {
-			return 	new Point2D(Math.max(this.axisLayoutService.startPos().x, this.displayBounds().left), this.axisLayoutService.startPos().y);
+			return new Point2D(Math.max(this.axisLayoutService.startPos().x, this.displayBounds().left), this.axisLayoutService.startPos().y);
 		});
 	}
 	get endPos(): Signal<Point2D> {

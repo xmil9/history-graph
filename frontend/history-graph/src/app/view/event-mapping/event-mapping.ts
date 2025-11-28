@@ -12,12 +12,12 @@ export const DEFAULT_EVENT_MAP_LINE_STYLE: LineStyle = {
 };
 
 @Component({
-  selector: '[tl-event-map]',
-  imports: [],
-  templateUrl: './timeline-event-map.html',
-  styleUrl: './timeline-event-map.css'
+	selector: '[event-mapping]',
+	imports: [],
+	templateUrl: './event-mapping.html',
+	styleUrl: './event-mapping.css'
 })
-export class TimelineEventMap {
+export class EventMapping {
 	private timelineService = inject(TimelineService);
 	private eventLayoutService = inject(EventLayoutService);
 	private axisLayoutService = inject(AxisLayoutService);
@@ -42,7 +42,7 @@ export class TimelineEventMap {
 			this.axisLayoutService.overviewAxisBounds().center.y)
 		);
 	}
-	get overviewEndPos(): Signal<Point2D>	 {
+	get overviewEndPos(): Signal<Point2D> {
 		return computed(() => new Point2D(
 			this.axisLayoutService.overviewAxisBounds().right,
 			this.axisLayoutService.overviewAxisBounds().center.y)

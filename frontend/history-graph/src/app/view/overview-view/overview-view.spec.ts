@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { TimelineOverviewView } from './timeline-overview-view';
+import { TimelineOverviewView } from './overview-view';
 
 describe('TimelineOverviewView', () => {
   let component: TimelineOverviewView;
@@ -10,7 +10,7 @@ describe('TimelineOverviewView', () => {
     await TestBed.configureTestingModule({
       imports: [TimelineOverviewView]
     })
-    .compileComponents();
+      .compileComponents();
 
     fixture = TestBed.createComponent(TimelineOverviewView);
     component = fixture.componentInstance;

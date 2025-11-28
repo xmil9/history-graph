@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { TimelineEventOverlayView } from './timeline-event-overlay-view';
+import { TimelineEventOverlayView } from './event-overlay';
 
 describe('TimelineEventOverlayView', () => {
 	let component: TimelineEventOverlayView;
@@ -9,7 +9,7 @@ describe('TimelineEventOverlayView', () => {
 		await TestBed.configureTestingModule({
 			imports: [TimelineEventOverlayView]
 		})
-		.compileComponents();
+			.compileComponents();
 
 		fixture = TestBed.createComponent(TimelineEventOverlayView);
 		component = fixture.componentInstance;

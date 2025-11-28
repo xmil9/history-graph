@@ -3,12 +3,12 @@ import { EventOverlayService } from '../../services/event-overlay.service';
 import { HDateFormat, MDYYYYFormat } from '../../model/historic-date';
 
 @Component({
-	selector: 'tl-event-overlay',
+	selector: 'event-overlay',
 	standalone: true,
-	templateUrl: './timeline-event-overlay-view.html',
-	styleUrl: './timeline-event-overlay-view.css'
+	templateUrl: './event-overlay.html',
+	styleUrl: './event-overlay.css'
 })
-export class TimelineEventOverlayView {
+export class EventOverlay {
 	private overlayService = inject(EventOverlayService);
 
 	// Inputs
@@ -16,7 +16,7 @@ export class TimelineEventOverlayView {
 
 	// Get overlay data from service
 	overlay = computed(() => this.overlayService.overlay());
-	
+
 	dateRange = computed(() => {
 		const overlay = this.overlay();
 		if (!overlay) return '';

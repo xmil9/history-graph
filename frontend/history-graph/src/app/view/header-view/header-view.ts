@@ -5,10 +5,10 @@ import { HDateFormat } from '../../model/historic-date';
 @Component({
 	selector: 'tl-header',
 	imports: [],
-	templateUrl: './timeline-header.html',
-	styleUrl: './timeline-header.css'
+	templateUrl: './header-view.html',
+	styleUrl: './header-view.css'
 })
-export class TimelineHeader {
+export class HeaderView {
 	timeline = input<Timeline | undefined>();
 	dateFormat = input.required<HDateFormat>();
 }

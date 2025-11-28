@@ -4,16 +4,16 @@ import { TimelineService } from '../../services/timeline.service';
 import { Timeline } from '../../model/timeline';
 import { Point2D, Size2D } from '../../graphics/gfx-coord-2d';
 import { HDateFormat, MDYYYYFormat } from '../../model/historic-date';
-import { TimelineEventView } from '../timeline-event-view/timeline-event-view';
-import { TimelineAxisView } from '../timeline-axis-view/timeline-axis-view';
-import { TimelineEventOverlayView } from '../timeline-event-overlay-view/timeline-event-overlay-view';
-import { TimelineLayoutSelector } from '../timeline-layout-selector/timeline-layout-selector';
+import { EventView } from '../event-view/event-view';
+import { AxisView } from '../axis-view/axis-view';
+import { EventOverlay } from '../event-overlay/event-overlay';
+import { LayoutSelector } from '../layout-selector/layout-selector';
 import { DEFAULT_LINE_STYLE, DEFAULT_TEXT_STYLE, LineStyle, TextStyle } from '../../graphics/gfx-style';
 import { EventLayoutInput, EventLayoutService } from '../../services/event-layout.service';
 import { AxisLayoutInput, AxisLayoutService } from '../../services/axis-layout.service';
-import { TimelineOverviewView } from '../timeline-overview-view/timeline-overview-view';
-import { TimelineEventMap } from '../timeline-event-map/timeline-event-map';
-import { TimelineHeader } from '../timeline-header/timeline-header';
+import { OverviewView } from '../overview-view/overview-view';
+import { EventMapping } from '../event-mapping/event-mapping';
+import { HeaderView } from '../header-view/header-view';
 
 const DEFAULT_TL_TEXT_STYLE: TextStyle = {
 	...DEFAULT_TEXT_STYLE,
@@ -24,7 +24,15 @@ const DEFAULT_TL_TEXT_STYLE: TextStyle = {
 
 @Component({
 	selector: 'timeline',
-	imports: [TimelineOverviewView, TimelineAxisView, TimelineEventView, TimelineEventOverlayView, TimelineLayoutSelector, TimelineEventMap, TimelineHeader],
+	imports: [
+		OverviewView,
+		AxisView,
+		EventView,
+		EventOverlay,
+		LayoutSelector,
+		EventMapping,
+		HeaderView,
+	],
 	templateUrl: './timeline-view.html',
 	styleUrl: './timeline-view.css'
 })

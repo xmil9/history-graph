@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { TimelineEventMap } from './timeline-event-map';
+import { TimelineEventMap } from './event-mapping';
 
 describe('TimelineEventMap', () => {
   let component: TimelineEventMap;
@@ -10,7 +10,7 @@ describe('TimelineEventMap', () => {
     await TestBed.configureTestingModule({
       imports: [TimelineEventMap]
     })
-    .compileComponents();
+      .compileComponents();
 
     fixture = TestBed.createComponent(TimelineEventMap);
     component = fixture.componentInstance;

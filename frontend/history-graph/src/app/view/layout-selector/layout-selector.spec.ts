@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { TimelineLayoutSelector } from './timeline-layout-selector';
+import { TimelineLayoutSelector } from './layout-selector';
 
 describe('TimelineLayoutSelector', () => {
   let component: TimelineLayoutSelector;
@@ -9,7 +9,7 @@ describe('TimelineLayoutSelector', () => {
     await TestBed.configureTestingModule({
       imports: [TimelineLayoutSelector]
     })
-    .compileComponents();
+      .compileComponents();
 
     fixture = TestBed.createComponent(TimelineLayoutSelector);
     component = fixture.componentInstance;

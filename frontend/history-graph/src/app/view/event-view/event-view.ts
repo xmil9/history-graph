@@ -1,5 +1,5 @@
-import { AfterViewInit, Component, computed, effect, ElementRef, inject, input, Signal, signal } from '@angular/core';
-import { INVALID_POSITION_SENTINEL, Point2D, Rect2D, Size2D } from '../../graphics/gfx-coord-2d';
+import { Component, computed, inject, input, Signal } from '@angular/core';
+import { INVALID_POSITION_SENTINEL, Point2D, Size2D } from '../../graphics/gfx-coord-2d';
 import { DEFAULT_LINE_STYLE, DEFAULT_TEXT_STYLE, LineStyle, TextStyle } from '../../graphics/gfx-style';
 import { HEvent } from '../../model/historic-event';
 import { HDateFormat } from '../../model/historic-date';
@@ -12,10 +12,10 @@ import { AxisLayoutService } from '../../services/axis-layout.service';
 @Component({
 	selector: '[tl-event]',
 	imports: [SvgIcon],
-	templateUrl: './timeline-event-view.html',
-	styleUrl: './timeline-event-view.css'
+	templateUrl: './event-view.html',
+	styleUrl: './event-view.css'
 })
-export class TimelineEventView {
+export class EventView {
 	private overlayService = inject(EventOverlayService);
 	private layoutService = inject(EventLayoutService);
 	private axisLayoutService = inject(AxisLayoutService);
@@ -31,7 +31,7 @@ export class TimelineEventView {
 	label = computed(() => {
 		return this.layoutService.formatLabel(this.tlEvent());
 	});
-	
+
 	isPeriod(): boolean {
 		return this.tlEvent().until !== undefined;
 	}

@@ -6,10 +6,10 @@ import { AxisLayoutService } from '../../services/axis-layout.service';
 @Component({
 	selector: 'tl-layout-selector',
 	standalone: true,
-	templateUrl: './timeline-layout-selector.html',
-	styleUrl: './timeline-layout-selector.css'
+	templateUrl: './layout-selector.html',
+	styleUrl: './layout-selector.css'
 })
-export class TimelineLayoutSelector {
+export class LayoutSelector {
 	private layoutService = inject(EventLayoutService);
 	private axisLayoutService = inject(AxisLayoutService);
 
