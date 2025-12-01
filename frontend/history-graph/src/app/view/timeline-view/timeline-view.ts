@@ -1,9 +1,7 @@
-import { AfterViewInit, Component, computed, effect, ElementRef, HostListener, inject, input, Signal, signal, ViewChild } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { AfterViewInit, Component, computed, effect, ElementRef, HostListener, inject, input, signal, Signal, ViewChild } from '@angular/core';
 import { TimelineService } from '../../services/timeline.service';
 import { Timeline } from '../../model/timeline';
 import { Point2D, Size2D } from '../../graphics/gfx-coord-2d';
-import { HDateFormat, MDYYYYFormat, MMMDYYYYFormat } from '../../model/historic-date';
 import { EventView } from '../event-view/event-view';
 import { AxisView } from '../axis-view/axis-view';
 import { EventOverlay } from '../event-overlay/event-overlay';
@@ -14,6 +12,8 @@ import { AxisLayoutInput, AxisLayoutService } from '../../services/axis-layout.s
 import { OverviewView } from '../overview-view/overview-view';
 import { EventMapping } from '../event-mapping/event-mapping';
 import { HeaderView } from '../header-view/header-view';
+import { PreferenceService } from '../../services/preference.service';
+import { HDateFormat } from '../../model/historic-date';
 
 const DEFAULT_TL_TEXT_STYLE: TextStyle = {
 	...DEFAULT_TEXT_STYLE,
@@ -40,11 +40,15 @@ export class TimelineView implements AfterViewInit {
 	private timelineService = inject(TimelineService);
 	private eventLayoutService = inject(EventLayoutService);
 	private axisLayoutService = inject(AxisLayoutService);
+	private preferenceService = inject(PreferenceService);
 
 	@ViewChild('container', { read: ElementRef }) containerRef!: ElementRef<HTMLDivElement>;
 
 	// Content
-	dateFormat: Signal<HDateFormat> = signal(new MMMDYYYYFormat());
+	dateFormat = computed<HDateFormat>(() => {
+		const labeledFormat = this.preferenceService.dateFormat();
+		return labeledFormat.format;
+	});
 	timeline: Signal<Timeline | undefined>;
 
 	startLabel = computed(() => {

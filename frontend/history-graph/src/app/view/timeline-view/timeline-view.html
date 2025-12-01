@@ -7,7 +7,7 @@
 			[lineStyle]="lineStyle()" />
 		@if (timeline()?.events) {
 		@for (tlEvent of timeline()!.events; track tlEvent.when; let i = $index) {
-		<g tl-event [tlEvent]="tlEvent" [index]="i" [dateFormat]="dateFormat()" [textStyle]="textStyle()"
+		<g tl-event [tlEvent]="tlEvent" [index]="i" [textStyle]="textStyle()"
 			[lineStyle]="lineStyle()" />
 		}
 		}

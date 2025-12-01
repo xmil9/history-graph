@@ -8,6 +8,7 @@ import { EventOverlayService } from '../../services/event-overlay.service';
 import { EventLayoutService } from '../../services/event-layout.service';
 import { LayoutFormat } from '../../services/layout-types';
 import { AxisLayoutService } from '../../services/axis-layout.service';
+import { PreferenceService } from '../../services/preference.service';
 
 @Component({
 	selector: '[tl-event]',
@@ -19,6 +20,7 @@ export class EventView {
 	private overlayService = inject(EventOverlayService);
 	private layoutService = inject(EventLayoutService);
 	private axisLayoutService = inject(AxisLayoutService);
+	private preferenceService = inject(PreferenceService);
 
 	// Expose types for template
 	SvgIconOrigin = SvgIconOrigin;
@@ -27,8 +29,9 @@ export class EventView {
 	// Content
 	tlEvent = input.required<HEvent>();
 	index = input.required<number>();
-	dateFormat = input.required<HDateFormat>();
 	label = computed(() => {
+		// Trigger recompute
+		this.preferenceService.dateFormat();
 		return this.layoutService.formatLabel(this.tlEvent());
 	});
 
