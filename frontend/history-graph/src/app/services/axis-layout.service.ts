@@ -23,6 +23,7 @@ interface AxisLayout {
 	startLabelPos: Point2D;
 	endLabelPos: Point2D;
 	labelRotation: number;
+	periodBoundsHeight: number;
 	overviewBounds: Rect2D;
 	overviewAxisBounds: Rect2D;
 	overviewDisplayedBounds: Rect2D;
@@ -43,11 +44,13 @@ class BaseAxisLayout implements AxisLayout {
 	startLabelPos: Point2D = new Point2D(0, 0);
 	endLabelPos: Point2D = new Point2D(0, 0);
 	labelRotation: number = 0;
+	periodBoundsHeight: number = 20;
 	overviewBounds: Rect2D = Rect2D.fromCoordinates(0, 0, 0, 0);
 	overviewAxisBounds: Rect2D = Rect2D.fromCoordinates(0, 0, 0, 0);
 	overviewDisplayedBounds: Rect2D = Rect2D.fromCoordinates(0, 0, 0, 0);
 	overviewMarkerSize: Size2D = new Size2D(10);
 	overviewEventMarkerSize: Size2D = new Size2D(5);
+	overviewPeriodBoundsHeight: number = 10;
 	protected input = DEFAULT_INPUT;
 	protected readonly displayMargins = Rect2D.fromCoordinates(50, 50, 50, 0);
 	protected readonly displayHeight = 150;
@@ -277,7 +280,6 @@ export class AxisLayoutService {
 	// The area of the overview axis that is displayed in the timeline.
 	private _overviewDisplayedBounds = signal<Rect2D>(Rect2D.fromCoordinates(0, 0, 0, 0));
 
-
 	get startPos(): Signal<Point2D> {
 		return this._startPos.asReadonly();
 	}
@@ -295,6 +297,9 @@ export class AxisLayoutService {
 	}
 	get labelRotation(): Signal<number> {
 		return computed(() => this.axisLayout.labelRotation);
+	}
+	get periodBoundsHeight(): Signal<number> {
+		return computed(() => this.axisLayout.periodBoundsHeight);
 	}
 	get overviewBounds(): Signal<Rect2D> {
 		return this._overviewBounds.asReadonly();

@@ -391,6 +391,34 @@ export class EventLayoutService {
 		}
 		return this.axisLayoutService.displayBounds().contains(pos) ? pos : undefined;
 	}
+
+	getPeriodBounds(index: number): Signal<Rect2D> {
+		return computed(() => {
+			const NO_BOUNDS = Rect2D.fromCoordinates(0, 0, 0, 0);
+			const pos = this.eventPositions()[index];
+			const displayBounds = this.axisLayoutService.displayBounds();
+
+			let left = pos.start.x;
+			if (left >= displayBounds.right)
+				return NO_BOUNDS;
+			if (left < displayBounds.left)
+				left = displayBounds.left;
+
+			let right = pos.end?.x;
+			if (right === undefined || right <= displayBounds.left)
+				return NO_BOUNDS;
+			if (right > displayBounds.right)
+				right = displayBounds.right;
+
+			const halfBoundsHeight = this.axisLayoutService.periodBoundsHeight() / 2;
+			return Rect2D.fromCoordinates(
+				left,
+				pos.start.y - halfBoundsHeight,
+				right,
+				pos.start.y + halfBoundsHeight
+			);
+		});
+	}
 	
 	setLabelLayoutFormat(format: LayoutFormat): void {
 		this.labelLayoutFormat.set(format);

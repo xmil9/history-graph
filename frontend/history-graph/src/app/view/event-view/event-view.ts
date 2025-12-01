@@ -1,5 +1,5 @@
 import { Component, computed, inject, input, Signal } from '@angular/core';
-import { INVALID_POSITION_SENTINEL, Point2D, Size2D } from '../../graphics/gfx-coord-2d';
+import { INVALID_POSITION_SENTINEL, Point2D, Rect2D, Size2D } from '../../graphics/gfx-coord-2d';
 import { DEFAULT_LINE_STYLE, DEFAULT_TEXT_STYLE, LineStyle, TextStyle } from '../../graphics/gfx-style';
 import { HEvent } from '../../model/historic-event';
 import { HDateFormat } from '../../model/historic-date';
@@ -70,7 +70,10 @@ export class EventView {
 	get labelRotation(): Signal<number> {
 		return this.layoutService.labelRotation;
 	}
-
+	get periodBounds(): Signal<Rect2D> {
+		return this.layoutService.getPeriodBounds(this.index());
+	}
+	
 	// Styling
 	textStyle = input<TextStyle>(DEFAULT_TEXT_STYLE);
 	lineStyle = input<LineStyle>(DEFAULT_LINE_STYLE);

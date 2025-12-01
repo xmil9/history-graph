@@ -1,5 +1,17 @@
 <svg:g xmlns:svg="http://www.w3.org/2000/svg">
 	@if (isPeriod()) {
+		<rect
+			[attr.x]="periodBounds().left"
+			[attr.y]="periodBounds().top"
+			[attr.width]="periodBounds().width"
+			[attr.height]="periodBounds().height"
+			[attr.fill]="'#f00'"
+			[attr.stroke]="'f00'"
+			[attr.stroke-width]="1"
+			opacity="0.5"
+			rx="2"
+			ry="2"
+		/>
 		<g svg-icon
 			class="event-marker"
 			[name]="'tl-period-from'"
