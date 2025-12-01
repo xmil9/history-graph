@@ -18,10 +18,10 @@ export class LayoutSelector {
 
 	// Available layout options with display names
 	layoutOptions = [
-		{ value: LayoutFormat.None, label: 'None' },
-		{ value: LayoutFormat.Vertical, label: 'Vertical' },
+		{ value: LayoutFormat.HorizontalCenter, label: 'Horizontal Centered' },
 		{ value: LayoutFormat.HorizontalLeft, label: 'Horizontal Left' },
-		{ value: LayoutFormat.HorizontalCenter, label: 'Horizontal Centered' }
+		{ value: LayoutFormat.Vertical, label: 'Vertical' },
+		{ value: LayoutFormat.None, label: 'None' },
 	];
 
 	// Check if a layout is active
