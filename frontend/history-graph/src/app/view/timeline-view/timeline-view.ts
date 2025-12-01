@@ -3,7 +3,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { TimelineService } from '../../services/timeline.service';
 import { Timeline } from '../../model/timeline';
 import { Point2D, Size2D } from '../../graphics/gfx-coord-2d';
-import { HDateFormat, MDYYYYFormat } from '../../model/historic-date';
+import { HDateFormat, MDYYYYFormat, MMMDYYYYFormat } from '../../model/historic-date';
 import { EventView } from '../event-view/event-view';
 import { AxisView } from '../axis-view/axis-view';
 import { EventOverlay } from '../event-overlay/event-overlay';
@@ -44,7 +44,7 @@ export class TimelineView implements AfterViewInit {
 	@ViewChild('container', { read: ElementRef }) containerRef!: ElementRef<HTMLDivElement>;
 
 	// Content
-	dateFormat: Signal<HDateFormat> = signal(new MDYYYYFormat('-'));
+	dateFormat: Signal<HDateFormat> = signal(new MMMDYYYYFormat());
 	timeline: Signal<Timeline | undefined>;
 
 	startLabel = computed(() => {

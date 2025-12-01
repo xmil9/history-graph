@@ -1,6 +1,6 @@
 import { computed, inject, Injectable, input, Signal, signal } from '@angular/core';
 import { Timeline } from '../model/timeline';
-import { duration, HDate, HDateFormat, MDYYYYFormat } from '../model/historic-date';
+import { duration, HDate, HDateFormat, DEFAULT_DATE_FORMAT } from '../model/historic-date';
 import { Point2D, Size2D, INVALID_POSITION_SENTINEL, Rect2D } from '../graphics/gfx-coord-2d';
 import { DEFAULT_LINE_STYLE, DEFAULT_TEXT_STYLE, LineStyle, TextStyle } from '../graphics/gfx-style';
 import { LayoutFormat } from './layout-types';
@@ -20,7 +20,7 @@ const DEFAULT_INPUT: EventLayoutInput = {
 	viewSize: new Size2D(0, 0),
 	textStyle: DEFAULT_TEXT_STYLE,
 	lineStyle: DEFAULT_LINE_STYLE,
-	dateFormat: new MDYYYYFormat('-'),
+	dateFormat: DEFAULT_DATE_FORMAT,
 };
 
 export interface EventPosition {
@@ -29,7 +29,7 @@ export interface EventPosition {
 }
 
 function formatLabel(tlEvent: HEvent, dateFormat: HDateFormat): string {
-	return dateFormat.format(tlEvent.when) + ' - ' + tlEvent.label;
+	return dateFormat.format(tlEvent.when) + '  ' + tlEvent.label;
 }
 
 ///////////////////

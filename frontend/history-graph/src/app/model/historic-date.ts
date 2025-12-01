@@ -174,6 +174,14 @@ export class HPeriod {
 
 export type DateSeparator = '/' | '.' | '-' | ' ';
 
+export const MonthAbbreviations = [ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ];
+export const MonthFullNames = [
+	'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December' ];
+
+export const DayAbbreviations = [ 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat' ];
+export const DayFullNames = [
+	'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' ];
+
 // YY - two-digit year, e.g. 24
 // YYYY - four-digit year, e.g. 2024
 // M - one-digit month for months below 10, e.g. 3
@@ -196,10 +204,24 @@ export class MDYYYYFormat implements HDateFormat {
     format(date: HDate): string {
 		let s = '';
 		if (date.month)
-			s += `${date.month} ${this.separator}`;
+			s += `${date.month}${this.separator}`;
 		if (date.month && date.day)
-			s += `${date.day} ${this.separator}`;
+			s += `${date.day}${this.separator}`;
 		s += date.year.toString();
         return s;
     }
 }
+
+export class MMMDYYYYFormat implements HDateFormat {
+    format(date: HDate): string {
+		let s = '';
+		if (date.month)
+			s += `${MonthAbbreviations[date.month - 1]} `;
+		if (date.month && date.day)
+			s += `${date.day} `;
+		s += date.year.toString();
+        return s;
+    }
+}
+
+export const DEFAULT_DATE_FORMAT: HDateFormat = new MDYYYYFormat('-');
