@@ -419,7 +419,26 @@ export class EventLayoutService {
 			);
 		});
 	}
-	
+
+	getOverviewPeriodBounds(index: number): Signal<Rect2D> {
+		return computed(() => {
+			const pos = this.overviewEventPositions()[index];
+
+			const left = pos.start.x;
+			let right = pos.end!.x;
+			if (right < left)
+				right = left;
+
+			const halfBoundsHeight = this.axisLayoutService.overviewPeriodBoundsHeight() / 2;
+			return Rect2D.fromCoordinates(
+				left,
+				pos.start.y - halfBoundsHeight,
+				right,
+				pos.start.y + halfBoundsHeight
+			);
+		});
+	}
+
 	setLabelLayoutFormat(format: LayoutFormat): void {
 		this.labelLayoutFormat.set(format);
 		this.labelLayout = createLabelLayout(this.labelLayoutFormat());

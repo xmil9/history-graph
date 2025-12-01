@@ -52,6 +52,19 @@
 	@if (timeline().events) {
 		@for (tlEvent of timeline().events; track tlEvent.when; let i = $index) {
 			@if (tlEvent.isPeriod) {
+				@let periodBounds = getOverviewPeriodBounds(i)();
+				<rect
+					[attr.x]="periodBounds.left"
+					[attr.y]="periodBounds.top"
+					[attr.width]="periodBounds.width"
+					[attr.height]="periodBounds.height"
+					[attr.fill]="'#f00'"
+					[attr.stroke]="'f00'"
+					[attr.stroke-width]="1"
+					opacity="0.3"
+					rx="2"
+					ry="2"
+				/>
 				<g 
 					svg-icon 
 					[name]="'tl-period-from'" 

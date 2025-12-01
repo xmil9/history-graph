@@ -77,6 +77,9 @@ export class OverviewView {
 	get eventMarkerSize(): Signal<Size2D> {
 		return this.axisLayoutService.overviewEventMarkerSize;
 	}
+	getOverviewPeriodBounds(index: number): Signal<Rect2D> {
+		return this.eventLayoutService.getOverviewPeriodBounds(index);
+	}
 
 	// Styling
 	lineStyle = input<LineStyle>(DEFAULT_OVERVIEW_LINE_STYLE);

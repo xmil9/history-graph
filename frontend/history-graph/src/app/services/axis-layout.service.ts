@@ -29,6 +29,7 @@ interface AxisLayout {
 	overviewDisplayedBounds: Rect2D;
 	overviewMarkerSize: Size2D;
 	overviewEventMarkerSize: Size2D;
+	overviewPeriodBoundsHeight: number;
 
 	calculate(input: AxisLayoutInput): void;
 	pan(start: Point2D, delta: Point2D): void;
@@ -50,7 +51,7 @@ class BaseAxisLayout implements AxisLayout {
 	overviewDisplayedBounds: Rect2D = Rect2D.fromCoordinates(0, 0, 0, 0);
 	overviewMarkerSize: Size2D = new Size2D(10);
 	overviewEventMarkerSize: Size2D = new Size2D(5);
-	overviewPeriodBoundsHeight: number = 10;
+	overviewPeriodBoundsHeight: number = 8;
 	protected input = DEFAULT_INPUT;
 	protected readonly displayMargins = Rect2D.fromCoordinates(50, 50, 50, 0);
 	protected readonly displayHeight = 150;
@@ -321,6 +322,9 @@ export class AxisLayoutService {
 	}
 	get overviewEventMarkerSize(): Signal<Size2D> {
 		return computed(() => this.axisLayout.overviewEventMarkerSize);
+	}
+	get overviewPeriodBoundsHeight(): Signal<number> {
+		return computed(() => this.axisLayout.overviewPeriodBoundsHeight);
 	}
 
 	setLayoutFormat(format: LayoutFormat): void {
