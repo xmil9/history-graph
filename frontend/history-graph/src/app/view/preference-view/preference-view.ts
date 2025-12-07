@@ -3,10 +3,10 @@ import { LayoutSelector } from '../layout-selector/layout-selector';
 import { DateFormatSelector } from '../date-format-selector/date-format-selector';
 
 @Component({
-  selector: 'settings-view',
+  selector: 'preference-view',
   standalone: true,
   imports: [LayoutSelector, DateFormatSelector],
-  templateUrl: './settings-view.html',
-  styleUrl: './settings-view.css'
+  templateUrl: './preference-view.html',
+  styleUrl: './preference-view.css'
 })
-export class SettingsView {}
+export class PreferenceView {}

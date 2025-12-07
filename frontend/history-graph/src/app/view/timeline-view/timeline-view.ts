@@ -5,7 +5,7 @@ import { Point2D, Size2D } from '../../graphics/gfx-coord-2d';
 import { EventView } from '../event-view/event-view';
 import { AxisView } from '../axis-view/axis-view';
 import { EventOverlay } from '../event-overlay/event-overlay';
-import { SettingsView } from '../settings-view/settings-view';
+import { PreferenceView } from '../preference-view/preference-view';
 import { DEFAULT_LINE_STYLE, DEFAULT_TEXT_STYLE, LineStyle, TextStyle } from '../../graphics/gfx-style';
 import { EventLayoutInput, EventLayoutService } from '../../services/event-layout.service';
 import { AxisLayoutInput, AxisLayoutService } from '../../services/axis-layout.service';
@@ -32,7 +32,7 @@ const DEFAULT_TL_TEXT_STYLE: TextStyle = {
     EventOverlay,
     EventMapping,
     HeaderView,
-    SettingsView
+    PreferenceView
 ],
 	templateUrl: './timeline-view.html',
 	styleUrl: './timeline-view.css'
