@@ -2,7 +2,7 @@ import { Component, computed, inject, input, signal, Signal } from '@angular/cor
 import { SvgIcon, SvgIconOrigin } from '../svg-icon/svg-icon';
 import { INVALID_POSITION_SENTINEL, Point2D, Rect2D, Size2D } from '../../graphics/gfx-coord-2d';
 import { AxisLayoutService } from '../../services/axis-layout.service';
-import { LineStyle } from '../../graphics/gfx-style';
+import { DEFAULT_PERIOD_COLOR, LineStyle } from '../../graphics/gfx-style';
 import { EventLayoutService } from '../../services/event-layout.service';
 import { TimelineService } from '../../services/timeline.service';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -86,6 +86,7 @@ export class OverviewView {
 	background = input<string>(DEFAULT_OVERVIEW_BACKGROUND);
 	displayedBackground = input<string>(DEFAULT_OVERVIEW_DISPLAYED_BACKGROUND);
 	displayedLineStyle = input<LineStyle>(DEFAULT_OVERVIEW_DISPLAYED_LINE_STYLE);
+	periodColor = input<string>(DEFAULT_PERIOD_COLOR);
 
 	get startIconOpacity(): number {
 		if (this.axisLayoutService.displayBounds().contains(this.axisLayoutService.startPos())) {

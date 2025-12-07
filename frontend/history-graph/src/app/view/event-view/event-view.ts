@@ -1,6 +1,6 @@
 import { Component, computed, inject, input, Signal } from '@angular/core';
 import { INVALID_POSITION_SENTINEL, Point2D, Rect2D, Size2D } from '../../graphics/gfx-coord-2d';
-import { DEFAULT_LINE_STYLE, DEFAULT_TEXT_STYLE, LineStyle, TextStyle } from '../../graphics/gfx-style';
+import { DEFAULT_LINE_STYLE, DEFAULT_PERIOD_COLOR, DEFAULT_TEXT_STYLE, LineStyle, TextStyle } from '../../graphics/gfx-style';
 import { HEvent } from '../../model/historic-event';
 import { SvgIcon, SvgIconOrigin } from '../svg-icon/svg-icon';
 import { EventOverlayService } from '../../services/event-overlay.service';
@@ -79,6 +79,7 @@ export class EventView {
 	// Styling
 	textStyle = input<TextStyle>(DEFAULT_TEXT_STYLE);
 	lineStyle = input<LineStyle>(DEFAULT_LINE_STYLE);
+	periodColor = input<string>(DEFAULT_PERIOD_COLOR);
 
 	constructor() {
 	}
