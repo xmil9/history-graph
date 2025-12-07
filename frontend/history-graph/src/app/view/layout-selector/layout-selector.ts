@@ -11,23 +11,14 @@ import { PreferenceService } from '../../services/preference.service';
 export class LayoutSelector {
 	private preferenceService = inject(PreferenceService);
 
-	// Expose enum for template
-	LayoutFormat = LayoutFormat;
+	get allLayoutOptions() {
+		return this.preferenceService.allLayoutOptions;
+	}
 
-	// Available layout options with display names
-	layoutOptions = [
-		{ value: LayoutFormat.HorizontalCenter, label: 'Horizontal' },
-		{ value: LayoutFormat.HorizontalLeft, label: 'Horizontal Left' },
-		{ value: LayoutFormat.Vertical, label: 'Vertical' },
-		{ value: LayoutFormat.None, label: 'None' },
-	];
-
-	// Check if a layout is active
 	isActive(format: LayoutFormat): boolean {
 		return this.preferenceService.layoutFormat() === format;
 	}
 
-	// Set the layout format
 	applyLayout(format: LayoutFormat): void {
 		this.preferenceService.setLayoutFormat(format);
 	}

@@ -25,6 +25,12 @@ export class PreferenceService {
 	}
 
 	// Layout
+	allLayoutOptions = [
+		{ value: LayoutFormat.HorizontalCenter, label: 'Horizontal' },
+		{ value: LayoutFormat.HorizontalLeft, label: 'Horizontal Left' },
+		{ value: LayoutFormat.Vertical, label: 'Vertical' },
+		{ value: LayoutFormat.None, label: 'None' },
+	];
 	layoutFormat = signal<LayoutFormat>(LayoutFormat.HorizontalCenter);
 
 	setLayoutFormat(format: LayoutFormat) {
