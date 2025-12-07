@@ -1,7 +1,6 @@
 import { Component, inject } from '@angular/core';
-import { EventLayoutService } from '../../services/event-layout.service';
-import { LayoutFormat } from '../../services/layout-types';
-import { AxisLayoutService } from '../../services/axis-layout.service';
+import { LayoutFormat } from '../../services/preference-types';
+import { PreferenceService } from '../../services/preference.service';
 
 @Component({
 	selector: 'tl-layout-selector',
@@ -10,8 +9,7 @@ import { AxisLayoutService } from '../../services/axis-layout.service';
 	styleUrl: './layout-selector.css'
 })
 export class LayoutSelector {
-	private layoutService = inject(EventLayoutService);
-	private axisLayoutService = inject(AxisLayoutService);
+	private preferenceService = inject(PreferenceService);
 
 	// Expose enum for template
 	LayoutFormat = LayoutFormat;
@@ -26,13 +24,12 @@ export class LayoutSelector {
 
 	// Check if a layout is active
 	isActive(format: LayoutFormat): boolean {
-		return this.layoutService.labelLayoutFormat() === format;
+		return this.preferenceService.layoutFormat() === format;
 	}
 
 	// Set the layout format
 	applyLayout(format: LayoutFormat): void {
-		this.layoutService.setLabelLayoutFormat(format);
-		this.axisLayoutService.setLayoutFormat(format);
+		this.preferenceService.setLayoutFormat(format);
 	}
 }
 

@@ -3,7 +3,7 @@ import { Timeline } from '../model/timeline';
 import { duration, HDate, HDateFormat, DEFAULT_DATE_FORMAT } from '../model/historic-date';
 import { Point2D, Size2D, INVALID_POSITION_SENTINEL, Rect2D } from '../graphics/gfx-coord-2d';
 import { DEFAULT_LINE_STYLE, DEFAULT_TEXT_STYLE, LineStyle, TextStyle } from '../graphics/gfx-style';
-import { LayoutFormat } from './layout-types';
+import { LayoutFormat } from './preference-types';
 import { AxisLayoutService } from './axis-layout.service';
 import { HEvent } from '../model/historic-event';
 import { TimelineService } from './timeline.service';

@@ -1,5 +1,5 @@
 import { computed, Injectable, Signal, signal } from "@angular/core";
-import { LayoutFormat } from "./layout-types";
+import { LayoutFormat } from "./preference-types";
 import { Point2D, Rect2D, Size2D, INVALID_POSITION_SENTINEL } from "../graphics/gfx-coord-2d";
 import { DEFAULT_TEXT_STYLE, TextStyle } from "../graphics/gfx-style";
 

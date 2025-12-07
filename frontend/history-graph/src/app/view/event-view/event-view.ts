@@ -2,11 +2,10 @@ import { Component, computed, inject, input, Signal } from '@angular/core';
 import { INVALID_POSITION_SENTINEL, Point2D, Rect2D, Size2D } from '../../graphics/gfx-coord-2d';
 import { DEFAULT_LINE_STYLE, DEFAULT_TEXT_STYLE, LineStyle, TextStyle } from '../../graphics/gfx-style';
 import { HEvent } from '../../model/historic-event';
-import { HDateFormat } from '../../model/historic-date';
 import { SvgIcon, SvgIconOrigin } from '../svg-icon/svg-icon';
 import { EventOverlayService } from '../../services/event-overlay.service';
 import { EventLayoutService } from '../../services/event-layout.service';
-import { LayoutFormat } from '../../services/layout-types';
+import { LayoutFormat } from '../../services/preference-types';
 import { AxisLayoutService } from '../../services/axis-layout.service';
 import { PreferenceService } from '../../services/preference.service';
 
