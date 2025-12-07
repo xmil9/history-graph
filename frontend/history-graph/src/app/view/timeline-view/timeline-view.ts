@@ -5,7 +5,7 @@ import { Point2D, Size2D } from '../../graphics/gfx-coord-2d';
 import { EventView } from '../event-view/event-view';
 import { AxisView } from '../axis-view/axis-view';
 import { EventOverlay } from '../event-overlay/event-overlay';
-import { LayoutSelector } from '../layout-selector/layout-selector';
+import { SettingsView } from '../settings-view/settings-view';
 import { DEFAULT_LINE_STYLE, DEFAULT_TEXT_STYLE, LineStyle, TextStyle } from '../../graphics/gfx-style';
 import { EventLayoutInput, EventLayoutService } from '../../services/event-layout.service';
 import { AxisLayoutInput, AxisLayoutService } from '../../services/axis-layout.service';
@@ -14,6 +14,7 @@ import { EventMapping } from '../event-mapping/event-mapping';
 import { HeaderView } from '../header-view/header-view';
 import { PreferenceService } from '../../services/preference.service';
 import { HDateFormat } from '../../model/historic-date';
+
 
 const DEFAULT_TL_TEXT_STYLE: TextStyle = {
 	...DEFAULT_TEXT_STYLE,
@@ -25,14 +26,14 @@ const DEFAULT_TL_TEXT_STYLE: TextStyle = {
 @Component({
 	selector: 'timeline',
 	imports: [
-		OverviewView,
-		AxisView,
-		EventView,
-		EventOverlay,
-		LayoutSelector,
-		EventMapping,
-		HeaderView,
-	],
+    OverviewView,
+    AxisView,
+    EventView,
+    EventOverlay,
+    EventMapping,
+    HeaderView,
+    SettingsView
+],
 	templateUrl: './timeline-view.html',
 	styleUrl: './timeline-view.css'
 })

@@ -2,11 +2,8 @@ import { Component, input } from '@angular/core';
 import { Timeline } from '../../model/timeline';
 import { HDateFormat } from '../../model/historic-date';
 
-import { DateFormatSelector } from '../date-format-selector/date-format-selector';
-
 @Component({
 	selector: 'tl-header',
-	imports: [DateFormatSelector],
 	templateUrl: './header-view.html',
 	styleUrl: './header-view.css'
 })

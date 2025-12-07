@@ -1,5 +1,5 @@
 <div class="date-format-selector">
-  <label for="date-format">Date Format:</label>
+  <label class="selector-label" for="date-format">Date Format:</label>
   <select id="date-format" (change)="onFormatChange($event)">
     @for (format of allDateFormats; track format.name) {
       <option [value]="format.name" [selected]="isActive(format.name)">
