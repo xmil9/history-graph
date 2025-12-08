@@ -4,9 +4,8 @@ import { DEFAULT_LINE_STYLE, DEFAULT_PERIOD_COLOR, DEFAULT_TEXT_STYLE, LineStyle
 import { HEvent } from '../../model/historic-event';
 import { SvgIcon, SvgIconOrigin } from '../svg-icon/svg-icon';
 import { EventOverlayService } from '../../services/event-overlay.service';
-import { EventLayoutService } from '../../services/event-layout.service';
 import { LayoutFormat } from '../../services/preference-types';
-import { AxisLayoutService } from '../../services/axis-layout.service';
+import { LayoutService } from '../../services/layout.service';
 import { PreferenceService } from '../../services/preference.service';
 
 @Component({
@@ -17,8 +16,7 @@ import { PreferenceService } from '../../services/preference.service';
 })
 export class EventView {
 	private overlayService = inject(EventOverlayService);
-	private layoutService = inject(EventLayoutService);
-	private axisLayoutService = inject(AxisLayoutService);
+	private layout = inject(LayoutService);
 	private preferenceService = inject(PreferenceService);
 
 	// Expose types for template
@@ -31,7 +29,7 @@ export class EventView {
 	label = computed(() => {
 		// Trigger recompute
 		this.preferenceService.dateFormat();
-		return this.layoutService.formatLabel(this.tlEvent());
+		return this.layout.events.formatLabel(this.tlEvent());
 	});
 
 	isPeriod(): boolean {
@@ -40,40 +38,40 @@ export class EventView {
 
 	// Positioning
 	get position(): Point2D {
-		const pos = this.layoutService.getEventPositionInDisplay(this.index());
+		const pos = this.layout.events.getEventPositionInDisplay(this.index());
 		if (pos === undefined) {
 			return new Point2D(INVALID_POSITION_SENTINEL, INVALID_POSITION_SENTINEL);
 		}
 		return pos;
 	}
 	get endPosition(): Point2D {
-		const pos = this.layoutService.getEventEndPositionInDisplay(this.index());
+		const pos = this.layout.events.getEventEndPositionInDisplay(this.index());
 		if (pos === undefined) {
 			return new Point2D(INVALID_POSITION_SENTINEL, INVALID_POSITION_SENTINEL);
 		}
 		return pos;
 	}
 	get eventMarkerSize(): Signal<Size2D> {
-		return this.axisLayoutService.eventMarkerSize;
+		return this.layout.axis.eventMarkerSize;
 	}
 	get layoutFormat(): Signal<LayoutFormat> {
-		return this.layoutService.labelLayoutFormat;
+		return this.layout.events.labelLayoutFormat;
 	}
 	get labelPos(): Point2D {
-		return this.layoutService.labelPositions[this.index()];
+		return this.layout.events.labelPositions[this.index()];
 	}
 	get labelConnectorPath(): string {
-		const pos = this.layoutService.getEventPositionInDisplay(this.index());
+		const pos = this.layout.events.getEventPositionInDisplay(this.index());
 		if (pos === undefined) {
 			return '';
 		}
-		return this.layoutService.labelConnectorPaths[this.index()];
+		return this.layout.events.labelConnectorPaths[this.index()];
 	}
 	get labelRotation(): Signal<number> {
-		return this.layoutService.labelRotation;
+		return this.layout.events.labelRotation;
 	}
 	get periodBounds(): Signal<Rect2D> {
-		return this.layoutService.getPeriodBounds(this.index());
+		return this.layout.events.getPeriodBounds(this.index());
 	}
 	
 	// Styling

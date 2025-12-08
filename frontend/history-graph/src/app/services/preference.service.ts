@@ -1,15 +1,13 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { MDYYYYFormat, MMMDYYYYFormat } from '../model/historic-date';
 import { LabeledDateFormat, LayoutFormat } from './preference-types';
-import { EventLayoutService } from './event-layout.service';
-import { AxisLayoutService } from './axis-layout.service';
+import { LayoutService } from './layout.service';
 
 @Injectable({
 	providedIn: 'root'
 })
 export class PreferenceService {
-	private layoutService = inject(EventLayoutService);
-	private axisLayoutService = inject(AxisLayoutService);
+	private layoutService = inject(LayoutService);
 
 	// Date format
 	allDateFormats: LabeledDateFormat[] = [
@@ -31,11 +29,11 @@ export class PreferenceService {
 		{ value: LayoutFormat.Vertical, label: 'Vertical' },
 		{ value: LayoutFormat.None, label: 'None' },
 	];
+
 	layoutFormat = signal<LayoutFormat>(LayoutFormat.HorizontalCenter);
 
 	setLayoutFormat(format: LayoutFormat) {
 		this.layoutFormat.set(format);
-		this.layoutService.setLabelLayoutFormat(format);
-		this.axisLayoutService.setLayoutFormat(format);
+		this.layoutService.setLayoutFormat(format);
 	}
 }

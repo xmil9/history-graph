@@ -7,14 +7,14 @@ import { AxisView } from '../axis-view/axis-view';
 import { EventOverlay } from '../event-overlay/event-overlay';
 import { PreferenceView } from '../preference-view/preference-view';
 import { DEFAULT_LINE_STYLE, DEFAULT_TEXT_STYLE, LineStyle, TextStyle } from '../../graphics/gfx-style';
-import { EventLayoutInput, EventLayoutService } from '../../services/event-layout.service';
-import { AxisLayoutInput, AxisLayoutService } from '../../services/axis-layout.service';
+import { LayoutInput, LayoutService } from '../../services/layout.service';
 import { OverviewView } from '../overview-view/overview-view';
 import { EventMapping } from '../event-mapping/event-mapping';
 import { HeaderView } from '../header-view/header-view';
 import { PreferenceService } from '../../services/preference.service';
 import { HDateFormat } from '../../model/historic-date';
-
+import { AxisLayoutInput } from '../../services/axis-layout.service';
+import { EventLayoutInput } from '../../services/event-layout.service';
 
 const DEFAULT_TL_TEXT_STYLE: TextStyle = {
 	...DEFAULT_TEXT_STYLE,
@@ -39,8 +39,7 @@ const DEFAULT_TL_TEXT_STYLE: TextStyle = {
 })
 export class TimelineView implements AfterViewInit {
 	private timelineService = inject(TimelineService);
-	private eventLayoutService = inject(EventLayoutService);
-	private axisLayoutService = inject(AxisLayoutService);
+	private layout = inject(LayoutService);
 	private preferenceService = inject(PreferenceService);
 
 	@ViewChild('container', { read: ElementRef }) containerRef!: ElementRef<HTMLDivElement>;
@@ -64,10 +63,10 @@ export class TimelineView implements AfterViewInit {
 	// Positioning
 	viewSize = signal(new Size2D(0));
 	get axisStartPos(): Signal<Point2D> {
-		return this.axisLayoutService.startPos;
+		return this.layout.axis.startPos;
 	}
 	get axisEndPos(): Signal<Point2D> {
-		return this.axisLayoutService.endPos;
+		return this.layout.axis.endPos;
 	}
 
 	// Styling
@@ -83,14 +82,14 @@ export class TimelineView implements AfterViewInit {
 		this.timeline = this.timelineService.timelineAsSignal();
 
 		effect(() => {
-			this.axisLayoutService.calculateLayout({
+			this.layout.axis.calculateLayout({
 				viewSize: this.viewSize(),
 				textStyle: this.textStyle(),
 			} satisfies AxisLayoutInput);
 		});
 
 		effect(() => {
-			this.eventLayoutService.calculateLayout({
+			this.layout.events.calculateLayout({
 				viewSize: this.viewSize(),
 				textStyle: this.textStyle(),
 				lineStyle: this.lineStyle(),
@@ -144,10 +143,10 @@ export class TimelineView implements AfterViewInit {
 	}
 
 	private pan(start: Point2D, delta: Point2D): void {
-		this.axisLayoutService.pan(start, delta);
+		this.layout.pan(start, delta);
 	}
 
 	private zoom(at: Point2D, factor: number): void {
-		this.axisLayoutService.zoom(at, factor);
+		this.layout.zoom(at, factor);
 	}
 }

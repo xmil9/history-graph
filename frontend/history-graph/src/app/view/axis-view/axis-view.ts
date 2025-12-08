@@ -1,8 +1,8 @@
 import { Component, computed, inject, input, signal, Signal } from '@angular/core';
 import { INVALID_POSITION_SENTINEL, Point2D, Rect2D, Size2D } from '../../graphics/gfx-coord-2d';
 import { DEFAULT_LINE_STYLE, DEFAULT_TEXT_STYLE, LineStyle, TextStyle } from '../../graphics/gfx-style';
-import { AxisLayoutService } from '../../services/axis-layout.service';
 import { SvgIcon, SvgIconOrigin } from '../svg-icon/svg-icon';
+import { LayoutService } from '../../services/layout.service';
 
 export const DEFAULT_AXIS_BACKGROUND = '#f8f8f8';
 
@@ -13,7 +13,7 @@ export const DEFAULT_AXIS_BACKGROUND = '#f8f8f8';
 	styleUrl: './axis-view.css'
 })
 export class AxisView {
-	private axisLayoutService = inject(AxisLayoutService);
+	private layout = inject(LayoutService);
 
 	// Expose types for template
 	SvgIconOrigin = SvgIconOrigin;
@@ -25,17 +25,23 @@ export class AxisView {
 	// Positioning
 	get startPos(): Signal<Point2D> {
 		return computed(() => {
-			return new Point2D(Math.max(this.axisLayoutService.startPos().x, this.displayBounds().left), this.axisLayoutService.startPos().y);
+			return new Point2D(
+				Math.max(this.layout.axis.startPos().x, this.displayBounds().left),
+				this.layout.axis.startPos().y
+			);
 		});
 	}
 	get endPos(): Signal<Point2D> {
 		return computed(() => {
-			return new Point2D(Math.min(this.axisLayoutService.endPos().x, this.displayBounds().right), this.axisLayoutService.endPos().y);
+			return new Point2D(
+				Math.min(this.layout.axis.endPos().x, this.displayBounds().right),
+				this.layout.axis.endPos().y
+			);
 		});
 	}
 	get startIconPos(): Signal<Point2D> {
 		return computed(() => {
-			const pos = this.axisLayoutService.startPos();
+			const pos = this.layout.axis.startPos();
 			if (this.displayBounds().contains(pos)) {
 				return pos;
 			}
@@ -44,7 +50,7 @@ export class AxisView {
 	}
 	get endIconPos(): Signal<Point2D> {
 		return computed(() => {
-			const pos = this.axisLayoutService.endPos();
+			const pos = this.layout.axis.endPos();
 			if (this.displayBounds().contains(pos)) {
 				return pos;
 			}
@@ -52,16 +58,16 @@ export class AxisView {
 		});
 	}
 	get displayBounds(): Signal<Rect2D> {
-		return this.axisLayoutService.displayBounds;
+		return this.layout.axis.displayBounds;
 	}
 	get axisMarkerSize(): Signal<Size2D> {
-		return this.axisLayoutService.axisMarkerSize;
+		return this.layout.axis.axisMarkerSize;
 	}
 	get startLabelPos(): Signal<Point2D> {
-		return this.axisLayoutService.startLabelPos;
+		return this.layout.axis.startLabelPos;
 	}
 	get endLabelPos(): Signal<Point2D> {
-		return this.axisLayoutService.endLabelPos;
+		return this.layout.axis.endLabelPos;
 	}
 
 	// Styling
@@ -69,6 +75,6 @@ export class AxisView {
 	lineStyle = input<LineStyle>(DEFAULT_LINE_STYLE);
 	background = input<string>(DEFAULT_AXIS_BACKGROUND);
 	get labelRotation(): Signal<number> {
-		return this.axisLayoutService.labelRotation;
+		return this.layout.axis.labelRotation;
 	}
 }
