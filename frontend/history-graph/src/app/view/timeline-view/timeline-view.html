@@ -3,13 +3,21 @@
 	<tl-header [timeline]="timeline()" [dateFormat]="dateFormat()" />
 	<svg [attr.width]="viewSize().width" [attr.height]="viewSize().height" xmlns="http://www.w3.org/2000/svg">
 		<g tl-overview />
-		<g tl-axis [startLabel]="startLabel()" [endLabel]="endLabel()" [textStyle]="textStyle()"
-			[lineStyle]="lineStyle()" />
+		<g tl-axis
+			[startLabel]="startLabel()"
+			[endLabel]="endLabel()"
+			[textStyle]="textStyle()"
+			[lineStyle]="lineStyle()"
+		/>
 		@if (timeline()?.events) {
-		@for (tlEvent of timeline()!.events; track tlEvent.when; let i = $index) {
-		<g tl-event [tlEvent]="tlEvent" [index]="i" [textStyle]="textStyle()"
-			[lineStyle]="lineStyle()" />
-		}
+			@for (tlEvent of timeline()!.events; track tlEvent.when; let i = $index) {
+				<g tl-event
+					[tlEvent]="tlEvent"
+					[index]="i"
+					[textStyle]="textStyle()"
+					[lineStyle]="lineStyle()"
+				/>
+			}
 		}
 		<g event-mapping />
 	</svg>
