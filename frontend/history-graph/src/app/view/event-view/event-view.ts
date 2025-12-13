@@ -83,6 +83,7 @@ export class EventView {
 	}
 
 	onMarkerMouseEnter(mouseEvent: MouseEvent) {
+		console.log('Marker mouse enter: ', this.tlEvent().label);
 		this.overlayService.setOverlay(
 			this.tlEvent(),
 			mouseEvent.clientX,
