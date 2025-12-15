@@ -1,0 +1,29 @@
+Event
+"Individual event"
+- id: integer; required; key
+- label: text; required
+- when: date as text; required
+- until: date as text; optional
+- timelineId: integer; required
+- placeId: integer; optional
+- order: real; required
+
+Place
+"location"
+- id: integer; required; key
+- label: text; required
+- lat: geocoord as real; optional
+- lng: geocoord as real; optional
+
+Timelines
+"connected events"
+- id: integer; required; key
+- label: text; required
+- category: text; required (life, revolution, discovery, ...)
+
+Links
+"Connections between timelines"
+- id: integer; required; key
+- timelineId: integer; required
+- linked: integer; required
+- label: text; optional
