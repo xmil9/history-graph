@@ -111,6 +111,10 @@ export class TimelineView implements AfterViewInit {
 		}
 	}
 
+	onPromptEntered(prompt: string): void {
+		this.timelineService.generateTimeline(prompt);
+	}
+
 	@HostListener('window:resize')
 	onResize(): void {
 		this.updateViewSize();

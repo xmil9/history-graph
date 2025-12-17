@@ -1,14 +1,16 @@
-import { Injectable, Signal } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { inject, Injectable, Signal } from '@angular/core';
+import { BehaviorSubject, take, tap } from 'rxjs';
 import { Timeline } from '../model/timeline';
 import { HDate, HPeriod } from '../model/historic-date';
 import { HEvent } from '../model/historic-event';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({
 	providedIn: 'root'
 })
 export class TimelineService {
+	private http = inject(HttpClient);
 	private timelineSubject = new BehaviorSubject<Timeline>(
 		new Timeline('England', new HPeriod(new HDate(1000), new HDate(2000)), [
 			new HEvent(new HDate(1066, 10, 14), 'Battle of Hastings', 'The Battle of Hastings was a decisive battle in the history of England. It was fought between the English and the Norman French, and resulted in the Norman Conquest of England.'),
@@ -33,8 +35,6 @@ export class TimelineService {
 	// Reactive access to the timeline
 	public timeline$ = this.timelineSubject.asObservable();
 
-	constructor() {}
-
 	// Synchronous access to the timeline
 	get timeline(): Timeline {
 		return this.timelineSubject.value;
@@ -49,5 +49,14 @@ export class TimelineService {
 
 	setTimeline(timeline: Timeline): void {
 		this.timelineSubject.next(timeline);
+	}
+
+	generateTimeline(prompt: string): void {
+		const url = 'http://localhost:3000/api/generate-events?prompt=' + encodeURIComponent(prompt);
+		console.log(url);
+		this.http.get<string>(url).pipe(take(1)).subscribe((events) => {
+			console.log(events);
+			this.timelineSubject.next(new Timeline('Timeline', new HPeriod(new HDate(1000), new HDate(2000))));
+		});
 	}
 }
