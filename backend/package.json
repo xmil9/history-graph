@@ -13,12 +13,14 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
+    "@types/express": "^5.0.6",
     "@types/node": "^25.0.1",
     "ts-node": "^10.9.2",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "@google/genai": "^1.33.0"
+    "@google/genai": "^1.33.0",
+    "express": "^5.2.1"
   }
 }
