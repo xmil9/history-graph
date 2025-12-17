@@ -2,6 +2,7 @@ import { AfterViewInit, Component, computed, effect, ElementRef, HostListener, i
 import { TimelineService } from '../../services/timeline.service';
 import { Timeline } from '../../model/timeline';
 import { Point2D, Size2D } from '../../graphics/gfx-coord-2d';
+import { PromptView } from '../prompt-view/prompt-view';
 import { EventView } from '../event-view/event-view';
 import { AxisView } from '../axis-view/axis-view';
 import { EventOverlay } from '../event-overlay/event-overlay';
@@ -32,7 +33,8 @@ const DEFAULT_TL_TEXT_STYLE: TextStyle = {
     EventOverlay,
     EventMapping,
     HeaderView,
-    PreferenceView
+    PreferenceView,
+    PromptView
 ],
 	templateUrl: './timeline-view.html',
 	styleUrl: './timeline-view.css'
@@ -42,7 +44,7 @@ export class TimelineView implements AfterViewInit {
 	private layout = inject(LayoutService);
 	private preferenceService = inject(PreferenceService);
 
-	@ViewChild('container', { read: ElementRef }) containerRef!: ElementRef<HTMLDivElement>;
+	@ViewChild('timelineArea', { read: ElementRef }) timelineAreaRef!: ElementRef<HTMLDivElement>;
 
 	// Content
 	dateFormat = computed<HDateFormat>(() => {
@@ -103,8 +105,8 @@ export class TimelineView implements AfterViewInit {
 	}
 
 	private updateViewSize(): void {
-		if (this.containerRef?.nativeElement) {
-			const rect = this.containerRef.nativeElement.getBoundingClientRect();
+		if (this.timelineAreaRef?.nativeElement) {
+			const rect = this.timelineAreaRef.nativeElement.getBoundingClientRect();
 			this.viewSize.set(new Size2D(rect.width, rect.height));
 		}
 	}

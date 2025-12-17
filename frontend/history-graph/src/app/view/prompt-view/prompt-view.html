@@ -1,0 +1,10 @@
+<div class="prompt-container">
+  <input
+    type="text"
+    [(ngModel)]="prompt"
+    (keydown.enter)="onSubmit()"
+    placeholder="Prompt for events..."
+    class="prompt-input"
+  />
+  <button (click)="onSubmit()" class="prompt-button">Send</button>
+</div>
