@@ -1,4 +1,4 @@
-import { inject, Injectable, Signal } from '@angular/core';
+import { inject, Injectable, signal, Signal } from '@angular/core';
 import { BehaviorSubject, finalize, take, tap } from 'rxjs';
 import { Timeline } from '../model/timeline';
 import { HDate, HPeriod } from '../model/historic-date';
@@ -11,8 +11,7 @@ import { HttpClient } from '@angular/common/http';
 })
 export class TimelineService {
 	private http = inject(HttpClient);
-	private isLoadingSubject = new BehaviorSubject<boolean>(false);
-	isLoading = toSignal(this.isLoadingSubject.asObservable(), { initialValue: false });
+	isLoading = signal(false);
 
 	private timelineSubject = new BehaviorSubject<Timeline>(
 		new Timeline('England', new HPeriod(new HDate(1000), new HDate(2000)), [
@@ -56,11 +55,11 @@ export class TimelineService {
 	generateTimeline(prompt: string): void {
 		const url = 'http://localhost:3000/api/generate-timeline?prompt=' + encodeURIComponent(prompt);
 		console.debug(url);
-		this.isLoadingSubject.next(true);
+		this.isLoading.set(true);
 		
 		this.http.get<any>(url).pipe(
 			take(1),
-			finalize(() => this.isLoadingSubject.next(false))
+			finalize(() => this.isLoading.set(false))
 		).subscribe({
 			next: (timelineLooselyTyped) => {
 				console.debug(timelineLooselyTyped);
