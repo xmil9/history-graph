@@ -1,5 +1,5 @@
 import { inject, Injectable, Signal } from '@angular/core';
-import { BehaviorSubject, take, tap } from 'rxjs';
+import { BehaviorSubject, finalize, take, tap } from 'rxjs';
 import { Timeline } from '../model/timeline';
 import { HDate, HPeriod } from '../model/historic-date';
 import { HEvent } from '../model/historic-event';
@@ -11,6 +11,9 @@ import { HttpClient } from '@angular/common/http';
 })
 export class TimelineService {
 	private http = inject(HttpClient);
+	private isLoadingSubject = new BehaviorSubject<boolean>(false);
+	isLoading = toSignal(this.isLoadingSubject.asObservable(), { initialValue: false });
+
 	private timelineSubject = new BehaviorSubject<Timeline>(
 		new Timeline('England', new HPeriod(new HDate(1000), new HDate(2000)), [
 			new HEvent(new HDate(1066, 10, 14), 'Battle of Hastings', 'The Battle of Hastings was a decisive battle in the history of England. It was fought between the English and the Norman French, and resulted in the Norman Conquest of England.'),
@@ -53,9 +56,21 @@ export class TimelineService {
 	generateTimeline(prompt: string): void {
 		const url = 'http://localhost:3000/api/generate-timeline?prompt=' + encodeURIComponent(prompt);
 		console.debug(url);
-		this.http.get<any>(url).pipe(take(1)).subscribe((timelineLooselyTyped) => {
-			console.debug(timelineLooselyTyped);
-			this.timelineSubject.next(makeTimeline(timelineLooselyTyped, prompt));
+		this.isLoadingSubject.next(true);
+		
+		this.http.get<any>(url).pipe(
+			take(1),
+			finalize(() => this.isLoadingSubject.next(false))
+		).subscribe({
+			next: (timelineLooselyTyped) => {
+				console.debug(timelineLooselyTyped);
+				try {
+					this.timelineSubject.next(makeTimeline(timelineLooselyTyped, prompt));
+				} catch (e) {
+					console.error('Failed to parse timeline:', e);
+				}
+			},
+			error: (err) => console.error('Failed to fetch timeline:', err)
 		});
 	}
 }

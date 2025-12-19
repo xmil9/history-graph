@@ -71,6 +71,8 @@ export class TimelineView implements AfterViewInit {
 		return this.layout.axis.endPos;
 	}
 
+	isLoading = this.timelineService.isLoading;
+
 	// Styling
 	textStyle = input<TextStyle>(DEFAULT_TL_TEXT_STYLE);
 	lineStyle = input<LineStyle>(DEFAULT_LINE_STYLE);

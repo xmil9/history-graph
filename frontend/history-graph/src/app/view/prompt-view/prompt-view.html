@@ -5,6 +5,13 @@
     (keydown.enter)="onSubmit()"
     placeholder="Prompt for events..."
     class="prompt-input"
+    [disabled]="isLoading()"
   />
-  <button (click)="onSubmit()" class="prompt-button">Send</button>
+  <button (click)="onSubmit()" class="prompt-button" [disabled]="isLoading()">
+    @if (isLoading()) {
+      <div class="spinner"></div>
+    } @else {
+      Send
+    }
+  </button>
 </div>
