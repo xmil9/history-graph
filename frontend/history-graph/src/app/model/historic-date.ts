@@ -7,17 +7,17 @@ export type HDuration = number;
 export class HDate {
     constructor(
         public readonly year: number,
-        public readonly month?: number,
-        public readonly day?: number,
+        public readonly month?: number,	// [1-12]
+        public readonly day?: number,	// [1-31]
 		public readonly circa = false,
     ) {
 		if (this.year === 0)
 			throw new Error('Unable to create historic date. Year zero is not a valid year.');
-		if (month && (month < 1 || month > 12))
+		if (this.month && (this.month < 1 || this.month > 12))
 			throw new Error('Unable to create historic date. Month is not valid.');
-		if (day && (day < 1 || day > 31))
+		if (this.day && (this.day < 1 || this.day > 31))
 			throw new Error('Unable to create historic date. Day is not valid.');
-		if (!month && day) {
+		if (!this.month && this.day) {
 			console.warn('Invalid historic date. Date cannot have a day set but not a month. Clearing day.')
 			this.day = undefined;
 		}
@@ -69,7 +69,7 @@ export class HDate {
 		if (this.month === 2)
 			time += isLeapYear(this.year) ? 29 : 28;
 		else
-			time += DaysInMonth[this.month];
+			time += DaysInMonth[this.month - 1];
 		return time;
 	}
 
@@ -82,8 +82,8 @@ export class HDate {
 			return daysInYear(this.year);
 
 		let time = this.timeLeftInMonth();
-		for (let i = this.month + 1; i <= 12; ++i)
-			time += DaysInMonth[i];
+		for (let i = this.month; i <= 12; ++i)
+			time += DaysInMonth[i - 1];
 		return time;
 	}
 
@@ -92,8 +92,8 @@ export class HDate {
 			return 0;
 
 		let time = this.timePassedInMonth();
-		for (let i = this.month - 1; i >= 1; --i)
-			time += DaysInMonth[i];
+		for (let i = this.month; i >= 1; --i)
+			time += DaysInMonth[i - 1];
 		return time;
 	}
 }
