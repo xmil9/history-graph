@@ -84,6 +84,7 @@ export class TimelineView implements AfterViewInit {
 		this.timeline = this.timelineService.timelineAsSignal();
 
 		effect(() => {
+			// Trigger axis layout calculation when any of the below inputs changes.
 			this.layout.axis.calculateLayout({
 				viewSize: this.viewSize(),
 				textStyle: this.textStyle(),
@@ -91,6 +92,10 @@ export class TimelineView implements AfterViewInit {
 		});
 
 		effect(() => {
+			// Trigger event layout calculation when timeline changes.
+			this.timeline();
+
+			// Trigger event layout calculation when any of the below inputs changes.
 			this.layout.events.calculateLayout({
 				viewSize: this.viewSize(),
 				textStyle: this.textStyle(),
