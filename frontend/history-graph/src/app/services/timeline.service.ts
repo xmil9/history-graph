@@ -40,7 +40,6 @@ export class TimelineService {
 		return this.timelineSubject.value;
 	}
 
-	// 
 	timelineAsSignal(): Signal<Timeline> {
 		return toSignal(this.timelineSubject.asObservable(), {
 			initialValue: this.timelineSubject.value
@@ -52,11 +51,69 @@ export class TimelineService {
 	}
 
 	generateTimeline(prompt: string): void {
-		const url = 'http://localhost:3000/api/generate-events?prompt=' + encodeURIComponent(prompt);
-		console.log(url);
-		this.http.get<string>(url).pipe(take(1)).subscribe((events) => {
-			console.log(events);
-			this.timelineSubject.next(new Timeline('Timeline', new HPeriod(new HDate(1000), new HDate(2000))));
+		const url = 'http://localhost:3000/api/generate-timeline?prompt=' + encodeURIComponent(prompt);
+		console.debug(url);
+		this.http.get<any>(url).pipe(take(1)).subscribe((timelineLooselyTyped) => {
+			console.debug(timelineLooselyTyped);
+			this.timelineSubject.next(makeTimeline(timelineLooselyTyped, prompt));
 		});
 	}
+}
+
+
+function makeTimeline(timelineLooselyTyped: any, prompt: string): Timeline {
+	if (!timelineLooselyTyped.start_date || !timelineLooselyTyped.end_date) {
+		throw new Error('Start and end dates are required for timeline.');
+	}
+
+	return new Timeline(
+		timelineLooselyTyped.title || prompt,
+		makePeriod(timelineLooselyTyped.start_date, timelineLooselyTyped.end_date),
+		makeEvents(timelineLooselyTyped.events)
+	);
+}
+
+function makeEvents(eventsLooselyTyped: any[]): HEvent[] {
+	return eventsLooselyTyped.map((eventLooselyTyped) => {
+		if (!eventLooselyTyped.start_date) {
+			throw new Error('Start date is required for event ' + eventLooselyTyped.label);
+		}
+
+		const startDate = makeDate(eventLooselyTyped.start_date);
+		const endDate = eventLooselyTyped.end_date ? makeDate(eventLooselyTyped.end_date) : undefined;
+		const isPeriod = endDate && !endDate.equals(startDate);
+		
+		if (isPeriod) {
+			return new HEvent(
+				new HPeriod(startDate, endDate),
+				eventLooselyTyped.label,
+				eventLooselyTyped.description
+			);
+		}
+
+		return new HEvent(
+			startDate,
+			eventLooselyTyped.label,
+			eventLooselyTyped.description
+		);
+	});
+}
+
+function makePeriod(startDate: string | undefined, endDate: string | undefined): HPeriod {
+	if (!startDate || !endDate) {
+		throw new Error('Start and end dates are required for period.');
+	}
+	return new HPeriod(makeDate(startDate), makeDate(endDate));
+}
+
+function makeDate(date: string): HDate {
+	let BC = false;
+	let dateAD = date;
+	if (date.startsWith('-')) {
+		BC = true;
+		dateAD = date.substring(1);
+	}
+	const [yearAD, month, day] = dateAD.split('-');
+	console.debug(yearAD, month, day);
+	return new HDate(parseInt(BC ? `-${yearAD}` : yearAD), month ? parseInt(month) : undefined, day ? parseInt(day) : undefined);
 }
