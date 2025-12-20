@@ -2,12 +2,12 @@ import express from 'express';
 import { GoogleGenAI } from "@google/genai";
 import cors from 'cors';
 
-const port = 3000;
-
 if (!process.env.GEMINI_API_KEY) {
 	throw new Error("GEMINI_API_KEY is not set");
 }
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+
+const port = 3000;
 const app = express();
 // Disable CORS.
 app.use(cors());
