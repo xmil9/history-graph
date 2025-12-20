@@ -30,9 +30,14 @@ export class LayoutService {
 		this.eventLayout.setLabelLayoutFormat(format);
 	}
 
-	calculateLayout(input: LayoutInput): void {
-		this.axisLayout.calculateLayout(input);
-		this.eventLayout.calculateLayout(input);
+	resetLayout(): void {
+		this.axisLayout.resetLayout();
+		this.eventLayout.resetLayout();
+	}
+
+	updateLayout(input: LayoutInput): void {
+		this.axisLayout.updateLayout(input);
+		this.eventLayout.updateLayout(input);
 	}
 
 	pan(start: Point2D, delta: Point2D): void {

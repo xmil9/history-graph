@@ -85,20 +85,22 @@ export class TimelineView implements AfterViewInit {
 	constructor() {
 		this.timeline = this.timelineService.timelineAsSignal();
 
+		// Trigger layout reset when timeline changes.
+		this.timelineService.timeline$.subscribe(() => {
+			this.layout.resetLayout();
+		});
+
 		effect(() => {
-			// Trigger axis layout calculation when any of the below inputs changes.
-			this.layout.axis.calculateLayout({
+			// Trigger axis layout update when any of the below inputs changes.
+			this.layout.axis.updateLayout({
 				viewSize: this.viewSize(),
 				textStyle: this.textStyle(),
 			} satisfies AxisLayoutInput);
 		});
 
 		effect(() => {
-			// Trigger event layout calculation when timeline changes.
-			this.timeline();
-
-			// Trigger event layout calculation when any of the below inputs changes.
-			this.layout.events.calculateLayout({
+			// Trigger event layout update when any of the below inputs changes.
+			this.layout.events.updateLayout({
 				viewSize: this.viewSize(),
 				textStyle: this.textStyle(),
 				lineStyle: this.lineStyle(),

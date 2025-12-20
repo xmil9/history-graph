@@ -442,12 +442,19 @@ export class EventLayoutService {
 	setLabelLayoutFormat(format: LayoutFormat): void {
 		this.labelLayoutFormat.set(format);
 		this.labelLayout = createLabelLayout(this.labelLayoutFormat());
-		this.calculateLayout(this.input);
+		this.calculateLayout();
 	}
 
-	calculateLayout(input: EventLayoutInput): void {
-		this.input = input;
+	resetLayout(): void {
+		this.calculateLayout();
+	}
 
+	updateLayout(input: EventLayoutInput): void {
+		this.input = input;
+		this.calculateLayout();
+	}
+
+	private calculateLayout(): void {
 		if (this.timeline.events.length === 0) {
 			this.eventPositions.set([]);
 			this.overviewEventPositions.set([]);

@@ -14,6 +14,16 @@ const DEFAULT_INPUT: AxisLayoutInput = {
 	textStyle: DEFAULT_TEXT_STYLE,
 };
 
+interface AxisViewport {
+	startRatio: number;
+	endRatio: number;
+}
+
+const DEFAULT_VIEWPORT: AxisViewport = {
+	startRatio: 0,
+	endRatio: 1,
+};
+
 interface AxisLayout {
 	// Virtual start and end positions of the main axis. These can be outside of the display bounds.
 	startPos: Point2D;
@@ -43,8 +53,10 @@ interface AxisLayout {
 	overviewEventMarkerSize: Size2D;
 	// Height of the period bars in the overview.
 	overviewPeriodBoundsHeight: number;
+	// The current viewport of the timeline.
+	viewport: AxisViewport;
 
-	calculate(input: AxisLayoutInput): void;
+	calculate(input: AxisLayoutInput, viewport: AxisViewport): void;
 	pan(start: Point2D, delta: Point2D): void;
 	zoom(at: Point2D, factor: number): void;
 }
@@ -71,12 +83,19 @@ class BaseAxisLayout implements AxisLayout {
 	protected readonly overviewMargins = Rect2D.fromCoordinates(50, 25, 50, 0);
 	protected readonly overviewHeight = 20;
 
-	calculate(input: AxisLayoutInput): void {
+	get viewport(): AxisViewport {
+		return {
+			startRatio: (this.startPos.x - this.displayBounds.left) / this.displayBounds.width,
+			endRatio: (this.endPos.x - this.displayBounds.left) / this.displayBounds.width,
+		};
+	}
+
+	calculate(input: AxisLayoutInput, targetViewport: AxisViewport): void {
 		this.input = input;
 
 		this.displayBounds = this.calculateDisplayBounds(input);
-		this.startPos = this.calculateStartPos(input);
-		this.endPos = this.calculateEndPos(input);
+		this.startPos = this.calculateStartPos(input, targetViewport);
+		this.endPos = this.calculateEndPos(input, targetViewport);
 		this.startLabelPos = this.calculateStartLabelPos(input);
 		this.endLabelPos = this.calculateEndLabelPos(input);
 		this.overviewBounds = this.calculateOverviewBounds(input);
@@ -94,6 +113,39 @@ class BaseAxisLayout implements AxisLayout {
 		);
 	}
 
+	protected calculateStartPos(input: AxisLayoutInput, targetViewport: AxisViewport): Point2D {
+		return new Point2D(
+			this.displayBounds.left + (targetViewport.startRatio * this.displayBounds.width),
+			this.displayBounds.center.y
+		);
+	}
+
+	protected calculateEndPos(input: AxisLayoutInput, targetViewport: AxisViewport): Point2D {
+		return new Point2D(
+			this.displayBounds.left + (targetViewport.endRatio * this.displayBounds.width),
+			this.displayBounds.center.y
+		);
+	}
+
+	protected calculateStartLabelPos(input: AxisLayoutInput): Point2D {
+		return this.calculateLabelPosition(this.startPos, input);
+	}
+
+	protected calculateEndLabelPos(input: AxisLayoutInput): Point2D {
+		return this.calculateLabelPosition(this.endPos, input);
+	}
+
+	protected calculateLabelPosition(pos: Point2D, input: AxisLayoutInput): Point2D {
+		if (!this.isInAxisView(pos)) {
+			return new Point2D(INVALID_POSITION_SENTINEL, INVALID_POSITION_SENTINEL);
+		}
+		return new Point2D(pos.x - 15, pos.y + this.overviewMarkerSize.height / 2 + 20);
+	}
+
+	protected isInAxisView(pos: Point2D): boolean {
+		return this.displayBounds.contains(pos);
+	}
+
 	protected calculateOverviewBounds(input: AxisLayoutInput): Rect2D {
 		const left = this.overviewMargins.left;
 		return Rect2D.fromCoordinates(
@@ -105,10 +157,9 @@ class BaseAxisLayout implements AxisLayout {
 	}
 
 	protected calculateOverviewAxisBounds(input: AxisLayoutInput): Rect2D {
-		const bounds = this.calculateOverviewBounds(input);
 		return Rect2D.fromCoordinates(
-			bounds.left + this.overviewMarkerSize.width, bounds.top,
-			bounds.right - this.overviewMarkerSize.width, bounds.bottom
+			this.overviewBounds.left + this.overviewMarkerSize.width, this.overviewBounds.top,
+			this.overviewBounds.right - this.overviewMarkerSize.width, this.overviewBounds.bottom
 		);
 	}
 
@@ -138,33 +189,6 @@ class BaseAxisLayout implements AxisLayout {
 		return Rect2D.fromCoordinates(
 			displayedLeft, this.overviewAxisBounds.top,
 			displayedRight, this.overviewAxisBounds.bottom);
-	}
-
-	protected calculateStartPos(input: AxisLayoutInput): Point2D {
-		return new Point2D(this.displayBounds.left, this.displayBounds.center.y);
-	}
-
-	protected calculateEndPos(input: AxisLayoutInput): Point2D {
-		return new Point2D(this.displayBounds.right, this.displayBounds.center.y);
-	}
-
-	protected calculateStartLabelPos(input: AxisLayoutInput): Point2D {
-		return this.calculateLabelPosition(this.startPos, input);
-	}
-
-	protected calculateEndLabelPos(input: AxisLayoutInput): Point2D {
-		return this.calculateLabelPosition(this.endPos, input);
-	}
-
-	protected calculateLabelPosition(pos: Point2D, input: AxisLayoutInput): Point2D {
-		if (!this.isInAxisView(pos)) {
-			return new Point2D(INVALID_POSITION_SENTINEL, INVALID_POSITION_SENTINEL);
-		}
-		return new Point2D(pos.x - 15, pos.y + this.overviewMarkerSize.height / 2 + 20);
-	}
-
-	protected isInAxisView(pos: Point2D): boolean {
-		return this.displayBounds.contains(pos);
 	}
 
 	protected isInOverviewView(pos: Point2D): boolean {
@@ -341,14 +365,25 @@ export class AxisLayoutService {
 	}
 
 	setLayoutFormat(format: LayoutFormat): void {
+		const currentViewport = this.axisLayout.viewport;
+
 		this.layoutFormat.set(format);
 		this.axisLayout = createAxisLayout(this.layoutFormat());
-		this.calculateLayout(this.input);
+
+		this.calculateLayout(this.input, currentViewport);
 	}
 
-	calculateLayout(input: AxisLayoutInput): void {
+	resetLayout() {
+		this.calculateLayout(this.input, DEFAULT_VIEWPORT);
+	}
+
+	updateLayout(input: AxisLayoutInput): void {
 		this.input = input;
-		this.axisLayout.calculate(this.input);
+		this.calculateLayout(input, this.axisLayout.viewport);
+	}
+
+	private calculateLayout(input: AxisLayoutInput, targetViewport: AxisViewport): void {
+		this.axisLayout.calculate(input, targetViewport);
 		this.updateSignals();
 	}
 
