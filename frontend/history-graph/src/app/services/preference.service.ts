@@ -16,7 +16,7 @@ export class PreferenceService {
 		{ name: 'M.D.YYYY', format: new MDYYYYFormat('.') },
 		{ name: 'MMM D YYYY', format: new MMMDYYYYFormat() },
 	];
-	dateFormat = signal<LabeledDateFormat>(this.allDateFormats[0]);
+	dateFormat = signal<LabeledDateFormat>(this.allDateFormats[3]);
 
 	setDateFormat(formatName: string) {
 		this.dateFormat.set(this.allDateFormats.find(f => f.name === formatName)!);
