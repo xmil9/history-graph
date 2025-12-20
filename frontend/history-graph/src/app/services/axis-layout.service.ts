@@ -15,20 +15,33 @@ const DEFAULT_INPUT: AxisLayoutInput = {
 };
 
 interface AxisLayout {
+	// Virtual start and end positions of the main axis. These can be outside of the display bounds.
 	startPos: Point2D;
 	endPos: Point2D;
+	// On-screen bounds of the main axis display area.
 	displayBounds: Rect2D;
+	// Axis marker sizes.
 	axisMarkerSize: Size2D;
 	eventMarkerSize: Size2D;
+	// Virtual start and end positions of the main axis labels.
 	startLabelPos: Point2D;
 	endLabelPos: Point2D;
+	// Rotation angle of the main axis labels.
 	labelRotation: number;
+	// Height of the period bars.
 	periodBoundsHeight: number;
+	// On-screen bounds of the overview display area.
 	overviewBounds: Rect2D;
+	// On-screen bounds of the axis display area in the overview.
+	// These are slightly smaller than the overview bounds to leave space 
+	// for the shadow of the non-displayed time frame.
 	overviewAxisBounds: Rect2D;
+	// On-screen bounds of the time frame displayed in the overview.
 	overviewDisplayedBounds: Rect2D;
+	// Overview marker sizes.
 	overviewMarkerSize: Size2D;
 	overviewEventMarkerSize: Size2D;
+	// Height of the period bars in the overview.
 	overviewPeriodBoundsHeight: number;
 
 	calculate(input: AxisLayoutInput): void;
