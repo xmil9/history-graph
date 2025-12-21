@@ -34,7 +34,6 @@ export class TimelineService {
 
 	generateTimeline(topic: string): void {
 		const url = 'http://localhost:3000/api/generate-timeline?topic=' + encodeURIComponent(topic);
-		console.debug(url);
 		this.isLoading.set(true);
 		
 		this.http.get<any>(url).pipe(
@@ -42,7 +41,6 @@ export class TimelineService {
 			finalize(() => this.isLoading.set(false))
 		).subscribe({
 			next: (timelineInput) => {
-				console.debug(timelineInput);
 				try {
 					this.timelineSubject.next(parseTimeline(timelineInput));
 				} catch (e) {

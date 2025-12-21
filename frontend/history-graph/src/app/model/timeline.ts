@@ -6,9 +6,7 @@ export class Timeline {
 		public readonly title: string,
 		public readonly period: HPeriod,
 		public readonly events: HEvent[] = [],
-	) {
-		console.debug('Timeline created:', JSON.stringify(this));
-	}
+	) {}
 
 	get to() {
 		return this.period.to;

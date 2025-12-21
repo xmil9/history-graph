@@ -50,7 +50,7 @@ function parseEvents(events: EventInput[]): HEvent[] {
 			);
 		}
 		catch (error) {
-			console.error('Failed to parse event:', event.label, 'Error:', error, " -- Skipped");
+			console.error('Failed to parse event:', event.label, 'Error:', error, " -- Skipping event");
 			return undefined;
 		}
 	}).filter((event: HEvent | undefined) => event !== undefined);
