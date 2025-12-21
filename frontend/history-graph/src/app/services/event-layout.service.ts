@@ -29,7 +29,7 @@ export interface EventPosition {
 }
 
 function formatLabel(tlEvent: HEvent, dateFormat: HDateFormat): string {
-	return dateFormat.format(tlEvent.when) + '  ' + tlEvent.label;
+	return dateFormat.format(tlEvent.when) + ',  ' + tlEvent.label;
 }
 
 ///////////////////

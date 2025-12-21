@@ -243,9 +243,39 @@ export class MMMDYYYYFormat implements HDateFormat {
 			s += `${MonthAbbreviations[date.month - 1]} `;
 		if (date.month && date.day)
 			s += `${date.day} `;
-		s += date.year.toString();
+		s += yearToString(date);
         return s;
     }
+}
+
+function yearToString(date: HDate): string {
+	if (date.timeScale === TimeScale.Geological)
+		return formatGeologicalYear(date);
+	return formatHistoricYear(date);
+}
+
+function formatHistoricYear(date: HDate): string {
+	if (date.year < 0)
+		return Math.abs(date.year).toString() + ' BCE';
+	return date.year.toString();
+}
+
+function formatGeologicalYear(date: HDate): string {
+	const absYear = Math.abs(date.year);
+
+	const billion = 1000000000;
+	if (absYear > billion)
+		return (date.year / billion).toString() + ' billion';
+
+	const million = 1000000;
+	if (absYear > million)
+		return (date.year / million).toString() + ' million';
+
+	const thousand = 1000;
+	if (absYear > thousand)
+		return (date.year / thousand).toString() + ' thousand';
+
+	return date.year.toString();
 }
 
 export const DEFAULT_DATE_FORMAT: HDateFormat = new MMMDYYYYFormat();
