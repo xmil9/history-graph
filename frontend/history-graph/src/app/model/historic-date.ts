@@ -1,3 +1,10 @@
+enum TimeScale {
+	// Dates from 5000 BC to current (or 5000 AD if future dates are used).
+	Historic,
+	// Dates outside of the historic time scale.
+	Geological,
+}
+
 // Historic time duration. Measured in days.
 export type HDuration = number;
 
@@ -21,6 +28,12 @@ export class HDate {
 			console.warn('Invalid historic date. Date cannot have a day set but not a month. Clearing day.')
 			this.day = undefined;
 		}
+	}
+
+	get timeScale(): TimeScale {
+		if (this.year < -5000 || this.year > 5000)
+			return TimeScale.Geological;
+		return TimeScale.Historic;
 	}
 
 	equals(other: HDate): boolean {
@@ -127,9 +140,9 @@ export function daysInYear(year: number): number {
 	return isLeapYear(year) ? 366 : 365;
 }
 
-export function duration(from: HDate, to: HDate): HDuration {
+export function historicDuration(from: HDate, to: HDate): HDuration {
 	if (from.greater(to))
-		return -duration(to, from);
+		return -historicDuration(to, from);
 
 	let d = 0;
 	if (from.year !== to.year) {
@@ -147,6 +160,17 @@ export function duration(from: HDate, to: HDate): HDuration {
 	}
 
 	return d;
+}
+
+export function geologicalDuration(from: HDate, to: HDate): HDuration {
+	// Only consider years.
+	return (to.year - from.year) * 365;
+}
+
+export function duration(from: HDate, to: HDate): HDuration {
+	if (from.timeScale === TimeScale.Geological || to.timeScale === TimeScale.Geological)
+		return geologicalDuration(from, to);
+	return historicDuration(from, to);
 }
 
 // Historic time period. A span between two dates.
