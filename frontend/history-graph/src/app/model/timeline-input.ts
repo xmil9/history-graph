@@ -19,12 +19,13 @@ const TimelineInputSchema = z.object({
 });
 
 export function parseTimeline(timelineInput: any): Timeline {
-	const tl = TimelineInputSchema.parse(timelineInput);
-	return new Timeline(
-		tl.title,
-		parsePeriod(tl.start_date, tl.end_date),
-		parseEvents(tl.events)
+	const input = TimelineInputSchema.parse(timelineInput);
+	const tl = new Timeline(
+		input.title,
+		parsePeriod(input.start_date, input.end_date),
+		parseEvents(input.events)
 	);
+	return validateTimeline(tl);
 }
 
 function parseEvents(events: EventInput[]): HEvent[] {
@@ -69,4 +70,33 @@ function parseDate(date: string): HDate {
 	}
 	const [yearAD, month, day] = dateAD.split('-');
 	return new HDate(parseInt(BC ? `-${yearAD}` : yearAD), month ? parseInt(month) : undefined, day ? parseInt(day) : undefined);
+}
+
+function validateTimeline(tl: Timeline): Timeline {
+	return validatePeriod(tl);
+}
+
+function validatePeriod(tl: Timeline): Timeline {
+	let hasChanged = false;
+	let firstDate = tl.period.from;
+	let lastDate = tl.period.to;
+
+	for (const event of tl.events) {
+		if (event.when.less(firstDate)) {
+			firstDate = event.when;
+			hasChanged = true;
+		}
+		if (event.when.greater(lastDate)) {
+			lastDate = event.when;
+			hasChanged = true;
+		}
+		if (event.until && event.until.greater(lastDate)) {
+			lastDate = event.until;
+			hasChanged = true;
+		}
+	}
+	
+	if (hasChanged)
+		return new Timeline(tl.title, new HPeriod(firstDate, lastDate), tl.events);
+	return tl;
 }
