@@ -33,6 +33,11 @@ export class TimelineService {
 	}
 
 	generateTimeline(topic: string): void {
+		if (topic === 'test') {
+			this.executeInputTest();
+			return;
+		}
+		
 		const url = 'http://localhost:3000/api/generate-timeline?topic=' + encodeURIComponent(topic);
 		this.isLoading.set(true);
 		
@@ -49,5 +54,26 @@ export class TimelineService {
 			},
 			error: (err) => console.error('Failed to fetch timeline:', err)
 		});
+	}
+
+	private executeInputTest(): void {
+		const input = {
+			title: 'Test',
+			start_date: '1955',
+			end_date: '2020',
+			events: [
+				{
+					label: 'Test Event 1',
+					start_date: '1954-12-01',
+					end_date: '1954-12-01'
+				},
+				{
+					label: 'Test Event 2',
+					start_date: '2020-02-01',
+					end_date: '2020-02-01'
+				}
+			]
+		};
+		this.timelineSubject.next(parseTimeline(input));
 	}
 }
