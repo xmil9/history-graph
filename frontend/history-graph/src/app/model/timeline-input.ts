@@ -6,7 +6,7 @@ import { HDate, HPeriod } from "./historic-date";
 const EventInputSchema = z.object({
 	label: z.string(),
 	start_date: z.string(),
-	end_date: z.string().optional(),
+	end_date: z.string().nullable().optional(),
 	description: z.string().optional()
 });
 type EventInput = z.infer<typeof EventInputSchema>;
