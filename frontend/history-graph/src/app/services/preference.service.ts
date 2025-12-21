@@ -1,5 +1,5 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { MDYYYYFormat, MMMDYYYYFormat } from '../model/historic-date';
+import { MDYYYYFormat, DEFAULT_DATE_FORMAT } from '../model/historic-date';
 import { LabeledDateFormat, LayoutFormat } from './preference-types';
 import { LayoutService } from './layout.service';
 
@@ -14,7 +14,7 @@ export class PreferenceService {
 		{ name: 'M-D-YYYY', format: new MDYYYYFormat('-') },
 		{ name: 'M/D/YYYY', format: new MDYYYYFormat('/') },
 		{ name: 'M.D.YYYY', format: new MDYYYYFormat('.') },
-		{ name: 'MMM D YYYY', format: new MMMDYYYYFormat() },
+		{ name: 'MMM D YYYY', format: DEFAULT_DATE_FORMAT },
 	];
 	dateFormat = signal<LabeledDateFormat>(this.allDateFormats[3]);
 

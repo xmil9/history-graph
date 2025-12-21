@@ -248,4 +248,4 @@ export class MMMDYYYYFormat implements HDateFormat {
     }
 }
 
-export const DEFAULT_DATE_FORMAT: HDateFormat = new MDYYYYFormat('-');
+export const DEFAULT_DATE_FORMAT: HDateFormat = new MMMDYYYYFormat();
