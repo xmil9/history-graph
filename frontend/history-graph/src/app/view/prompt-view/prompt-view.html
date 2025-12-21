@@ -3,7 +3,7 @@
     type="text"
     [(ngModel)]="prompt"
     (keydown.enter)="onSubmit()"
-    placeholder="Prompt for events..."
+    placeholder="Prompt for a timeline topic..."
     class="prompt-input"
     [disabled]="isLoading()"
   />
@@ -11,7 +11,7 @@
     @if (isLoading()) {
       <div class="spinner"></div>
     } @else {
-      Send
+      Generate
     }
   </button>
 </div>

@@ -26,16 +26,19 @@ export class LayoutService {
 	}
 
 	setLayoutFormat(format: LayoutFormat): void {
+		console.debug('Setting layout format');
 		this.axisLayout.setLayoutFormat(format);
 		this.eventLayout.setLabelLayoutFormat(format);
 	}
 
 	resetLayout(): void {
+		console.debug('Resetting layout');
 		this.axisLayout.resetLayout();
 		this.eventLayout.resetLayout();
 	}
 
 	updateLayout(input: LayoutInput): void {
+		console.debug('Updating layout');
 		this.axisLayout.updateLayout(input);
 		this.eventLayout.updateLayout(input);
 	}
