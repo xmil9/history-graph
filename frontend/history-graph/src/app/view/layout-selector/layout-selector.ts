@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { LayoutFormat } from '../../services/preference-types';
 import { PreferenceService } from '../../services/preference.service';
+import { LayoutService } from '../../services/layout.service';
 
 @Component({
 	selector: 'tl-layout-selector',
@@ -10,6 +11,7 @@ import { PreferenceService } from '../../services/preference.service';
 })
 export class LayoutSelector {
 	private preferenceService = inject(PreferenceService);
+	private layoutService = inject(LayoutService);
 
 	get allLayoutOptions() {
 		return this.preferenceService.allLayoutOptions;
@@ -21,6 +23,10 @@ export class LayoutSelector {
 
 	applyLayout(format: LayoutFormat): void {
 		this.preferenceService.setLayoutFormat(format);
+	}
+
+	resetLayout(): void {
+		this.layoutService.resetLayout();
 	}
 }
 
