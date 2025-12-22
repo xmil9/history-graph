@@ -23,25 +23,25 @@ export class AxisView {
 	endLabel = input.required<string>();
 
 	// Positioning
-	get startPos(): Signal<Point2D> {
+	get startPosition(): Signal<Point2D> {
 		return computed(() => {
 			return new Point2D(
-				Math.max(this.layout.axis.startPos().x, this.displayBounds().left),
-				this.layout.axis.startPos().y
+				Math.max(this.layout.axis.startPosition().x, this.displayBounds().left),
+				this.layout.axis.startPosition().y
 			);
 		});
 	}
-	get endPos(): Signal<Point2D> {
+	get endPosition(): Signal<Point2D> {
 		return computed(() => {
 			return new Point2D(
-				Math.min(this.layout.axis.endPos().x, this.displayBounds().right),
-				this.layout.axis.endPos().y
+				Math.min(this.layout.axis.endPosition().x, this.displayBounds().right),
+				this.layout.axis.endPosition().y
 			);
 		});
 	}
 	get startIconPos(): Signal<Point2D> {
 		return computed(() => {
-			const pos = this.layout.axis.startPos();
+			const pos = this.layout.axis.startPosition();
 			if (this.displayBounds().contains(pos)) {
 				return pos;
 			}
@@ -50,7 +50,7 @@ export class AxisView {
 	}
 	get endIconPos(): Signal<Point2D> {
 		return computed(() => {
-			const pos = this.layout.axis.endPos();
+			const pos = this.layout.axis.endPosition();
 			if (this.displayBounds().contains(pos)) {
 				return pos;
 			}
@@ -64,10 +64,10 @@ export class AxisView {
 		return this.layout.axis.axisMarkerSize;
 	}
 	get startLabelPos(): Signal<Point2D> {
-		return this.layout.axis.startLabelPos;
+		return this.layout.axis.startLabelPosition;
 	}
 	get endLabelPos(): Signal<Point2D> {
-		return this.layout.axis.endLabelPos;
+		return this.layout.axis.endLabelPosition;
 	}
 
 	// Styling

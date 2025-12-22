@@ -133,7 +133,7 @@ class HorizontalLeftLabelLayout implements LabelLayout {
 		axisLayout: AxisLayoutService,
 		rowHeight: number
 	): Point2D[] {
-		let rowY = axisLayout.startPos().y + this.firstRowOffsetY;
+		let rowY = axisLayout.startPosition().y + this.firstRowOffsetY;
 		const rowX = this.labelOffsetX;
 
 		return eventPositions.map(pos => {
@@ -150,7 +150,7 @@ class HorizontalLeftLabelLayout implements LabelLayout {
 		axisLayout: AxisLayoutService,
 		numEventsInView: number
 	): number {
-		let rowHeight = (input.viewSize.height - axisLayout.startPos().y - this.firstRowOffsetY - this.lastRowOffsetY) / numEventsInView;
+		let rowHeight = (input.viewSize.height - axisLayout.startPosition().y - this.firstRowOffsetY - this.lastRowOffsetY) / numEventsInView;
 
 		const maxRowHeight = this.estimateTextHeight(input.textStyle) * 2;
 		if (rowHeight > maxRowHeight) {
@@ -244,7 +244,7 @@ class HorizontalCenterLabelLayout implements LabelLayout {
 
 		context.font = `${input.textStyle.weight} ${input.textStyle.size}px ${input.textStyle.font}`;
 
-		const initialRowY = axisLayout.startPos().y + this.firstRowOffsetY;
+		const initialRowY = axisLayout.startPosition().y + this.firstRowOffsetY;
 		const maxXPerRow: number[] = [];
 
 		const labelPositions = eventPositions.map((pos, index) => {
@@ -284,7 +284,7 @@ class HorizontalCenterLabelLayout implements LabelLayout {
 		axisLayout: AxisLayoutService,
 		tlEventsInViewCount: number
 	): number {
-		let rowHeight = (input.viewSize.height - axisLayout.startPos().y - this.firstRowOffsetY - this.lastRowOffsetY) / tlEventsInViewCount;
+		let rowHeight = (input.viewSize.height - axisLayout.startPosition().y - this.firstRowOffsetY - this.lastRowOffsetY) / tlEventsInViewCount;
 
 		const maxRowHeight = this.estimateTextHeight(input.textStyle) * 2;
 		if (rowHeight > maxRowHeight) {
@@ -487,8 +487,8 @@ export class EventLayoutService {
 			return undefined;
 		}
 
-		const axisStartPos = this.axisLayoutService.startPos();
-		const axisEndPos = this.axisLayoutService.endPos();
+		const axisStartPos = this.axisLayoutService.startPosition();
+		const axisEndPos = this.axisLayoutService.endPosition();
 
 		const tlDuration = duration(this.timeline.from, this.timeline.to);
 		const tlDistance = axisEndPos.x - axisStartPos.x;

@@ -87,13 +87,13 @@ export class OverviewView {
 	periodColor = input<string>(DEFAULT_PERIOD_COLOR);
 
 	get startIconOpacity(): number {
-		if (this.layout.axis.displayBounds().contains(this.layout.axis.startPos())) {
+		if (this.layout.axis.displayBounds().contains(this.layout.axis.startPosition())) {
 			return DISPLAYED_ICON_OPACITY;
 		}
 		return NON_DISPLAYED_ICON_OPACITY;
 	}
 	get endIconOpacity(): number {
-		if (this.layout.axis.displayBounds().contains(this.layout.axis.endPos())) {
+		if (this.layout.axis.displayBounds().contains(this.layout.axis.endPosition())) {
 			return DISPLAYED_ICON_OPACITY;
 		}
 		return NON_DISPLAYED_ICON_OPACITY;

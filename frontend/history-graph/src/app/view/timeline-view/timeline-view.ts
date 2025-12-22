@@ -65,10 +65,10 @@ export class TimelineView implements AfterViewInit {
 	// Positioning
 	viewSize = signal(new Size2D(0));
 	get axisStartPos(): Signal<Point2D> {
-		return this.layout.axis.startPos;
+		return this.layout.axis.startPosition;
 	}
 	get axisEndPos(): Signal<Point2D> {
-		return this.layout.axis.endPos;
+		return this.layout.axis.endPosition;
 	}
 
 	isLoading = this.timelineService.isLoading;
