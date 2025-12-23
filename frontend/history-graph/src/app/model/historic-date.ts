@@ -18,15 +18,29 @@ export class HDate {
         public readonly day?: number,	// [1-31]
 		public readonly circa = false,
     ) {
-		if (this.year === 0)
-			throw new Error('Unable to create historic date. Year zero is not a valid year.');
-		if (this.month && (this.month < 1 || this.month > 12))
-			throw new Error('Unable to create historic date. Month is not valid.');
-		if (this.day && (this.day < 1 || this.day > 31))
-			throw new Error('Unable to create historic date. Day is not valid.');
-		if (!this.month && this.day) {
-			console.warn('Invalid historic date. Date cannot have a day set but not a month. Clearing day.')
-			this.day = undefined;
+		if (this.year === 0) {
+			console.warn('Year zero is not a valid year. Setting year to one.')
+			this.year = 1;
+		}
+		if (this.month) {
+			if (this.month < 1) {
+				console.warn('Month is not valid. Setting month to one.')
+				this.month = 1;
+			}
+			if (this.month > 12) {
+				console.warn('Month is not valid. Setting month to twelve.')
+				this.month = 12;
+			}
+		}
+		if (this.day) {
+			if (this.day < 1) {
+				console.warn('Day is not valid. Setting day to one.')
+				this.day = 1;
+			}
+			if (this.day > 31) {
+				console.warn('Day is not valid. Setting day to thirty-one.')
+				this.day = 31;
+			}
 		}
 	}
 

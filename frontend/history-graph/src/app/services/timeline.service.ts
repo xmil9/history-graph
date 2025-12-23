@@ -59,18 +59,18 @@ export class TimelineService {
 	private executeInputTest(): void {
 		const input = {
 			title: 'Test',
-			start_date: '1955',
+			start_date: '-4540000000',
 			end_date: '2020',
 			events: [
 				{
 					label: 'Test Event 1',
-					start_date: '1954-12-01',
-					end_date: '1954-12-01'
+					start_date: '-4540000000',
+					end_date: '-1000000000'
 				},
 				{
 					label: 'Test Event 2',
-					start_date: '2020-02-01',
-					end_date: '2020-02-01'
+					start_date: '100',
+					end_date: '2020'
 				}
 			]
 		};
