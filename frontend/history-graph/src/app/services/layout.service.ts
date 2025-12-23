@@ -30,8 +30,8 @@ export class LayoutService {
 		this.eventLayout.setLabelLayoutFormat(format);
 	}
 
-	resetLayout(): void {
-		this.axisLayout.resetLayout();
+	resetLayout(resetTicks: boolean = false): void {
+		this.axisLayout.resetLayout(resetTicks);
 		this.eventLayout.resetLayout();
 	}
 

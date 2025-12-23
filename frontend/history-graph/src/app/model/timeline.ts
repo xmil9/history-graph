@@ -15,6 +15,10 @@ export class Timeline {
 	get from() {
 		return this.period.from;
 	}
+
+	get duration() {
+		return this.period.duration;
+	}
 }
 
 export function makeDefaultTimeline(): Timeline {

@@ -12,6 +12,8 @@ export class Point2D {
 	) {}
 }
 
+export const INVALID_POSITION = new Point2D(INVALID_POSITION_SENTINEL, INVALID_POSITION_SENTINEL);
+
 export class Rect2D {
 	constructor(
 		private tl: Point2D,

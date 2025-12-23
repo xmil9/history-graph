@@ -87,7 +87,7 @@ export class TimelineView implements AfterViewInit {
 
 		// Trigger layout reset when timeline changes.
 		this.timelineService.timeline$.subscribe(() => {
-			this.layout.resetLayout();
+			this.layout.resetLayout(true);
 		});
 
 		effect(() => {
@@ -95,6 +95,7 @@ export class TimelineView implements AfterViewInit {
 			this.layout.axis.updateLayout({
 				viewSize: this.viewSize(),
 				textStyle: this.textStyle(),
+				dateFormat: this.dateFormat(),
 			} satisfies AxisLayoutInput);
 		});
 

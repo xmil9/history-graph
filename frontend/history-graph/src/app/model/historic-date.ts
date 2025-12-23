@@ -173,6 +173,8 @@ export function duration(from: HDate, to: HDate): HDuration {
 	return historicDuration(from, to);
 }
 
+///////////////////
+
 // Historic time period. A span between two dates.
 export class HPeriod {
 	constructor(
@@ -190,7 +192,11 @@ export class HPeriod {
 	position(date: HDate): number | undefined {
 		if (!this.contains(date))
 			return undefined;
-		return duration(this.from, date) / duration(this.from, this.to);
+		return duration(this.from, date) / this.duration;
+	}
+
+	get duration(): HDuration {
+		return duration(this.from, this.to);
 	}
 }
 

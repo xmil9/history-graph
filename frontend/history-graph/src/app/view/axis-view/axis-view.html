@@ -19,6 +19,27 @@
 		[attr.stroke]="lineStyle().color"
 		[attr.stroke-width]="lineStyle().width"
 	/>
+	@for (tickPos of tickPositions(); track $index; let i = $index) {
+		<g 
+			svg-icon 
+			class="timeline-tick"
+			[name]="'tl-tick'" 
+			[origin]="SvgIconOrigin.Center" 
+			[position]="tickPos" 
+			[size]="tickMarkerSize()"
+		></g>
+		<text
+			id="tick-text-{{i}}"
+			class="no-text-select"
+			[attr.x]="tickLabelPositions()[i].x"
+			[attr.y]="tickLabelPositions()[i].y"
+			[attr.font-family]="textStyle().font"
+			[attr.font-size]="textSize()"
+			[attr.font-weight]="textWeight()"
+			[attr.transform]="'rotate(' + labelRotation() + ' ' + tickLabelPositions()[i].x + ' ' + tickLabelPositions()[i].y + ')'"
+			[attr.fill]="textStyle().color"
+		>{{getTickLabel(i)}}</text>
+	}
 	<g 
 		svg-icon 
 		class="timeline-start-position"
@@ -33,8 +54,8 @@
 		[attr.x]="startLabelPos().x"
 		[attr.y]="startLabelPos().y"
 		[attr.font-family]="textStyle().font"
-		[attr.font-size]="textStyle().size"
-		[attr.font-weight]="textStyle().weight"
+		[attr.font-size]="textSize()"
+		[attr.font-weight]="textWeight()"
 		[attr.transform]="'rotate(' + labelRotation() + ' ' + startLabelPos().x + ' ' + startLabelPos().y + ')'"
 		[attr.fill]="textStyle().color"
 	>{{startLabel()}}</text>
@@ -52,8 +73,8 @@
 		[attr.x]="endLabelPos().x"
 		[attr.y]="endLabelPos().y"
 		[attr.font-family]="textStyle().font"
-		[attr.font-size]="textStyle().size"
-		[attr.font-weight]="textStyle().weight"
+		[attr.font-size]="textSize()"
+		[attr.font-weight]="textWeight()"
 		[attr.transform]="'rotate(' + labelRotation() + ' ' + endLabelPos().x + ' ' + endLabelPos().y + ')'"
 	>{{endLabel()}}</text>
 </svg:g>

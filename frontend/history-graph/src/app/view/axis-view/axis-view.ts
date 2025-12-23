@@ -69,6 +69,18 @@ export class AxisView {
 	get endLabelPos(): Signal<Point2D> {
 		return this.layout.axis.endLabelPosition;
 	}
+	getTickLabel(index: number): string {
+		return this.layout.axis.getTickLabel(index);
+	}
+	get tickPositions(): Signal<Point2D[]> {
+		return this.layout.axis.tickPositions;
+	}
+	get tickLabelPositions(): Signal<Point2D[]> {
+		return this.layout.axis.tickLabelPositions;
+	}
+	get tickMarkerSize(): Signal<Size2D> {
+		return this.layout.axis.tickMarkerSize;
+	}
 
 	// Styling
 	textStyle = input<TextStyle>(DEFAULT_TEXT_STYLE);
@@ -76,5 +88,11 @@ export class AxisView {
 	background = input<string>(DEFAULT_AXIS_BACKGROUND);
 	get labelRotation(): Signal<number> {
 		return this.layout.axis.labelRotation;
+	}
+	get textSize(): Signal<number> {
+		return computed(() => this.textStyle().size - 4);
+	}
+	get textWeight(): Signal<number> {
+		return computed(() => this.textStyle().weight);
 	}
 }

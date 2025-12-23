@@ -489,11 +489,9 @@ export class EventLayoutService {
 
 		const axisStartPos = this.axisLayoutService.startPosition();
 		const axisEndPos = this.axisLayoutService.endPosition();
-
-		const tlDuration = duration(this.timeline.from, this.timeline.to);
 		const tlDistance = axisEndPos.x - axisStartPos.x;
 
-		const dateRatio = duration(this.timeline.from, date) / tlDuration;
+		const dateRatio = duration(this.timeline.from, date) / this.timeline.duration;
 		const dateX = axisStartPos.x + (dateRatio * tlDistance);
 		return new Point2D(dateX, axisStartPos.y);
 	}
