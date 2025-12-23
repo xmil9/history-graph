@@ -78,6 +78,9 @@ export class EventView {
 	textStyle = input<TextStyle>(DEFAULT_TEXT_STYLE);
 	lineStyle = input<LineStyle>(DEFAULT_LINE_STYLE);
 	periodColor = input<string>(DEFAULT_PERIOD_COLOR);
+	get lineColor(): Signal<string> {
+		return computed(() => '#555');
+	}
 
 	constructor() {
 	}
