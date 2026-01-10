@@ -55,6 +55,7 @@
 			[attr.font-family]="textStyle().font"
 			[attr.font-size]="textStyle().size"
 			[attr.font-weight]="textStyle().weight"
+			[attr.fill]="labelColor()"
 			[attr.transform]="'rotate(' + labelRotation() + ' ' + labelPos.x + ' ' + labelPos.y + ')'">{{label()}}
 		</text>
 	}
