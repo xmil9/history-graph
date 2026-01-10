@@ -21,7 +21,7 @@
 				[attr.y1]="overviewEventPos.start.y"
 				[attr.x2]="eventPos.x"
 				[attr.y2]="eventPos.y"
-				[attr.stroke]="lineStyle().color"
+				[attr.stroke]="eventLineColor()"
 				[attr.stroke-width]="lineStyle().width"
 				[attr.opacity]="opacity()"
 			/>
@@ -35,7 +35,7 @@
 				[attr.y1]="overviewEventPos.end!.y"
 				[attr.x2]="eventEndPos.x"
 				[attr.y2]="eventEndPos.y"
-				[attr.stroke]="lineStyle().color"
+				[attr.stroke]="eventLineColor()"
 				[attr.stroke-width]="lineStyle().width"
 				[attr.opacity]="opacity()"
 			/>

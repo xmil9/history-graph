@@ -4,6 +4,7 @@ import { makeDefaultTimeline, Timeline } from '../model/timeline';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { HttpClient } from '@angular/common/http';
 import { parseTimeline } from '../model/timeline-input';
+import { TimelineGraphic } from './timeline-types';
 
 @Injectable({
 	providedIn: 'root'
@@ -12,24 +13,26 @@ export class TimelineService {
 	private http = inject(HttpClient);
 	isLoading = signal(false);
 
-	private timelineSubject = new BehaviorSubject<Timeline>(makeDefaultTimeline());
+	private timelineSubject = new BehaviorSubject<TimelineGraphic>(
+		this.makeTimelineGraphic(makeDefaultTimeline())
+	);
 
 	// Reactive access to the timeline
 	public timeline$ = this.timelineSubject.asObservable();
 
 	// Synchronous access to the timeline
-	get timeline(): Timeline {
+	get timeline(): TimelineGraphic {
 		return this.timelineSubject.value;
 	}
 
-	timelineAsSignal(): Signal<Timeline> {
+	timelineAsSignal(): Signal<TimelineGraphic> {
 		return toSignal(this.timelineSubject.asObservable(), {
 			initialValue: this.timelineSubject.value
 		});	
 	}
 
 	setTimeline(timeline: Timeline): void {
-		this.timelineSubject.next(timeline);
+		this.timelineSubject.next(this.makeTimelineGraphic(timeline));
 	}
 
 	generateTimeline(topic: string): void {
@@ -47,7 +50,7 @@ export class TimelineService {
 		).subscribe({
 			next: (timelineInput) => {
 				try {
-					this.timelineSubject.next(parseTimeline(timelineInput));
+					this.timelineSubject.next(this.makeTimelineGraphic(parseTimeline(timelineInput)));
 				} catch (e) {
 					console.error('Failed to parse timeline:', e);
 				}
@@ -74,6 +77,18 @@ export class TimelineService {
 				}
 			]
 		};
-		this.timelineSubject.next(parseTimeline(input));
+		this.timelineSubject.next(this.makeTimelineGraphic(parseTimeline(input)));
+	}
+
+	private makeTimelineGraphic(timeline: Timeline): TimelineGraphic {
+		return new TimelineGraphic(
+			timeline.title,
+			timeline.period,
+			timeline.events,
+			{
+				primaryColor: 'rgba(40, 113, 230, 1)',
+				secondaryColor: 'blue'
+			}
+		);
 	}
 }

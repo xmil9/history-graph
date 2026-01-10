@@ -7,6 +7,8 @@ import { EventOverlayService } from '../../services/event-overlay.service';
 import { LayoutFormat } from '../../services/preference-types';
 import { LayoutService } from '../../services/layout.service';
 import { PreferenceService } from '../../services/preference.service';
+import { TimelineService } from '../../services/timeline.service';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
 	selector: '[tl-event]',
@@ -15,6 +17,7 @@ import { PreferenceService } from '../../services/preference.service';
 	styleUrl: './event-view.css'
 })
 export class EventView {
+	private timelineService = inject(TimelineService);
 	private overlayService = inject(EventOverlayService);
 	private layout = inject(LayoutService);
 	private preferenceService = inject(PreferenceService);
@@ -24,6 +27,9 @@ export class EventView {
 	LayoutFormat = LayoutFormat;
 
 	// Content
+	timeline = toSignal(this.timelineService.timeline$, {
+		initialValue: this.timelineService.timeline
+	});
 	tlEvent = input.required<HEvent>();
 	index = input.required<number>();
 	label = computed(() => {
@@ -76,10 +82,15 @@ export class EventView {
 	
 	// Styling
 	textStyle = input<TextStyle>(DEFAULT_TEXT_STYLE);
+	get labelColor(): Signal<string> {
+		return computed(() => this.timeline().theme.primaryColor);
+	}
 	lineStyle = input<LineStyle>(DEFAULT_LINE_STYLE);
-	periodColor = input<string>(DEFAULT_PERIOD_COLOR);
+	get periodColor(): Signal<string> {
+		return computed(() => this.timeline().theme.primaryColor);
+	}
 	get lineColor(): Signal<string> {
-		return computed(() => '#555');
+		return computed(() => this.timeline().theme.primaryColor);
 	}
 
 	constructor() {

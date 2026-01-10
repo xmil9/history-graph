@@ -69,4 +69,7 @@ export class EventMapping {
 	// Styling
 	lineStyle = input<LineStyle>(DEFAULT_EVENT_MAP_LINE_STYLE);
 	opacity = input<number>(0.4);
+	get eventLineColor(): Signal<string> {
+		return computed(() => this.timeline().theme.primaryColor);
+	}
 }

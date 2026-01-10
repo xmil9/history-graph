@@ -84,7 +84,9 @@ export class OverviewView {
 	background = input<string>(DEFAULT_OVERVIEW_BACKGROUND);
 	displayedBackground = input<string>(DEFAULT_OVERVIEW_DISPLAYED_BACKGROUND);
 	displayedLineStyle = input<LineStyle>(DEFAULT_OVERVIEW_DISPLAYED_LINE_STYLE);
-	periodColor = input<string>(DEFAULT_PERIOD_COLOR);
+	get periodColor(): Signal<string> {
+		return computed(() => this.timeline().theme.primaryColor);
+	}
 
 	get startIconOpacity(): number {
 		if (this.layout.axis.displayBounds().contains(this.layout.axis.startPosition())) {
