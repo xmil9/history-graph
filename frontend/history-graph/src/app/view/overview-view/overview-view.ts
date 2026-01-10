@@ -87,6 +87,9 @@ export class OverviewView {
 	get periodColor(): Signal<string> {
 		return computed(() => this.timeline().theme.primaryColor);
 	}
+	get markerColor(): Signal<string> {
+		return computed(() => this.timeline().theme.primaryColor);
+	}
 
 	get startIconOpacity(): number {
 		if (this.layout.axis.displayBounds().contains(this.layout.axis.startPosition())) {

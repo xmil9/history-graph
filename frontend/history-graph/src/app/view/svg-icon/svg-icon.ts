@@ -45,4 +45,10 @@ export class SvgIcon {
 			}
 	});
 	opacity = input<number>(1.0);
+	color = input<string | undefined>(undefined);
+	
+	// Generate unique filter ID for this icon instance
+	private static nextFilterId = 0;
+	private _filterId = `svg-icon-filter-${SvgIcon.nextFilterId++}`;
+	filterId = computed(() => this._filterId);
 }

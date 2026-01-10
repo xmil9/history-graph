@@ -86,7 +86,8 @@ export class TimelineService {
 			timeline.period,
 			timeline.events,
 			{
-				primaryColor: 'rgba(40, 113, 230, 1)',
+				// primaryColor: 'rgb(108, 20, 20)',
+				primaryColor: 'rgb(20, 54, 108)',
 				secondaryColor: 'blue'
 			}
 		);

@@ -72,6 +72,7 @@
 					[position]="getOverviewEventPosition(i)()" 
 					[size]="eventMarkerSize()"
 					[opacity]="getEventIconOpacity(i)"
+					[color]="markerColor()"
 				></g>
 				<g 
 					svg-icon 
@@ -80,6 +81,7 @@
 					[position]="getOverviewEventEndPosition(i)()" 
 					[size]="eventMarkerSize()"
 					[opacity]="getEventIconOpacity(i)"
+					[color]="markerColor()"
 				></g>
 			} @else {
 				<g 
@@ -90,6 +92,7 @@
 					[position]="getOverviewEventPosition(i)()" 
 					[size]="eventMarkerSize()"
 					[opacity]="getEventIconOpacity(i)"
+					[color]="markerColor()"
 				></g>
 			}
 		}

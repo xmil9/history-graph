@@ -92,6 +92,9 @@ export class EventView {
 	get lineColor(): Signal<string> {
 		return computed(() => this.timeline().theme.primaryColor);
 	}
+	get markerColor(): Signal<string> {
+		return computed(() => this.timeline().theme.primaryColor);
+	}
 
 	constructor() {
 	}
