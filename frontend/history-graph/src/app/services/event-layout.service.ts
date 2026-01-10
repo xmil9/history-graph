@@ -49,10 +49,15 @@ class VerticalLabelLayout implements LabelLayout {
 	connectorPaths: string[] = [];
 
 	calculate(eventPositions: EventPosition[], input: EventLayoutInput, axisLayout: AxisLayoutService, timeline: Timeline): void {
-		this.labelPositions = eventPositions.map(pos => new Point2D(
-			pos.start.x - input.textStyle.size / 3,
-			pos.start.y + axisLayout.eventMarkerSize().height / 2 + 7
-		));
+		this.labelPositions = eventPositions.map(pos => {
+			if (axisLayout.displayBounds().contains(pos.start)) {
+				return new Point2D(
+					pos.start.x - input.textStyle.size / 3,
+					pos.start.y + axisLayout.eventMarkerSize().height / 2 + 7
+				)
+			}
+			return new Point2D(INVALID_POSITION_SENTINEL, INVALID_POSITION_SENTINEL);
+		});
 		this.connectorPaths = [];
 	}
 
