@@ -27,8 +27,8 @@ export class EventView {
 	LayoutFormat = LayoutFormat;
 
 	// Content
-	timeline = toSignal(this.timelineService.timeline$, {
-		initialValue: this.timelineService.timeline
+	timelines = toSignal(this.timelineService.timelines$, {
+		initialValue: this.timelineService.timelines
 	});
 	tlEvent = input.required<HEvent>();
 	index = input.required<number>();
@@ -83,17 +83,17 @@ export class EventView {
 	// Styling
 	textStyle = input<TextStyle>(DEFAULT_TEXT_STYLE);
 	get labelColor(): Signal<string> {
-		return computed(() => this.timeline().theme.primaryColor);
+		return computed(() => this.timelines()[0].theme.primaryColor);
 	}
 	lineStyle = input<LineStyle>(DEFAULT_LINE_STYLE);
 	get periodColor(): Signal<string> {
-		return computed(() => this.timeline().theme.primaryColor);
+		return computed(() => this.timelines()[0].theme.primaryColor);
 	}
 	get lineColor(): Signal<string> {
-		return computed(() => this.timeline().theme.primaryColor);
+		return computed(() => this.timelines()[0].theme.primaryColor);
 	}
 	get markerColor(): Signal<string> {
-		return computed(() => this.timeline().theme.primaryColor);
+		return computed(() => this.timelines()[0].theme.primaryColor);
 	}
 
 	constructor() {

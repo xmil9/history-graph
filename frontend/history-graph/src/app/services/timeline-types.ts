@@ -13,7 +13,10 @@ export class TimelineGraphic extends Timeline {
 		period: HPeriod,
 		events: HEvent[],
 		public readonly theme: TimelineTheme,
+		public isVisible: boolean = true
 	) {
 		super(title, period, events);
 	}
 }
+
+export type TimelineGraphics = TimelineGraphic[];

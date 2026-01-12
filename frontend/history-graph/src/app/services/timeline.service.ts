@@ -1,38 +1,45 @@
 import { inject, Injectable, signal, Signal } from '@angular/core';
 import { BehaviorSubject, finalize, take } from 'rxjs';
-import { makeDefaultTimeline, Timeline } from '../model/timeline';
+import { makeDefaultTimelines, Timeline } from '../model/timeline';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { HttpClient } from '@angular/common/http';
 import { parseTimeline } from '../model/timeline-input';
-import { TimelineGraphic } from './timeline-types';
+import { TimelineGraphic, TimelineGraphics } from './timeline-types';
 
 @Injectable({
 	providedIn: 'root'
 })
 export class TimelineService {
 	private http = inject(HttpClient);
+	private colors = [
+		'rgb(20, 54, 108)',
+		'rgb(108, 20, 20)',
+		'rgb(20, 108, 20)',
+		'rgb(108, 20, 108)',
+		'rgb(20, 108, 108)',
+		'rgb(108, 108, 20)',
+		'rgb(20, 20, 108)',
+		'rgb(108, 20, 20)',
+	];
+	private nextColorIndex = 0;
 	isLoading = signal(false);
 
-	private timelineSubject = new BehaviorSubject<TimelineGraphic>(
-		this.makeTimelineGraphic(makeDefaultTimeline())
+	private timelinesSubject = new BehaviorSubject<TimelineGraphics>(
+		makeDefaultTimelines().map(timeline => this.makeTimelineGraphic(timeline))
 	);
 
 	// Reactive access to the timeline
-	public timeline$ = this.timelineSubject.asObservable();
+	public timelines$ = this.timelinesSubject.asObservable();
 
 	// Synchronous access to the timeline
-	get timeline(): TimelineGraphic {
-		return this.timelineSubject.value;
+	get timelines(): TimelineGraphics {
+		return this.timelinesSubject.value;
 	}
 
-	timelineAsSignal(): Signal<TimelineGraphic> {
-		return toSignal(this.timelineSubject.asObservable(), {
-			initialValue: this.timelineSubject.value
+	timelinesAsSignal(): Signal<TimelineGraphics> {
+		return toSignal(this.timelinesSubject.asObservable(), {
+			initialValue: this.timelinesSubject.value
 		});	
-	}
-
-	setTimeline(timeline: Timeline): void {
-		this.timelineSubject.next(this.makeTimelineGraphic(timeline));
 	}
 
 	generateTimeline(topic: string): void {
@@ -50,7 +57,7 @@ export class TimelineService {
 		).subscribe({
 			next: (timelineInput) => {
 				try {
-					this.timelineSubject.next(this.makeTimelineGraphic(parseTimeline(timelineInput)));
+					this.timelinesSubject.next([this.makeTimelineGraphic(parseTimeline(timelineInput))]);
 				} catch (e) {
 					console.error('Failed to parse timeline:', e);
 				}
@@ -77,7 +84,7 @@ export class TimelineService {
 				}
 			]
 		};
-		this.timelineSubject.next(this.makeTimelineGraphic(parseTimeline(input)));
+		this.timelinesSubject.next([this.makeTimelineGraphic(parseTimeline(input))]);
 	}
 
 	private makeTimelineGraphic(timeline: Timeline): TimelineGraphic {
@@ -86,8 +93,7 @@ export class TimelineService {
 			timeline.period,
 			timeline.events,
 			{
-				// primaryColor: 'rgb(108, 20, 20)',
-				primaryColor: 'rgb(20, 54, 108)',
+				primaryColor: this.colors[this.nextColorIndex++ % this.colors.length],
 				secondaryColor: 'blue'
 			}
 		);

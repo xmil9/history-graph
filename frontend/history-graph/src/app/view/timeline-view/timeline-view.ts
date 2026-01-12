@@ -16,6 +16,7 @@ import { PreferenceService } from '../../services/preference.service';
 import { HDateFormat } from '../../model/historic-date';
 import { AxisLayoutInput } from '../../services/axis-layout.service';
 import { EventLayoutInput } from '../../services/event-layout.service';
+import { TimelineGraphic } from '../../services/timeline-types';
 
 const DEFAULT_TL_TEXT_STYLE: TextStyle = {
 	...DEFAULT_TEXT_STYLE,
@@ -51,14 +52,14 @@ export class TimelineView implements AfterViewInit {
 		const labeledFormat = this.preferenceService.dateFormat();
 		return labeledFormat.format;
 	});
-	timeline: Signal<Timeline | undefined>;
+	timelines: Signal<TimelineGraphic[]>;
 
 	startLabel = computed(() => {
-		const timeline = this.timeline();
+		const timeline = this.timelines()[0];
 		return timeline ? this.dateFormat().format(timeline.from) : '';
 	});
 	endLabel = computed(() => {
-		const timeline = this.timeline();
+		const timeline = this.timelines()[0];
 		return timeline ? this.dateFormat().format(timeline.to) : '';
 	});
 
@@ -83,10 +84,10 @@ export class TimelineView implements AfterViewInit {
 	private panStartPos = signal(new Point2D(0, 0));
 
 	constructor() {
-		this.timeline = this.timelineService.timelineAsSignal();
+		this.timelines = this.timelineService.timelinesAsSignal();
 
 		// Trigger layout reset when timeline changes.
-		this.timelineService.timeline$.subscribe(() => {
+		this.timelineService.timelines$.subscribe(() => {
 			this.layout.resetLayout(true);
 		});
 

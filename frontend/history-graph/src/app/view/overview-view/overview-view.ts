@@ -35,8 +35,8 @@ export class OverviewView {
 	SvgIconOrigin = SvgIconOrigin;
 
 	// Content
-	timeline = toSignal(this.timelineService.timeline$, {
-		initialValue: this.timelineService.timeline
+	timelines = toSignal(this.timelineService.timelines$, {
+		initialValue: this.timelineService.timelines
 	});
 
 	// Positioning
@@ -85,10 +85,10 @@ export class OverviewView {
 	displayedBackground = input<string>(DEFAULT_OVERVIEW_DISPLAYED_BACKGROUND);
 	displayedLineStyle = input<LineStyle>(DEFAULT_OVERVIEW_DISPLAYED_LINE_STYLE);
 	get periodColor(): Signal<string> {
-		return computed(() => this.timeline().theme.primaryColor);
+		return computed(() => this.timelines()[0].theme.primaryColor);
 	}
 	get markerColor(): Signal<string> {
-		return computed(() => this.timeline().theme.primaryColor);
+		return computed(() => this.timelines()[0].theme.primaryColor);
 	}
 
 	get startIconOpacity(): number {

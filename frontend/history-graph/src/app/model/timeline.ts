@@ -21,7 +21,14 @@ export class Timeline {
 	}
 }
 
-export function makeDefaultTimeline(): Timeline {
+export function makeDefaultTimelines(): Timeline[] {
+	return [
+		makeSpaceFlightTimeline(),
+		makeAstronomyTimeline(),
+	];
+}
+
+function makeSpaceFlightTimeline(): Timeline {
 	return new Timeline(
 		'Space Flight History',
 		new HPeriod(new HDate(1955), new HDate(2026)),
@@ -122,5 +129,124 @@ export function makeDefaultTimeline(): Timeline {
 				'Japan\'s SLIM lander achieves a precision landing on the Moon.'
 			),
 		]
+	);
+}
+
+function makeAstronomyTimeline(): Timeline {
+	return new Timeline(
+		'Astronomy Timeline',
+		new HPeriod(new HDate(-3000), new HDate(2026)),
+		[
+			new HEvent(
+				new HPeriod(new HDate(-3000), new HDate(-2000)),
+				'Early Babylonian Astronomy',
+				'Babylonians develop systematic astronomical observations, recording positions of stars and planets, and laying the groundwork for astrology.'
+			),
+			new HEvent(
+				new HPeriod(new HDate(-2500), new HDate(-2000)),
+				'Egyptian Astronomy',
+				'Egyptians develop a solar calendar based on the rising of Sirius and construct astronomical alignments in monuments like pyramids.'
+			),
+			new HEvent(
+				new HPeriod(new HDate(-600), new HDate(-500)),
+				'Thales of Miletus',
+				'Thales predicts a solar eclipse, demonstrating a naturalistic understanding of celestial events.'
+			),
+			new HEvent(
+				new HPeriod(new HDate(-350), new HDate(-300)),
+				'Aristotle\'s Cosmology',
+				'Aristotle proposes a geocentric model of the universe with Earth at the center and celestial spheres carrying the planets and stars.'
+			),
+			new HEvent(
+				new HPeriod(new HDate(-280), new HDate(-220)),
+				'Aristarchus of Samos',
+				'Aristarchus proposes a heliocentric model of the solar system, but it is not widely accepted.'
+			),
+			new HEvent(
+				new HPeriod(new HDate(150), new HDate(170)),
+				'Ptolemy\'s Almagest',
+				'Ptolemy compiles a comprehensive astronomical treatise, the Almagest, which presents a detailed geocentric model and becomes the standard reference for over 1400 years.'
+			),
+			new HEvent(
+				new HPeriod(new HDate(800), new HDate(873)),
+				'Islamic Golden Age Astronomy',
+				'Islamic scholars translate and preserve Greek astronomical texts, make new observations, and develop improved astronomical instruments.'
+			),
+			new HEvent(
+				new HDate(1543),
+				'Copernicus\' De Revolutionibus',
+				'Nicolaus Copernicus publishes \'De Revolutionibus Orbium Coelestium\', presenting a detailed heliocentric model of the solar system.'
+			),
+			new HEvent(
+				new HPeriod(new HDate(1609), new HDate(1610)),
+				'Galileo\'s Telescopic Observations',
+				'Galileo Galilei uses a telescope to observe the Moon, Jupiter\'s moons, and phases of Venus, providing strong evidence for the heliocentric model.'
+			),
+			new HEvent(
+				new HDate(1687),
+				'Newton\'s Principia Mathematica',
+				'Isaac Newton publishes \'Principia Mathematica\', formulating the law of universal gravitation and providing a physical explanation for Kepler\'s laws of planetary motion.'
+			),
+			new HEvent(
+				new HDate(1705),
+				'Huygens\' Cosmotheoros',
+				'Christiaan Huygens publishes \'Cosmotheoros\', speculating on the possibility of life on other planets.'
+			),
+			new HEvent(
+				new HDate(1781),
+				'Herschel Discovers Uranus',
+				'William Herschel discovers the planet Uranus, expanding the known solar system.'
+			),
+			new HEvent(
+				new HPeriod(new HDate(1838), new HDate(1840)),
+				'First Stellar Parallax Measurements',
+				'Friedrich Bessel, Thomas Henderson, and Friedrich Georg Wilhelm Struve independently measure the parallax of stars, providing the first direct evidence of stellar distances.'
+			),
+			new HEvent(
+				new HPeriod(new HDate(1924), new HDate(1925)),
+				'Hubble Discovers Galaxies',
+				'Edwin Hubble proves that nebulae are actually galaxies outside our own Milky Way, revolutionizing our understanding of the universe\'s scale.'
+			),
+			new HEvent(
+				new HDate(1929),
+				'Hubble\'s Law',
+				'Edwin Hubble discovers the relationship between a galaxy\'s distance and its recession velocity, now known as Hubble\'s Law, providing evidence for the expanding universe.'
+			),
+			new HEvent(
+				new HPeriod(new HDate(1964), new HDate(1965)),
+				'Discovery of the Cosmic Microwave Background',
+				'Arno Penzias and Robert Wilson discover the cosmic microwave background radiation, providing strong evidence for the Big Bang theory.'
+			),
+			new HEvent(
+				new HDate(1990),
+				'Hubble Space Telescope Launched',
+				'The Hubble Space Telescope is launched into orbit, providing unprecedented views of the universe.'
+			),
+			new HEvent(
+				new HDate(1995),
+				'First Exoplanet Discovery',
+				'Michel Mayor and Didier Queloz discover 51 Pegasi b, the first exoplanet orbiting a Sun-like star.'
+			),
+			new HEvent(
+				new HDate(2009),
+				'Kepler Space Telescope Launched',
+				'The Kepler Space Telescope is launched, dedicated to discovering Earth-sized planets orbiting other stars.'
+			),
+			new HEvent(
+				new HDate(2015),
+				'First Direct Image of an Exoplanet',
+				'Scientists capture the first direct image of an exoplanet, Beta Pictoris b.'
+			),
+			new HEvent(
+				new HDate(2019),
+				'First Image of a Black Hole',
+				'The Event Horizon Telescope captures the first image of a black hole, located in the galaxy M87.'
+			),
+			new HEvent(
+				new HDate(2021),
+				'James Webb Space Telescope Launched',
+				'The James Webb Space Telescope is launched, promising to revolutionize our understanding of the early universe and exoplanets.'
+			)
+	  	]
 	);
 }

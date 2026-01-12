@@ -11,7 +11,7 @@
 			[attr.opacity]="opacity()"
 		/>
 	}
-	@for (tlEvent of timeline().events; track tlEvent.when; let i = $index) {
+	@for (tlEvent of timelines()[0].events; track tlEvent.when; let i = $index) {
 		@let eventPos = getEventPositionsInView(i);
 		@let overviewEventPos = getOverviewEventPositions(i);
 		@if (eventPos) {

@@ -510,7 +510,7 @@ export class AxisLayoutService {
 	}
 
 	private calculateTicks(): void {
-		const calculator = new TickCalculator(this.timelineService.timeline, this.input.dateFormat);
+		const calculator = new TickCalculator(this.timelineService.timelines[0], this.input.dateFormat);
 		this.ticks = calculator.calculate();
 	}
 

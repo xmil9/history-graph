@@ -365,7 +365,7 @@ export class EventLayoutService {
 	private axisLayoutService = inject(AxisLayoutService);
 
 	get timeline(): Timeline {
-		return this.timelineService.timeline;
+		return this.timelineService.timelines[0];
 	}
 
 	eventPositions = signal<EventPosition[]>([]);

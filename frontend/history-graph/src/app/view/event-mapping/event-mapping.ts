@@ -21,8 +21,8 @@ export class EventMapping {
 	private timelineService = inject(TimelineService);
 	private layout = inject(LayoutService);
 
-	timeline = toSignal(this.timelineService.timeline$, {
-		initialValue: this.timelineService.timeline
+	timelines = toSignal(this.timelineService.timelines$, {
+		initialValue: this.timelineService.timelines
 	});
 
 	// Positioning
@@ -70,6 +70,6 @@ export class EventMapping {
 	lineStyle = input<LineStyle>(DEFAULT_EVENT_MAP_LINE_STYLE);
 	opacity = input<number>(0.4);
 	get eventLineColor(): Signal<string> {
-		return computed(() => this.timeline().theme.primaryColor);
+		return computed(() => this.timelines()[0].theme.primaryColor);
 	}
 }
