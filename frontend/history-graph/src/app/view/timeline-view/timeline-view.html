@@ -1,35 +1,19 @@
-<div #container class="timeline-container">
-	<div class="top-controls">
-		<prompt-view (submit)="onPromptEntered($event)" [isLoading]="isLoading()" />
-		<preference-view />
-	</div>
-	<tl-header [timeline]="timelines()[0]" [dateFormat]="dateFormat()" />
-	<div #timelineArea class="timeline-area">
-		<svg [attr.width]="viewSize().width" [attr.height]="viewSize().height" xmlns="http://www.w3.org/2000/svg">
-			<g tl-overview />
-			<g tl-axis
-				[startLabel]="startLabel()"
-				[endLabel]="endLabel()"
+<svg:g xmlns:svg="http://www.w3.org/2000/svg">
+	<g tl-axis
+		[timelineIdx]="timelineIdx()"
+		[startLabel]="startLabel()"
+		[endLabel]="endLabel()"
+		[textStyle]="textStyle()"
+		[lineStyle]="lineStyle()"
+	/>
+	@if (timeline().events && timeline().events.length > 0) {
+		@for (tlEvent of timeline().events; track tlEvent.when; let i = $index) {
+			<g tl-event
+				[tlEvent]="tlEvent"
+				[index]="i"
 				[textStyle]="textStyle()"
 				[lineStyle]="lineStyle()"
 			/>
-			@if (timelines()[0].events) {
-				@for (tlEvent of timelines()[0].events; track tlEvent.when; let i = $index) {
-					<g tl-event
-						[tlEvent]="tlEvent"
-						[index]="i"
-						[textStyle]="textStyle()"
-						[lineStyle]="lineStyle()"
-					/>
-				}
-			}
-			<g event-mapping />
-		</svg>
-
-		<!-- Global overlay component for timeline events -->
-		<event-overlay [dateFormat]="dateFormat()" />
-	</div>
-
-	<!-- Global overlay component for timeline events -->
-	<event-overlay [dateFormat]="dateFormat()" />
-</div>
+		}
+	}
+</svg:g>

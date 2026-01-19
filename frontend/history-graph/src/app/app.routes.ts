@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
-import { TimelineView } from './view/timeline-view/timeline-view';
+import { HistoryGraph } from './view/history-graph/history-graph';
 
 export const routes: Routes = [
-	{path: '', redirectTo: '/timeline', pathMatch:'full'},
-	{path: 'timeline', component: TimelineView},
+	{path: '', redirectTo: '/graph', pathMatch:'full'},
+	{path: 'graph', component: HistoryGraph},
 ];

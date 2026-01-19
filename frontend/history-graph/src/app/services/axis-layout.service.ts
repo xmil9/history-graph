@@ -3,7 +3,7 @@ import { LayoutFormat } from "./preference-types";
 import { Point2D, Rect2D, Size2D, INVALID_POSITION } from "../graphics/gfx-coord-2d";
 import { DEFAULT_TEXT_STYLE, TextStyle } from "../graphics/gfx-style";
 import { TimelineService } from "./timeline.service";
-import { duration, HDate } from "../model/historic-date";
+import { duration, HDate, HPeriod } from "../model/historic-date";
 import { Timeline } from "../model/timeline";
 import { DEFAULT_DATE_FORMAT, HDateFormat } from "../model/historic-date";
 
@@ -99,8 +99,8 @@ class BaseAxisLayout implements AxisLayout {
 	overviewPeriodBoundsHeight: number = 8;
 	protected input = DEFAULT_INPUT;
 	protected ticks: Tick[] = [];
-	protected readonly displayMargins = Rect2D.fromCoordinates(50, 50, 50, 0);
-	protected readonly displayHeight = 150;
+	protected readonly displayMargins = Rect2D.fromCoordinates(50, 60, 50, 0);
+	protected readonly displayHeight = 60;
 	protected readonly overviewMargins = Rect2D.fromCoordinates(50, 25, 50, 0);
 	protected readonly overviewHeight = 20;
 
@@ -351,7 +351,7 @@ export interface Tick {
 }
 
 class TickCalculator {
-	constructor(private timeline: Timeline, private dateFormat: HDateFormat) { }
+	constructor(private period: HPeriod, private dateFormat: HDateFormat) { }
 
 	calculate(): Tick[] {
 		const interval = this.intervalInYears();
@@ -359,21 +359,21 @@ class TickCalculator {
 			return [];
 		}
 
-		const tlStartYear = this.timeline.from.year;
-		const tlDuration = this.timeline.duration;
+		const tlStartYear = this.period.from.year;
+		const tlDuration = this.period.duration;
 
 		// Add ticks for half the timeline duration on each side.
 		// const margin = (this.timeline.to.year - this.timeline.from.year) / 2;
 		const margin = 0;
 		const from = Math.ceil((tlStartYear - margin) / interval) * interval;
-		const to = Math.floor((this.timeline.to.year + margin) / interval) * interval;
+		const to = Math.floor((this.period.to.year + margin) / interval) * interval;
 
 		const ticks: Tick[] = [];
 		for (let year = from; year <= to; year += interval) {
 			const date = new HDate(year);
 			const ratio = year < tlStartYear ?
-				-duration(date, this.timeline.from) / tlDuration :
-				duration(this.timeline.from, date) / tlDuration;
+				-duration(date, this.period.from) / tlDuration :
+				duration(this.period.from, date) / tlDuration;
 			ticks.push({
 				date,
 				label: this.dateFormat.format(date),
@@ -385,7 +385,7 @@ class TickCalculator {
 	}
 
 	private intervalInYears(): number {
-		const years = this.timeline.to.year - this.timeline.from.year;
+		const years = this.period.to.year - this.period.from.year;
 		if (years === 0) {
 			return 0;
 		}
@@ -425,20 +425,43 @@ export class AxisLayoutService {
 	// The area of the overview axis that is displayed in the timeline.
 	private _overviewDisplayedBounds = signal<Rect2D>(Rect2D.fromCoordinates(0, 0, 0, 0));
 
-	get displayBounds(): Signal<Rect2D> {
-		return this._displayBounds.asReadonly();
+	getDisplayBounds(timelineIdx: number): Signal<Rect2D> {
+		return computed(() => {
+			return Rect2D.fromCoordinates(
+				this._displayBounds().left,
+				this._displayBounds().top + timelineIdx * this._displayBounds().height,
+				this._displayBounds().right,
+				this._displayBounds().top + (timelineIdx + 1) * this._displayBounds().height
+			);
+		});
 	}
-	get startPosition(): Signal<Point2D> {
-		return this._startPosition.asReadonly();
+	getTotalDisplayBounds(): Rect2D {
+		return Rect2D.fromCoordinates(
+			this._displayBounds().left,
+			this._displayBounds().top,
+			this._displayBounds().right,
+			this._displayBounds().top + this._displayBounds().height * this.timelineService.timelines.length
+		);
 	}
-	get endPosition(): Signal<Point2D> {
-		return this._endPosition.asReadonly();
+	getStartPosition(timelineIdx: number): Signal<Point2D> {
+		return computed(() => {
+			return this._startPosition().translate(0, timelineIdx * this._displayBounds().height);
+		});
 	}
-	get startLabelPosition(): Signal<Point2D> {
-		return this._startLabelPosition.asReadonly();
+	getEndPosition(timelineIdx: number): Signal<Point2D> {
+		return computed(() => {
+			return this._endPosition().translate(0, timelineIdx * this._displayBounds().height);
+		});
 	}
-	get endLabelPosition(): Signal<Point2D> {
-		return this._endLabelPosition.asReadonly();
+	getStartLabelPosition(timelineIdx: number): Signal<Point2D> {
+		return computed(() => {
+			return this._startLabelPosition().translate(0, timelineIdx * this._displayBounds().height);
+		});
+	}
+	getEndLabelPosition(timelineIdx: number): Signal<Point2D> {
+		return computed(() => {
+			return this._endLabelPosition().translate(0, timelineIdx * this._displayBounds().height);
+		});
 	}
 	get labelRotation(): Signal<number> {
 		return computed(() => this.axisLayout.labelRotation);
@@ -449,11 +472,15 @@ export class AxisLayoutService {
 	getTickLabel(index: number): string {
 		return this.ticks[index].label;
 	}
-	get tickPositions(): Signal<Point2D[]> {
-		return this._tickPositions.asReadonly();
+	getTickPositions(timelineIdx: number): Signal<Point2D[]> {
+		return computed(() => {
+			return this._tickPositions().map(pos => pos.translate(0, timelineIdx * this._displayBounds().height));
+		});
 	}
-	get tickLabelPositions(): Signal<Point2D[]> {
-		return this._tickLabelPositions.asReadonly();
+	getTickLabelPositions(timelineIdx: number): Signal<Point2D[]> {
+		return computed(() => {
+			return this._tickLabelPositions().map(pos => pos.translate(0, timelineIdx * this._displayBounds().height));
+		});
 	}
 	get overviewBounds(): Signal<Rect2D> {
 		return this._overviewBounds.asReadonly();
@@ -510,7 +537,7 @@ export class AxisLayoutService {
 	}
 
 	private calculateTicks(): void {
-		const calculator = new TickCalculator(this.timelineService.timelines[0], this.input.dateFormat);
+		const calculator = new TickCalculator(this.timelineService.combinedTimelinePeriod(), this.input.dateFormat);
 		this.ticks = calculator.calculate();
 	}
 

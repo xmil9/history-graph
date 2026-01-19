@@ -19,29 +19,32 @@ export class AxisView {
 	SvgIconOrigin = SvgIconOrigin;
 
 	// Content
+	timelineIdx = input.required<number>();
 	startLabel = input.required<string>();
 	endLabel = input.required<string>();
 
 	// Positioning
 	get startPosition(): Signal<Point2D> {
 		return computed(() => {
+			const startPos = this.layout.axis.getStartPosition(this.timelineIdx())();
 			return new Point2D(
-				Math.max(this.layout.axis.startPosition().x, this.displayBounds().left),
-				this.layout.axis.startPosition().y
+				Math.max(startPos.x, this.displayBounds().left),
+				startPos.y
 			);
 		});
 	}
 	get endPosition(): Signal<Point2D> {
 		return computed(() => {
+			const endPos = this.layout.axis.getEndPosition(this.timelineIdx())();
 			return new Point2D(
-				Math.min(this.layout.axis.endPosition().x, this.displayBounds().right),
-				this.layout.axis.endPosition().y
+				Math.min(endPos.x, this.displayBounds().right),
+				endPos.y
 			);
 		});
 	}
 	get startIconPos(): Signal<Point2D> {
 		return computed(() => {
-			const pos = this.layout.axis.startPosition();
+			const pos = this.layout.axis.getStartPosition(this.timelineIdx())();
 			if (this.displayBounds().contains(pos)) {
 				return pos;
 			}
@@ -50,7 +53,7 @@ export class AxisView {
 	}
 	get endIconPos(): Signal<Point2D> {
 		return computed(() => {
-			const pos = this.layout.axis.endPosition();
+			const pos = this.layout.axis.getEndPosition(this.timelineIdx())();
 			if (this.displayBounds().contains(pos)) {
 				return pos;
 			}
@@ -58,25 +61,25 @@ export class AxisView {
 		});
 	}
 	get displayBounds(): Signal<Rect2D> {
-		return this.layout.axis.displayBounds;
+		return this.layout.axis.getDisplayBounds(this.timelineIdx());
 	}
 	get axisMarkerSize(): Signal<Size2D> {
 		return this.layout.axis.axisMarkerSize;
 	}
 	get startLabelPos(): Signal<Point2D> {
-		return this.layout.axis.startLabelPosition;
+		return this.layout.axis.getStartLabelPosition(this.timelineIdx());
 	}
 	get endLabelPos(): Signal<Point2D> {
-		return this.layout.axis.endLabelPosition;
+		return this.layout.axis.getEndLabelPosition(this.timelineIdx());
 	}
 	getTickLabel(index: number): string {
 		return this.layout.axis.getTickLabel(index);
 	}
 	get tickPositions(): Signal<Point2D[]> {
-		return this.layout.axis.tickPositions;
+		return this.layout.axis.getTickPositions(this.timelineIdx());
 	}
 	get tickLabelPositions(): Signal<Point2D[]> {
-		return this.layout.axis.tickLabelPositions;
+		return this.layout.axis.getTickLabelPositions(this.timelineIdx());
 	}
 	get tickMarkerSize(): Signal<Size2D> {
 		return this.layout.axis.tickMarkerSize;

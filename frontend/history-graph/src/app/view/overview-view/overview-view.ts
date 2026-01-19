@@ -92,13 +92,13 @@ export class OverviewView {
 	}
 
 	get startIconOpacity(): number {
-		if (this.layout.axis.displayBounds().contains(this.layout.axis.startPosition())) {
+		if (this.layout.axis.getDisplayBounds(0)().contains(this.layout.axis.getStartPosition(0)())) {
 			return DISPLAYED_ICON_OPACITY;
 		}
 		return NON_DISPLAYED_ICON_OPACITY;
 	}
 	get endIconOpacity(): number {
-		if (this.layout.axis.displayBounds().contains(this.layout.axis.endPosition())) {
+		if (this.layout.axis.getDisplayBounds(0)().contains(this.layout.axis.getEndPosition(0)())) {
 			return DISPLAYED_ICON_OPACITY;
 		}
 		return NON_DISPLAYED_ICON_OPACITY;

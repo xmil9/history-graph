@@ -49,8 +49,8 @@ export class EventMapping {
 	}
 	get axisStartPos(): Signal<Point2D | undefined> {
 		return computed(() => {
-			const pos = this.layout.axis.startPosition();
-			if (this.layout.axis.displayBounds().contains(pos)) {
+			const pos = this.layout.axis.getStartPosition(0)();
+			if (this.layout.axis.getDisplayBounds(0)().contains(pos)) {
 				return pos;
 			}
 			return undefined;
@@ -58,8 +58,8 @@ export class EventMapping {
 	}
 	get axisEndPos(): Signal<Point2D | undefined> {
 		return computed(() => {
-			const pos = this.layout.axis.endPosition();
-			if (this.layout.axis.displayBounds().contains(pos)) {
+			const pos = this.layout.axis.getEndPosition(0)();
+			if (this.layout.axis.getDisplayBounds(0)().contains(pos)) {
 				return pos;
 			}
 			return undefined;

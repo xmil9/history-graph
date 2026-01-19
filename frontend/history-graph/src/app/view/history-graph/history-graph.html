@@ -1,0 +1,24 @@
+<div #container class="timeline-container">
+	<div class="top-controls">
+		<prompt-view (submit)="onPromptEntered($event)" [isLoading]="isLoading()" />
+		<preference-view />
+	</div>
+	<tl-header [timeline]="timelines()[0]" [dateFormat]="dateFormat()" />
+	<div #timelineArea class="timeline-area">
+		<svg [attr.width]="viewSize().width" [attr.height]="viewSize().height" xmlns="http://www.w3.org/2000/svg">
+			<g tl-overview />
+			@for (timeline of timelines(); track timeline; let i = $index) {
+				<g tl-timeline
+					[timeline]="timeline"
+					[timelineIdx]="i"
+					[textStyle]="textStyle()"
+					[lineStyle]="lineStyle()"
+				/>
+			}
+			<g event-mapping />
+		</svg>
+	</div>
+	
+	<!-- Global overlay component for timeline events -->
+	<event-overlay [dateFormat]="dateFormat()" />
+</div>

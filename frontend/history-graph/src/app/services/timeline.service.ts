@@ -1,10 +1,11 @@
-import { inject, Injectable, signal, Signal } from '@angular/core';
+import { computed, inject, Injectable, signal, Signal } from '@angular/core';
 import { BehaviorSubject, finalize, take } from 'rxjs';
 import { makeDefaultTimelines, Timeline } from '../model/timeline';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { HttpClient } from '@angular/common/http';
 import { parseTimeline } from '../model/timeline-input';
 import { TimelineGraphic, TimelineGraphics } from './timeline-types';
+import { HDate, HPeriod } from '../model/historic-date';
 
 @Injectable({
 	providedIn: 'root'
@@ -40,6 +41,35 @@ export class TimelineService {
 		return toSignal(this.timelinesSubject.asObservable(), {
 			initialValue: this.timelinesSubject.value
 		});	
+	}
+
+	combinedTimelinePeriod = signal(this.calculateCombinedTimelinePeriod());
+
+	constructor() {
+		this.timelines$.subscribe(() => {
+			this.combinedTimelinePeriod.set(this.calculateCombinedTimelinePeriod());	
+		});
+	}
+
+	private calculateCombinedTimelinePeriod(): HPeriod {
+		const timelines = this.timelines;
+		if (timelines.length === 0) {
+			return new HPeriod(new HDate(1), new HDate(2000));
+		}
+
+		let combinedStart = timelines[0].from;
+		let combinedEnd = timelines[0].to;
+		for (let i = 1; i < timelines.length; i++) {
+			const timeline = timelines[i];
+			if (timeline.from.less(combinedStart)) {
+				combinedStart = timeline.from;
+			}
+			if (timeline.to.greater(combinedEnd)) {
+				combinedEnd = timeline.to;
+			}
+		}
+
+		return new HPeriod(combinedStart, combinedEnd);
 	}
 
 	generateTimeline(topic: string): void {

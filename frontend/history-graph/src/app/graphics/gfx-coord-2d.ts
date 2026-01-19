@@ -10,6 +10,10 @@ export class Point2D {
 		public x: number,
 		public y: number,
 	) {}
+
+	translate(x: number, y: number): Point2D {
+		return new Point2D(this.x + x, this.y + y);
+	}
 }
 
 export const INVALID_POSITION = new Point2D(INVALID_POSITION_SENTINEL, INVALID_POSITION_SENTINEL);

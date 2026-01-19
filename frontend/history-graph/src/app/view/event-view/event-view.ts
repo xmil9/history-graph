@@ -64,14 +64,15 @@ export class EventView {
 		return this.layout.events.labelLayoutFormat;
 	}
 	get labelPos(): Point2D {
-		return this.layout.events.labelPositions[this.index()];
+		const pos = this.layout.events.labelPositions[this.index()];
+		return pos ?? new Point2D(INVALID_POSITION_SENTINEL, INVALID_POSITION_SENTINEL);
 	}
 	get labelConnectorPath(): string {
 		const pos = this.layout.events.getEventPositionInDisplay(this.index());
 		if (pos === undefined) {
 			return '';
 		}
-		return this.layout.events.labelConnectorPaths[this.index()];
+		return this.layout.events.labelConnectorPaths[this.index()] ?? '';
 	}
 	get labelRotation(): Signal<number> {
 		return this.layout.events.labelRotation;
@@ -94,9 +95,6 @@ export class EventView {
 	}
 	get markerColor(): Signal<string> {
 		return computed(() => this.timelines()[0].theme.primaryColor);
-	}
-
-	constructor() {
 	}
 
 	onMarkerMouseEnter(mouseEvent: MouseEvent) {

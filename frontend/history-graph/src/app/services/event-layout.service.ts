@@ -50,7 +50,7 @@ class VerticalLabelLayout implements LabelLayout {
 
 	calculate(eventPositions: EventPosition[], input: EventLayoutInput, axisLayout: AxisLayoutService, timeline: Timeline): void {
 		this.labelPositions = eventPositions.map(pos => {
-			if (axisLayout.displayBounds().contains(pos.start)) {
+			if (axisLayout.getDisplayBounds(0)().contains(pos.start)) {
 				return new Point2D(
 					pos.start.x - input.textStyle.size / 3,
 					pos.start.y + axisLayout.eventMarkerSize().height / 2 + 7
@@ -73,12 +73,12 @@ class HorizontalLeftLabelLayout implements LabelLayout {
 	rotation: number = 0;
 	connectorPaths: string[] = [];
 	// Offset for the first row of labels to avoid overlapping with the axis.
-	private readonly firstRowOffsetY = 75;
+	private readonly firstRowOffsetY = 10;
 	private readonly lastRowOffsetY = 20;
 	private readonly labelOffsetX = 50;
 
 	calculate(eventPositions: EventPosition[], input: EventLayoutInput, axisLayout: AxisLayoutService, timeline: Timeline): void {
-		const tlEventsInView = eventPositions.filter(pos => axisLayout.displayBounds().contains(pos.start));
+		const tlEventsInView = eventPositions.filter(pos => axisLayout.getDisplayBounds(0)().contains(pos.start));
 		const rowHeight = this.calculateRowHeight(input, axisLayout, tlEventsInView.length);
 
 		this.labelPositions = this.calculateLabelPositions(eventPositions, input, axisLayout, rowHeight);
@@ -138,11 +138,11 @@ class HorizontalLeftLabelLayout implements LabelLayout {
 		axisLayout: AxisLayoutService,
 		rowHeight: number
 	): Point2D[] {
-		let rowY = axisLayout.startPosition().y + this.firstRowOffsetY;
+		let rowY = axisLayout.getTotalDisplayBounds().bottom + this.firstRowOffsetY;
 		const rowX = this.labelOffsetX;
 
 		return eventPositions.map(pos => {
-			if (axisLayout.displayBounds().contains(pos.start)) {
+			if (axisLayout.getDisplayBounds(0)().contains(pos.start)) {
 				rowY += rowHeight;
 				return new Point2D(rowX, rowY);
 			}
@@ -155,7 +155,7 @@ class HorizontalLeftLabelLayout implements LabelLayout {
 		axisLayout: AxisLayoutService,
 		numEventsInView: number
 	): number {
-		let rowHeight = (input.viewSize.height - axisLayout.startPosition().y - this.firstRowOffsetY - this.lastRowOffsetY) / numEventsInView;
+		let rowHeight = (input.viewSize.height - axisLayout.getStartPosition(0)().y - this.firstRowOffsetY - this.lastRowOffsetY) / numEventsInView;
 
 		const maxRowHeight = this.estimateTextHeight(input.textStyle) * 2;
 		if (rowHeight > maxRowHeight) {
@@ -195,11 +195,11 @@ class HorizontalCenterLabelLayout implements LabelLayout {
 	rotation: number = 0;
 	connectorPaths: string[] = [];
 	// Offset for the first row of labels to avoid overlapping with the axis.
-	private readonly firstRowOffsetY = 75;
+	private readonly firstRowOffsetY = 10;
 	private readonly lastRowOffsetY = 20;
 
 	calculate(eventPositions: EventPosition[], input: EventLayoutInput, axisLayout: AxisLayoutService, timeline: Timeline): void {
-		const tlEventsInView = eventPositions.filter(pos => axisLayout.displayBounds().contains(pos.start));
+		const tlEventsInView = eventPositions.filter(pos => axisLayout.getDisplayBounds(0)().contains(pos.start));
 		const rowHeight = this.calculateRowHeight(input, axisLayout, tlEventsInView.length);
 
 		this.labelPositions = this.calculateLabelPositions(eventPositions, input, axisLayout, rowHeight, timeline);
@@ -249,11 +249,11 @@ class HorizontalCenterLabelLayout implements LabelLayout {
 
 		context.font = `${input.textStyle.weight} ${input.textStyle.size}px ${input.textStyle.font}`;
 
-		const initialRowY = axisLayout.startPosition().y + this.firstRowOffsetY;
+		const initialRowY = axisLayout.getTotalDisplayBounds().bottom + this.firstRowOffsetY;
 		const maxXPerRow: number[] = [];
 
 		const labelPositions = eventPositions.map((pos, index) => {
-			if (axisLayout.displayBounds().contains(pos.start)) {
+			if (axisLayout.getDisplayBounds(0)().contains(pos.start)) {
 				const event = timeline.events[index];
 				const labelText = formatLabel(event, input.dateFormat);
 				const textMetrics = context.measureText(labelText);
@@ -289,7 +289,7 @@ class HorizontalCenterLabelLayout implements LabelLayout {
 		axisLayout: AxisLayoutService,
 		tlEventsInViewCount: number
 	): number {
-		let rowHeight = (input.viewSize.height - axisLayout.startPosition().y - this.firstRowOffsetY - this.lastRowOffsetY) / tlEventsInViewCount;
+		let rowHeight = (input.viewSize.height - axisLayout.getStartPosition(0)().y - this.firstRowOffsetY - this.lastRowOffsetY) / tlEventsInViewCount;
 
 		const maxRowHeight = this.estimateTextHeight(input.textStyle) * 2;
 		if (rowHeight > maxRowHeight) {
@@ -385,23 +385,31 @@ export class EventLayoutService {
 	}
 
 	getEventPositionInDisplay(index: number): Point2D | undefined {
+		if (index < 0 || index >= this.eventPositions().length) {
+			return undefined;
+		}
+
 		const pos = this.eventPositions()[index].start;
-		return this.axisLayoutService.displayBounds().contains(pos) ? pos : undefined;
+		return this.axisLayoutService.getDisplayBounds(0)().contains(pos) ? pos : undefined;
 	}
 	
 	getEventEndPositionInDisplay(index: number): Point2D | undefined {
+		if (index < 0 || index >= this.eventPositions().length) {
+			return undefined;
+		}
+
 		const pos = this.eventPositions()[index].end;
 		if (pos === undefined) {
 			return undefined;
 		}
-		return this.axisLayoutService.displayBounds().contains(pos) ? pos : undefined;
+		return this.axisLayoutService.getDisplayBounds(0)().contains(pos) ? pos : undefined;
 	}
 
 	getPeriodBounds(index: number): Signal<Rect2D> {
 		return computed(() => {
 			const NO_BOUNDS = Rect2D.fromCoordinates(0, 0, 0, 0);
 			const pos = this.eventPositions()[index];
-			const displayBounds = this.axisLayoutService.displayBounds();
+			const displayBounds = this.axisLayoutService.getDisplayBounds(0)();
 
 			let left = pos.start.x;
 			if (left >= displayBounds.right)
@@ -492,11 +500,12 @@ export class EventLayoutService {
 			return undefined;
 		}
 
-		const axisStartPos = this.axisLayoutService.startPosition();
-		const axisEndPos = this.axisLayoutService.endPosition();
+		const axisStartPos = this.axisLayoutService.getStartPosition(0)();
+		const axisEndPos = this.axisLayoutService.getEndPosition(0)();
 		const tlDistance = axisEndPos.x - axisStartPos.x;
+		const combinedTimelinePeriod = this.timelineService.combinedTimelinePeriod();
 
-		const dateRatio = duration(this.timeline.from, date) / this.timeline.duration;
+		const dateRatio = duration(combinedTimelinePeriod.from, date) / combinedTimelinePeriod.duration;
 		const dateX = axisStartPos.x + (dateRatio * tlDistance);
 		return new Point2D(dateX, axisStartPos.y);
 	}
@@ -518,11 +527,12 @@ export class EventLayoutService {
 			return undefined;
 		}
 
+		const combinedTimelinePeriod = this.timelineService.combinedTimelinePeriod();
 		const overviewAxisBounds = this.axisLayoutService.overviewAxisBounds();
-		const tlDuration = duration(this.timeline.from, this.timeline.to);
+		const tlDuration = duration(combinedTimelinePeriod.from, combinedTimelinePeriod.to);
 		const tlDistance = overviewAxisBounds.width;
 
-		const dateRatio = duration(this.timeline.from, date) / tlDuration;
+		const dateRatio = duration(combinedTimelinePeriod.from, date) / tlDuration;
 		const dateX = overviewAxisBounds.left + (dateRatio * tlDistance);
 		return new Point2D(dateX, overviewAxisBounds.center.y);
 	}
