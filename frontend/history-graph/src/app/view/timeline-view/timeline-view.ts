@@ -2,7 +2,7 @@ import { Component, computed, inject, input, Signal } from '@angular/core';
 import { DEFAULT_LINE_STYLE, DEFAULT_TEXT_STYLE, LineStyle, TextStyle } from '../../graphics/gfx-style';
 import { PreferenceService } from '../../services/preference.service';
 import { HDateFormat } from '../../model/historic-date';
-import { TimelineGraphic } from '../../services/timeline-types';
+import { TimelineGraphic } from '../../services/graphic-types';
 import { AxisView } from '../axis-view/axis-view';
 import { EventView } from '../event-view/event-view';
 import { TimelineService } from '../../services/timeline.service';
@@ -36,10 +36,10 @@ export class TimelineView {
 	timelineIdx = input.required<number>();
 
 	startLabel = computed(() => {
-		return this.dateFormat().format(this.timelineService.combinedTimelinePeriod().from);
+		return this.dateFormat().format(this.timelineService.combinedTimeline().from);
 	});
 	endLabel = computed(() => {
-		return this.dateFormat().format(this.timelineService.combinedTimelinePeriod().to);
+		return this.dateFormat().format(this.timelineService.combinedTimeline().to);
 	});
 
 	// Styling

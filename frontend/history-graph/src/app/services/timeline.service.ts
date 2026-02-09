@@ -1,93 +1,105 @@
-import { computed, inject, Injectable, signal, Signal } from '@angular/core';
-import { BehaviorSubject, finalize, take } from 'rxjs';
+import { computed, effect, inject, Injectable, Signal, WritableSignal, signal } from '@angular/core';
+import { finalize, take } from 'rxjs';
 import { makeDefaultTimelines, Timeline } from '../model/timeline';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { HttpClient } from '@angular/common/http';
 import { parseTimeline } from '../model/timeline-input';
-import { TimelineGraphic, TimelineGraphics } from './timeline-types';
+import { HgGraphic, TimelineGraphic } from './graphic-types';
 import { HDate, HPeriod } from '../model/historic-date';
+import { GraphicService } from './graphic-service';
+import { calculateTicks, Tick } from './tick-calculator';
+import { DEFAULT_DATE_FORMAT } from '../model/historic-date';
+import { HEvent } from '../model/historic-event';
+import { IdGenerator } from '../model/id-generator';
 
 @Injectable({
 	providedIn: 'root'
 })
 export class TimelineService {
 	private http = inject(HttpClient);
-	private colors = [
-		'rgb(20, 54, 108)',
-		'rgb(108, 20, 20)',
-		'rgb(20, 108, 20)',
-		'rgb(108, 20, 108)',
-		'rgb(20, 108, 108)',
-		'rgb(108, 108, 20)',
-		'rgb(20, 20, 108)',
-		'rgb(108, 20, 20)',
-	];
-	private nextColorIndex = 0;
-	isLoading = signal(false);
-
-	private timelinesSubject = new BehaviorSubject<TimelineGraphics>(
-		makeDefaultTimelines().map(timeline => this.makeTimelineGraphic(timeline))
-	);
-
-	// Reactive access to the timeline
-	public timelines$ = this.timelinesSubject.asObservable();
-
-	// Synchronous access to the timeline
-	get timelines(): TimelineGraphics {
-		return this.timelinesSubject.value;
+	private graphicService = inject(GraphicService);
+	private timelineIdGen = new IdGenerator();
+	
+	private isLoading_: WritableSignal<boolean> = signal(false);
+	public get isLoading(): Signal<boolean> {
+		return this.isLoading_;
 	}
 
-	timelinesAsSignal(): Signal<TimelineGraphics> {
-		return toSignal(this.timelinesSubject.asObservable(), {
-			initialValue: this.timelinesSubject.value
-		});	
+	private hgGraphic: WritableSignal<HgGraphic>;
+	public get timelines(): Signal<TimelineGraphic[]> {
+		return computed(() => this.hgGraphic().timelines);
 	}
 
-	combinedTimelinePeriod = signal(this.calculateCombinedTimelinePeriod());
+	private combinedTimeline_: WritableSignal<TimelineGraphic>;
+	public get combinedTimeline(): Signal<TimelineGraphic> {
+		return this.combinedTimeline_;
+	}
+
+	private ticks_: WritableSignal<Tick[]>;
+	public get ticks(): Signal<Tick[]> {
+		return this.ticks_;
+	}
 
 	constructor() {
-		this.timelines$.subscribe(() => {
-			this.combinedTimelinePeriod.set(this.calculateCombinedTimelinePeriod());	
+		const defaultTimelines = makeDefaultTimelines(this.timelineIdGen).map(
+			timeline => this.makeGraphic(timeline)
+		);
+
+		this.hgGraphic = signal(new HgGraphic(defaultTimelines));
+		this.combinedTimeline_ = signal(this.calculateCombinedTimeline());
+		this.ticks_ = signal(calculateTicks(this.combinedTimeline().timeline.period, DEFAULT_DATE_FORMAT));
+
+		// Recalculate combined timeline when the graphic changes.
+		effect(() => {
+			this.combinedTimeline_.set(this.calculateCombinedTimeline());
 		});
 	}
 
-	private calculateCombinedTimelinePeriod(): HPeriod {
-		const timelines = this.timelines;
-		if (timelines.length === 0) {
-			return new HPeriod(new HDate(1), new HDate(2000));
-		}
+	private calculateCombinedTimeline(): TimelineGraphic {
+		const combinedTitle = 'Combined Timeline';
 
-		let combinedStart = timelines[0].from;
-		let combinedEnd = timelines[0].to;
-		for (let i = 1; i < timelines.length; i++) {
-			const timeline = timelines[i];
-			if (timeline.from.less(combinedStart)) {
-				combinedStart = timeline.from;
-			}
-			if (timeline.to.greater(combinedEnd)) {
-				combinedEnd = timeline.to;
-			}
-		}
+		// Collect the combined data.
+		let combinedStart = new HDate(1);
+		let combinedEnd = new HDate(2026);
+		const combinedEvents: HEvent[] = [];
 
-		return new HPeriod(combinedStart, combinedEnd);
+		this.hgGraphic().timelines.map(tlGraphic => {
+			if (tlGraphic.from.less(combinedStart)) {
+				combinedStart = tlGraphic.from;
+			}
+			if (tlGraphic.to.greater(combinedEnd)) {
+				combinedEnd = tlGraphic.to;
+			}
+
+			combinedEvents.push(...tlGraphic.timeline.events);
+		});
+
+		// Sort the combined events.
+		combinedEvents.sort((a, b) => a.less(b) ? -1 : 1);
+
+		// Create the combined timeline.
+		const combinedTimeline = new Timeline(
+			0, combinedTitle, new HPeriod(combinedStart, combinedEnd), combinedEvents);
+		return this.makeGraphic(combinedTimeline);
 	}
 
 	generateTimeline(topic: string): void {
-		if (topic === 'test') {
-			this.executeInputTest();
+		if (topic === 'run-debug-test') {
+			this.runDebugTest();
 			return;
 		}
 		
 		const url = 'http://localhost:3000/api/generate-timeline?topic=' + encodeURIComponent(topic);
-		this.isLoading.set(true);
+		this.isLoading_.set(true);
 		
 		this.http.get<any>(url).pipe(
 			take(1),
-			finalize(() => this.isLoading.set(false))
+			finalize(() => this.isLoading_.set(false))
 		).subscribe({
 			next: (timelineInput) => {
 				try {
-					this.timelinesSubject.next([this.makeTimelineGraphic(parseTimeline(timelineInput))]);
+					this.hgGraphic.set(
+						new HgGraphic([...this.hgGraphic().timelines, this.makeGraphicFromInput(timelineInput)])
+					);
 				} catch (e) {
 					console.error('Failed to parse timeline:', e);
 				}
@@ -96,7 +108,7 @@ export class TimelineService {
 		});
 	}
 
-	private executeInputTest(): void {
+	private runDebugTest(): void {
 		const input = {
 			title: 'Test',
 			start_date: '-4540000000',
@@ -114,18 +126,14 @@ export class TimelineService {
 				}
 			]
 		};
-		this.timelinesSubject.next([this.makeTimelineGraphic(parseTimeline(input))]);
+		this.hgGraphic.set(new HgGraphic([this.makeGraphicFromInput(input)]));
 	}
 
-	private makeTimelineGraphic(timeline: Timeline): TimelineGraphic {
-		return new TimelineGraphic(
-			timeline.title,
-			timeline.period,
-			timeline.events,
-			{
-				primaryColor: this.colors[this.nextColorIndex++ % this.colors.length],
-				secondaryColor: 'blue'
-			}
-		);
+	private makeGraphic(timeline: Timeline): TimelineGraphic {
+		return this.graphicService.decorateTimeline(timeline);
+	}
+
+	private makeGraphicFromInput(input: any): TimelineGraphic {
+		return this.makeGraphic(parseTimeline(input, this.timelineIdGen.nextId()));
 	}
 }

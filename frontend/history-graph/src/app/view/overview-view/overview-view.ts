@@ -1,10 +1,9 @@
-import { Component, computed, inject, input, signal, Signal } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { SvgIcon, SvgIconOrigin } from '../svg-icon/svg-icon';
-import { INVALID_POSITION_SENTINEL, Point2D, Rect2D, Size2D } from '../../graphics/gfx-coord-2d';
-import { DEFAULT_PERIOD_COLOR, LineStyle } from '../../graphics/gfx-style';
-import { TimelineService } from '../../services/timeline.service';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { INVALID_BOUNDS, INVALID_POSITION, Point2D, Rect2D, Size2D } from '../../graphics/gfx-coord-2d';
+import { LineStyle } from '../../graphics/gfx-style';
 import { LayoutService } from '../../services/layout.service';
+import { EventPosition } from '../../services/layout-types';
 
 export const DEFAULT_OVERVIEW_BACKGROUND = '#d0d0d0';
 export const DEFAULT_OVERVIEW_LINE_STYLE: LineStyle = {
@@ -28,55 +27,48 @@ export const DISPLAYED_ICON_OPACITY = 0.9;
 	styleUrl: './overview-view.css'
 })
 export class OverviewView {
-	private timelineService = inject(TimelineService);
-	private layout = inject(LayoutService);
+	private layoutService = inject(LayoutService);
 
 	// Expose types for template
 	SvgIconOrigin = SvgIconOrigin;
 
 	// Content
-	timelines = toSignal(this.timelineService.timelines$, {
-		initialValue: this.timelineService.timelines
-	});
+	get combinedEventPositions(): EventPosition[] {
+		return this.layoutService.layout.overview.combinedEventPositions;
+	}
 
 	// Positioning
-	get displayBounds(): Signal<Rect2D> {
-		return this.layout.axis.overviewBounds;
+	get overviewBounds(): Rect2D {
+		return this.layoutService.layout.overview.bounds;
 	}
-	get axisBounds(): Signal<Rect2D> {
-		return this.layout.axis.overviewAxisBounds;
+	get axisBounds(): Rect2D {
+		return this.layoutService.layout.overview.axisBounds;
 	}
-	get displayedBounds(): Signal<Rect2D> {
-		return this.layout.axis.overviewDisplayedBounds;
+	get viewedBounds(): Rect2D {
+		return this.layoutService.layout.overview.viewedBounds;
 	}
-	get startPos(): Signal<Point2D> {
-		return computed(() => new Point2D(this.axisBounds().left, this.axisBounds().center.y));
+	get startPosition(): Point2D {
+		return new Point2D(this.axisBounds.left, this.axisBounds.center.y);
 	}
-	get endPos(): Signal<Point2D> {
-		return computed(() => new Point2D(this.axisBounds().right, this.axisBounds().center.y));
+	get endPosition(): Point2D {
+		return new Point2D(this.axisBounds.right, this.axisBounds.center.y);
 	}
-	get markerSize(): Signal<Size2D> {
-		return this.layout.axis.overviewMarkerSize;
+	get markerSize(): Size2D {
+		return this.layoutService.layout.overview.endMarkerSize;
 	}
-	getOverviewEventPosition(index: number): Signal<Point2D> {
-		return computed(() => {
-			return this.layout.events.overviewEventPositions()[index].start;
-		});
+	getOverviewEventPosition(index: number): Point2D {
+		return this.layoutService.layout.overview.combinedEventPositions[index].start;
 	}
-	getOverviewEventEndPosition(index: number): Signal<Point2D> {
-		return computed(() => {
-			const pos = this.layout.events.overviewEventPositions()[index].end;
-			if (pos === undefined) {
-				return new Point2D(INVALID_POSITION_SENTINEL, INVALID_POSITION_SENTINEL);
-			}
-			return pos;
-		});
+	getOverviewEventEndPosition(index: number): Point2D {
+		const pos = this.layoutService.layout.overview.combinedEventPositions[index].end;
+		return pos ? pos : INVALID_POSITION;
 	}
-	get eventMarkerSize(): Signal<Size2D> {
-		return this.layout.axis.overviewEventMarkerSize;
+	getOverviewPeriodBounds(index: number): Rect2D {
+		const bounds = this.layoutService.layout.overview.combinedEventPositions[index].periodBounds;
+		return bounds ? bounds : INVALID_BOUNDS;
 	}
-	getOverviewPeriodBounds(index: number): Signal<Rect2D> {
-		return this.layout.events.getOverviewPeriodBounds(index);
+	get eventMarkerSize(): Size2D {
+		return this.layoutService.layout.overview.eventMarkerSize;
 	}
 
 	// Styling
@@ -84,31 +76,20 @@ export class OverviewView {
 	background = input<string>(DEFAULT_OVERVIEW_BACKGROUND);
 	displayedBackground = input<string>(DEFAULT_OVERVIEW_DISPLAYED_BACKGROUND);
 	displayedLineStyle = input<LineStyle>(DEFAULT_OVERVIEW_DISPLAYED_LINE_STYLE);
-	get periodColor(): Signal<string> {
-		return computed(() => this.timelines()[0].theme.primaryColor);
+	getPeriodColor(index: number): string {
+		return this.layoutService.layout.overview.combinedEventPositions[index].event.theme.primaryColor;
 	}
-	get markerColor(): Signal<string> {
-		return computed(() => this.timelines()[0].theme.primaryColor);
+	getMarkerColor(index: number): string {
+		return this.layoutService.layout.overview.combinedEventPositions[index].event.theme.primaryColor;
 	}
 
 	get startIconOpacity(): number {
-		if (this.layout.axis.getDisplayBounds(0)().contains(this.layout.axis.getStartPosition(0)())) {
-			return DISPLAYED_ICON_OPACITY;
-		}
-		return NON_DISPLAYED_ICON_OPACITY;
+		return DISPLAYED_ICON_OPACITY;
 	}
 	get endIconOpacity(): number {
-		if (this.layout.axis.getDisplayBounds(0)().contains(this.layout.axis.getEndPosition(0)())) {
-			return DISPLAYED_ICON_OPACITY;
-		}
-		return NON_DISPLAYED_ICON_OPACITY;
+		return DISPLAYED_ICON_OPACITY;
 	}
-
-	getEventIconOpacity(index: number): number {
-		const pos = this.layout.events.getEventPositionInDisplay(index);
-		if (pos !== undefined) {
-			return DISPLAYED_ICON_OPACITY;
-		}
-		return NON_DISPLAYED_ICON_OPACITY;
+	get eventIconOpacity(): number {
+		return DISPLAYED_ICON_OPACITY;
 	}
 }	

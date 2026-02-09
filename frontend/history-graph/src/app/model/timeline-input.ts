@@ -18,18 +18,19 @@ const TimelineInputSchema = z.object({
 	events: z.array(EventInputSchema)	
 });
 
-export function parseTimeline(timelineInput: any): Timeline {
+export function parseTimeline(timelineInput: any, timelineId: number): Timeline {
 	const input = TimelineInputSchema.parse(timelineInput);
 	const tl = new Timeline(
+		timelineId,
 		input.title,
 		parsePeriod(input.start_date, input.end_date),
-		parseEvents(input.events)
+		parseEvents(input.events, timelineId)
 	);
 	return validateTimeline(tl);
 }
 
-function parseEvents(events: EventInput[]): HEvent[] {
-	return events.map((event: EventInput) => {
+function parseEvents(events: EventInput[], timelineId: number): HEvent[] {
+	return events.map((event: EventInput, eventIdx: number) => {
 		try
 		{
 			const startDate = parseDate(event.start_date);
@@ -40,6 +41,8 @@ function parseEvents(events: EventInput[]): HEvent[] {
 				return new HEvent(
 					new HPeriod(startDate, endDate),
 					event.label,
+					timelineId,
+					eventIdx,
 					event.description
 				);
 			}
@@ -47,6 +50,8 @@ function parseEvents(events: EventInput[]): HEvent[] {
 			return new HEvent(
 				startDate,
 				event.label,
+				timelineId,
+				eventIdx,
 				event.description
 			);
 		}
@@ -97,6 +102,6 @@ function validatePeriod(tl: Timeline): Timeline {
 	}
 	
 	if (hasChanged)
-		return new Timeline(tl.title, new HPeriod(firstDate, lastDate), tl.events);
+		return new Timeline(tl.id, tl.title, new HPeriod(firstDate, lastDate), tl.events);
 	return tl;
 }

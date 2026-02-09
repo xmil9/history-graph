@@ -1,10 +1,10 @@
-<div #container class="timeline-container">
+<div #container class="history-graph-container">
 	<div class="top-controls">
 		<prompt-view (submit)="onPromptEntered($event)" [isLoading]="isLoading()" />
 		<preference-view />
 	</div>
-	<tl-header [timeline]="timelines()[0]" [dateFormat]="dateFormat()" />
-	<div #timelineArea class="timeline-area">
+	<tl-header [timeline]="timelines()[0].timeline" [dateFormat]="dateFormat()" />
+	<div #historyGraphArea class="history-graph-area">
 		<svg [attr.width]="viewSize().width" [attr.height]="viewSize().height" xmlns="http://www.w3.org/2000/svg">
 			<g tl-overview />
 			@for (timeline of timelines(); track timeline; let i = $index) {
@@ -15,7 +15,11 @@
 					[lineStyle]="lineStyle()"
 				/>
 			}
-			<g event-mapping />
+			<!-- <g event-labels
+				[textStyle]="textStyle()"
+				[lineStyle]="lineStyle()"
+			/>
+			<g event-mapping /> -->
 		</svg>
 	</div>
 	

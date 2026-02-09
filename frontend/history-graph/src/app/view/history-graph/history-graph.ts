@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, computed, effect, ElementRef, HostListener, inject, input, signal, Signal, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, computed, effect, ElementRef, HostListener, inject, input, signal, ViewChild } from '@angular/core';
 import { TimelineService } from '../../services/timeline.service';
 import { Point2D, Size2D } from '../../graphics/gfx-coord-2d';
 import { PromptView } from '../prompt-view/prompt-view';
@@ -11,10 +11,8 @@ import { EventMapping } from '../event-mapping/event-mapping';
 import { HeaderView } from '../header-view/header-view';
 import { PreferenceService } from '../../services/preference.service';
 import { HDateFormat } from '../../model/historic-date';
-import { AxisLayoutInput } from '../../services/axis-layout.service';
-import { EventLayoutInput } from '../../services/event-layout.service';
-import { TimelineGraphic } from '../../services/timeline-types';
 import { TimelineView } from '../timeline-view/timeline-view';
+import { EventLabels } from '../event-labels/event-labels';
 
 const DEFAULT_TL_TEXT_STYLE: TextStyle = {
 	...DEFAULT_TEXT_STYLE,
@@ -30,6 +28,7 @@ const DEFAULT_TL_TEXT_STYLE: TextStyle = {
 		TimelineView,
 		EventOverlay,
 		EventMapping,
+		EventLabels,
 		HeaderView,
 		PreferenceView,
 		PromptView
@@ -39,77 +38,62 @@ const DEFAULT_TL_TEXT_STYLE: TextStyle = {
 })
 export class HistoryGraph implements AfterViewInit {
 	private timelineService = inject(TimelineService);
-	private layout = inject(LayoutService);
+	private layoutService = inject(LayoutService);
 	private preferenceService = inject(PreferenceService);
 
-	@ViewChild('timelineArea', { read: ElementRef }) timelineAreaRef!: ElementRef<HTMLDivElement>;
+	@ViewChild('historyGraphArea', { read: ElementRef }) historyGraphAreaElem!: ElementRef<HTMLDivElement>;
 
 	// Content
 	dateFormat = computed<HDateFormat>(() => {
 		const labeledFormat = this.preferenceService.dateFormat();
 		return labeledFormat.format;
 	});
-	timelines: Signal<TimelineGraphic[]>;
+	timelines = this.timelineService.timelines;
 
 	startLabel = computed(() => {
-		const timeline = this.timelines()[0];
-		return timeline ? this.dateFormat().format(timeline.from) : '';
+		const tlGraphic = this.timelineService.combinedTimeline();
+		return tlGraphic ? this.dateFormat().format(tlGraphic.timeline.from) : '';
 	});
 	endLabel = computed(() => {
-		const timeline = this.timelines()[0];
-		return timeline ? this.dateFormat().format(timeline.to) : '';
+		const tlGraphic = this.timelineService.combinedTimeline();
+		return tlGraphic ? this.dateFormat().format(tlGraphic.timeline.to) : '';
 	});
 
 	// Positioning
 	viewSize = signal(new Size2D(0));
 
-	isLoading = this.timelineService.isLoading;
-
 	// Styling
 	textStyle = input<TextStyle>(DEFAULT_TL_TEXT_STYLE);
 	lineStyle = input<LineStyle>(DEFAULT_LINE_STYLE);
-
+	
 	// Interactions
+	isLoading = this.timelineService.isLoading;
 	private panning = false;
 	private panDeltaStartPos = signal(new Point2D(0, 0));
 	private panStartPos = signal(new Point2D(0, 0));
 
 	constructor() {
 		try {
-			this.timelines = this.timelineService.timelinesAsSignal();
-
-			// Trigger layout reset when timeline changes.
-			this.timelineService.timelines$.subscribe(() => {
-				this.layout.resetLayout(true);
+			// Trigger layout reset when the timeline set changes.
+			effect(() => {
+				this.timelines(); // The trigger signal
+				this.layoutService.resetLayout(true);
 			});
 
+			// Trigger a layout update when any of the inputs change.
 			effect(() => {
-				// Trigger axis layout update when any of the below inputs changes.
 				try {
-					this.layout.axis.updateLayout({
-						viewSize: this.viewSize(),
-						textStyle: this.textStyle(),
-						dateFormat: this.dateFormat(),
-					} satisfies AxisLayoutInput);
-				} catch (e) {
-					console.error('Error in axis layout effect:', e);
-				}
-			});
-
-			effect(() => {
-				// Trigger event layout update when any of the below inputs changes.
-				try {
-					this.layout.events.updateLayout({
+					this.layoutService.updateLayout({
 						viewSize: this.viewSize(),
 						textStyle: this.textStyle(),
 						lineStyle: this.lineStyle(),
 						dateFormat: this.dateFormat(),
-					} satisfies EventLayoutInput);
+					});
 				} catch (e) {
-					console.error('Error in event layout effect:', e);
+					console.error('Error in layout update effect:', e);
 				}
 			});
-			
+
 		} catch (e) {
 			console.error('Error in HistoryGraph constructor:', e);
 			throw e;
@@ -121,8 +105,9 @@ export class HistoryGraph implements AfterViewInit {
 	}
 
 	private updateViewSize(): void {
-		if (this.timelineAreaRef?.nativeElement) {
-			const rect = this.timelineAreaRef.nativeElement.getBoundingClientRect();
+		if (this.historyGraphAreaElem?.nativeElement) {
+			const rect = this.historyGraphAreaElem.nativeElement.getBoundingClientRect();
+			console.log('viewSize', rect);
 			this.viewSize.set(new Size2D(rect.width, rect.height));
 		}
 	}
@@ -165,10 +150,10 @@ export class HistoryGraph implements AfterViewInit {
 	}
 
 	private pan(start: Point2D, delta: Point2D): void {
-		this.layout.pan(start, delta);
+		this.layoutService.pan(start, delta);
 	}
 
 	private zoom(at: Point2D, factor: number): void {
-		this.layout.zoom(at, factor);
+		this.layoutService.zoom(at, factor);
 	}
 }

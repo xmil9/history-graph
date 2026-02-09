@@ -1,16 +1,19 @@
 <svg:g xmlns:svg="http://www.w3.org/2000/svg">
 	<g tl-axis
+		[timeline]="timeline()"
 		[timelineIdx]="timelineIdx()"
 		[startLabel]="startLabel()"
 		[endLabel]="endLabel()"
 		[textStyle]="textStyle()"
 		[lineStyle]="lineStyle()"
 	/>
-	@if (timeline().events && timeline().events.length > 0) {
-		@for (tlEvent of timeline().events; track tlEvent.when; let i = $index) {
+	@if (timeline().eventGraphics.length > 0) {
+		@for (tlEvent of timeline().eventGraphics; track tlEvent; let i = $index) {
 			<g tl-event
 				[tlEvent]="tlEvent"
-				[index]="i"
+				[eventIdx]="i"
+				[timeline]="timeline()"
+				[timelineIdx]="timelineIdx()"
 				[textStyle]="textStyle()"
 				[lineStyle]="lineStyle()"
 			/>

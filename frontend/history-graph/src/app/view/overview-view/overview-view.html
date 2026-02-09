@@ -1,9 +1,9 @@
 <svg:g xmlns:svg="http://www.w3.org/2000/svg">
 	<rect
-		[attr.x]="displayBounds().left"
-		[attr.y]="displayBounds().top"
-		[attr.width]="displayBounds().width"
-		[attr.height]="displayBounds().height"
+		[attr.x]="overviewBounds.left"
+		[attr.y]="overviewBounds.top"
+		[attr.width]="overviewBounds.width"
+		[attr.height]="overviewBounds.height"
 		[attr.fill]="background()"
 		[attr.stroke]="lineStyle().color"
 		stroke-width="0.2"
@@ -11,10 +11,10 @@
 		ry="4"
 	/>
 	<rect
-		[attr.x]="displayedBounds().left"
-		[attr.y]="displayedBounds().top"
-		[attr.width]="displayedBounds().width"
-		[attr.height]="displayedBounds().height"
+		[attr.x]="viewedBounds.left"
+		[attr.y]="viewedBounds.top"
+		[attr.width]="viewedBounds.width"
+		[attr.height]="viewedBounds.height"
 		[attr.fill]="displayedBackground()"
 		[attr.stroke]="displayedLineStyle().color"
 		[attr.stroke-width]="displayedLineStyle().width"
@@ -24,10 +24,10 @@
 	/>
 	<line
 		id="axis"
-		[attr.x1]="axisBounds().left"
-		[attr.y1]="axisBounds().center.y"
-		[attr.x2]="axisBounds().right"
-		[attr.y2]="axisBounds().center.y"
+		[attr.x1]="axisBounds.left"
+		[attr.y1]="axisBounds.center.y"
+		[attr.x2]="axisBounds.right"
+		[attr.y2]="axisBounds.center.y"
 		[attr.stroke]="lineStyle().color"
 		[attr.stroke-width]="lineStyle().width"
 	/>
@@ -36,8 +36,8 @@
 		class="overview-start-position"
 		[name]="'tl-start'" 
 		[origin]="SvgIconOrigin.Center" 
-		[position]="startPos()" 
-		[size]="markerSize()"
+		[position]="startPosition" 
+		[size]="markerSize"
 		[opacity]="startIconOpacity"
 	></g>
 	<g 
@@ -45,56 +45,57 @@
 		class="overview-end-position"
 		[name]="'tl-end'" 
 		[origin]="SvgIconOrigin.Center" 
-		[position]="endPos()" 
-		[size]="markerSize()"
+		[position]="endPosition" 
+		[size]="markerSize"
 		[opacity]="endIconOpacity"
 	></g>
-	@if (timelines()[0].events) {
-		@for (tlEvent of timelines()[0].events; track tlEvent.when; let i = $index) {
-			@if (tlEvent.isPeriod) {
-				@let periodBounds = getOverviewPeriodBounds(i)();
-				<rect
-					[attr.x]="periodBounds.left"
-					[attr.y]="periodBounds.top"
-					[attr.width]="periodBounds.width"
-					[attr.height]="periodBounds.height"
-					[attr.fill]="periodColor()"
-					[attr.stroke]="periodColor()"
-					[attr.stroke-width]="1"
-					opacity="0.3"
-					rx="2"
-					ry="2"
-				/>
-				<g 
-					svg-icon 
-					[name]="'tl-period-from'" 
-					[origin]="SvgIconOrigin.CenterLeft" 
-					[position]="getOverviewEventPosition(i)()" 
-					[size]="eventMarkerSize()"
-					[opacity]="getEventIconOpacity(i)"
-					[color]="markerColor()"
-				></g>
-				<g 
-					svg-icon 
-					[name]="'tl-period-to'" 
-					[origin]="SvgIconOrigin.CenterRight" 
-					[position]="getOverviewEventEndPosition(i)()" 
-					[size]="eventMarkerSize()"
-					[opacity]="getEventIconOpacity(i)"
-					[color]="markerColor()"
-				></g>
-			} @else {
-				<g 
-					svg-icon 
-					class="overview-event-position"
-					[name]="'tl-date'" 
-					[origin]="SvgIconOrigin.Center" 
-					[position]="getOverviewEventPosition(i)()" 
-					[size]="eventMarkerSize()"
-					[opacity]="getEventIconOpacity(i)"
-					[color]="markerColor()"
-				></g>
-			}
+	@for (eventPos of combinedEventPositions; track eventPos; let i = $index) {
+		@let markerColor = getMarkerColor(i);
+
+		@if (eventPos.event.hEvent.isPeriod) {
+			@let periodBounds = getOverviewPeriodBounds(i);
+			@let periodColor = getPeriodColor(i);
+			<rect
+				[attr.x]="periodBounds.left"
+				[attr.y]="periodBounds.top"
+				[attr.width]="periodBounds.width"
+				[attr.height]="periodBounds.height"
+				[attr.fill]="periodColor"
+				[attr.stroke]="periodColor"
+				[attr.stroke-width]="1"
+				opacity="0.3"
+				rx="2"
+				ry="2"
+			/>
+			<g 
+				svg-icon 
+				[name]="'tl-period-from'" 
+				[origin]="SvgIconOrigin.CenterLeft" 
+				[position]="eventPos.start" 
+				[size]="eventMarkerSize"
+				[opacity]="eventIconOpacity"
+				[color]="markerColor"
+			></g>
+			<g 
+				svg-icon 
+				[name]="'tl-period-to'" 
+				[origin]="SvgIconOrigin.CenterRight" 
+				[position]="eventPos.end!" 
+				[size]="eventMarkerSize"
+				[opacity]="eventIconOpacity"
+				[color]="markerColor"
+			></g>
+		} @else {
+			<g 
+				svg-icon 
+				class="overview-event-position"
+				[name]="'tl-date'" 
+				[origin]="SvgIconOrigin.Center" 
+				[position]="eventPos.start" 
+				[size]="eventMarkerSize"
+				[opacity]="eventIconOpacity"
+				[color]="markerColor"
+			></g>
 		}
 	}
 </svg:g>

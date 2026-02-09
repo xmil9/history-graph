@@ -1,50 +1,94 @@
-import { inject, Injectable } from "@angular/core";
-import { AxisLayoutService } from "./axis-layout.service";
-import { EventLayoutService } from "./event-layout.service";
+import { inject, Injectable, signal } from "@angular/core";
 import { LayoutFormat } from "./preference-types";
-import { EventLayoutInput } from "./event-layout.service";
-import { AxisLayoutInput } from "./axis-layout.service";
 import { Point2D } from "../graphics/gfx-coord-2d";
-
-// External data that affects the layout of events.
-export interface LayoutInput extends EventLayoutInput, AxisLayoutInput {
-}
+import { DEFAULT_LAYOUT_INPUT, DEFAULT_VIEWPORT, HgLayout, LayoutInput, TimelineViewport } from "./layout-types";
+import { TimelineService } from "./timeline.service";
+import { AxisLayoutCalculator, createAxisLayoutCalculator } from "./axis-layout-calculator";
+import { calculateTicks, Tick } from "./tick-calculator";
+import { LabelLayoutCalculator, createLabelLayoutCalculator } from "./label-layout-calculator";
 
 @Injectable({
 	providedIn: 'root'
 })
 export class LayoutService {
-	private axisLayout = inject(AxisLayoutService);
-	private eventLayout = inject(EventLayoutService);
+	private timelineService = inject(TimelineService);
+	layoutFormat = signal<LayoutFormat>(LayoutFormat.HorizontalCenter);
+	private axisCalculator: AxisLayoutCalculator = createAxisLayoutCalculator(this.layoutFormat());
+	private labelCalculator: LabelLayoutCalculator = createLabelLayoutCalculator(this.layoutFormat());
+	layout = new HgLayout();
+	private input = DEFAULT_LAYOUT_INPUT;
 
-	get axis(): AxisLayoutService {
-		return this.axisLayout;
-	}
-
-	get events(): EventLayoutService {
-		return this.eventLayout;
+	private ticks_: Tick[] = [];
+	get ticks(): Tick[] {
+		return this.ticks_;
 	}
 
 	setLayoutFormat(format: LayoutFormat): void {
-		this.axisLayout.setLayoutFormat(format);
-		this.eventLayout.setLabelLayoutFormat(format);
+		const keepViewport = this.layout.timelines.viewport;
+
+		this.layoutFormat.set(format);
+		this.axisCalculator = createAxisLayoutCalculator(this.layoutFormat());
+		this.labelCalculator = createLabelLayoutCalculator(this.layoutFormat());
+
+		this.calculateLayout(keepViewport);
 	}
 
 	resetLayout(resetTicks: boolean = false): void {
-		this.axisLayout.resetLayout(resetTicks);
-		this.eventLayout.resetLayout();
+		if (resetTicks) {
+			this.calculateTicks();
+		}
+		this.calculateLayout(DEFAULT_VIEWPORT);
 	}
 
 	updateLayout(input: LayoutInput): void {
-		this.axisLayout.updateLayout(input);
-		this.eventLayout.updateLayout(input);
+		this.input = input;
+		this.calculateLayout(this.layout.timelines.viewport);
 	}
 
 	pan(start: Point2D, delta: Point2D): void {
-		this.axisLayout.pan(start, delta);
+		this.axisCalculator.pan(
+			this.timelineService.timelines(),
+			this.timelineService.combinedTimeline(),
+			start,
+			delta,
+			this.ticks_,
+			this.layout
+		);
 	}
 
 	zoom(at: Point2D, factor: number): void {
-		this.axisLayout.zoom(at, factor);
+		this.axisCalculator.zoom(
+			this.timelineService.timelines(),
+			this.timelineService.combinedTimeline(),
+			at,
+			factor,
+			this.ticks_,
+			this.layout
+		);
+	}
+
+	private calculateLayout(targetViewport: TimelineViewport): void {
+		this.axisCalculator.setInput(this.input);
+		this.axisCalculator.calculate(
+			this.timelineService.timelines(),
+			this.timelineService.combinedTimeline(),
+			targetViewport,
+			this.ticks_,
+			this.layout
+		);
+
+		this.labelCalculator.setInput(this.input);
+		this.labelCalculator.calculate(
+			this.timelineService.timelines(),
+			this.timelineService.combinedTimeline(),
+			this.layout
+		);
+	}
+
+	private calculateTicks(): void {
+		this.ticks_ = calculateTicks(
+			this.timelineService.combinedTimeline().timeline.period,
+			this.input.dateFormat
+		);
 	}
 }

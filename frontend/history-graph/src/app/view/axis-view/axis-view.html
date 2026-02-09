@@ -1,9 +1,9 @@
 <svg:g xmlns:svg="http://www.w3.org/2000/svg">
 	<rect
-		[attr.x]="displayBounds().left"
-		[attr.y]="displayBounds().top"
-		[attr.width]="displayBounds().width"
-		[attr.height]="displayBounds().height"
+		[attr.x]="displayBounds.left"
+		[attr.y]="displayBounds.top"
+		[attr.width]="displayBounds.width"
+		[attr.height]="displayBounds.height"
 		[attr.fill]="background()"
 		[attr.stroke]="lineStyle().color"
 		stroke-width="0.2"
@@ -12,31 +12,31 @@
 	/>
 	<line
 		id="axis"
-		[attr.x1]="startPosition().x"
-		[attr.y1]="startPosition().y"
-		[attr.x2]="endPosition().x"
-		[attr.y2]="endPosition().y"
+		[attr.x1]="startPosition.x"
+		[attr.y1]="startPosition.y"
+		[attr.x2]="endPosition.x"
+		[attr.y2]="endPosition.y"
 		[attr.stroke]="lineStyle().color"
 		[attr.stroke-width]="lineStyle().width"
 	/>
-	@for (tickPos of tickPositions(); track $index; let i = $index) {
+	@for (tickPos of tickPositions; track tickPos; let i = $index) {
 		<g 
 			svg-icon 
 			class="timeline-tick"
 			[name]="'tl-tick'" 
 			[origin]="SvgIconOrigin.Center" 
 			[position]="tickPos" 
-			[size]="tickMarkerSize()"
+			[size]="tickMarkerSize"
 		></g>
 		<text
 			id="tick-text-{{i}}"
 			class="no-text-select"
-			[attr.x]="tickLabelPositions()[i].x"
-			[attr.y]="tickLabelPositions()[i].y"
+			[attr.x]="tickLabelPositions[i].x"
+			[attr.y]="tickLabelPositions[i].y"
 			[attr.font-family]="textStyle().font"
-			[attr.font-size]="textSize()"
-			[attr.font-weight]="textWeight()"
-			[attr.transform]="'rotate(' + labelRotation() + ' ' + tickLabelPositions()[i].x + ' ' + tickLabelPositions()[i].y + ')'"
+			[attr.font-size]="textSize"
+			[attr.font-weight]="textWeight"
+			[attr.transform]="'rotate(' + labelRotation + ' ' + tickLabelPositions[i].x + ' ' + tickLabelPositions[i].y + ')'"
 			[attr.fill]="textStyle().color"
 		>{{getTickLabel(i)}}</text>
 	}
@@ -45,18 +45,18 @@
 		class="timeline-start-position"
 		[name]="'tl-start'" 
 		[origin]="SvgIconOrigin.Center" 
-		[position]="startIconPos()" 
-		[size]="axisMarkerSize()"
+		[position]="startIconPosition" 
+		[size]="axisMarkerSize"
 	></g>
 	<text
 		id="start-text"
 		class="no-text-select"
-		[attr.x]="startLabelPos().x"
-		[attr.y]="startLabelPos().y"
+		[attr.x]="startLabelPosition.x"
+		[attr.y]="startLabelPosition.y"
 		[attr.font-family]="textStyle().font"
-		[attr.font-size]="textSize()"
-		[attr.font-weight]="textWeight()"
-		[attr.transform]="'rotate(' + labelRotation() + ' ' + startLabelPos().x + ' ' + startLabelPos().y + ')'"
+		[attr.font-size]="textSize"
+		[attr.font-weight]="textWeight"
+		[attr.transform]="'rotate(' + labelRotation + ' ' + startLabelPosition.x + ' ' + startLabelPosition.y + ')'"
 		[attr.fill]="textStyle().color"
 	>{{startLabel()}}</text>
 	<g 
@@ -64,18 +64,18 @@
 		class="timeline-end-position"
 		[name]="'tl-end'" 
 		[origin]="SvgIconOrigin.Center" 
-		[position]="endIconPos()" 
-		[size]="axisMarkerSize()"
+		[position]="endIconPosition" 
+		[size]="axisMarkerSize"
 	></g>
 	<text
 		id="end-text"
 		class="no-text-select"
-		[attr.x]="endLabelPos().x"
-		[attr.y]="endLabelPos().y"
+		[attr.x]="endLabelPosition.x"
+		[attr.y]="endLabelPosition.y"
 		[attr.font-family]="textStyle().font"
-		[attr.font-size]="textSize()"
-		[attr.font-weight]="textWeight()"
-		[attr.transform]="'rotate(' + labelRotation() + ' ' + endLabelPos().x + ' ' + endLabelPos().y + ')'"
+		[attr.font-size]="textSize"
+		[attr.font-weight]="textWeight"
+		[attr.transform]="'rotate(' + labelRotation + ' ' + endLabelPosition.x + ' ' + endLabelPosition.y + ')'"
 	>{{endLabel()}}</text>
 </svg:g>
 

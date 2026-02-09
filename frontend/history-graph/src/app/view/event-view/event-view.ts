@@ -1,14 +1,13 @@
 import { Component, computed, inject, input, Signal } from '@angular/core';
-import { INVALID_POSITION_SENTINEL, Point2D, Rect2D, Size2D } from '../../graphics/gfx-coord-2d';
+import { INVALID_BOUNDS, INVALID_POSITION, INVALID_POSITION_SENTINEL, Point2D, Rect2D, Size2D } from '../../graphics/gfx-coord-2d';
 import { DEFAULT_LINE_STYLE, DEFAULT_PERIOD_COLOR, DEFAULT_TEXT_STYLE, LineStyle, TextStyle } from '../../graphics/gfx-style';
 import { HEvent } from '../../model/historic-event';
 import { SvgIcon, SvgIconOrigin } from '../svg-icon/svg-icon';
 import { EventOverlayService } from '../../services/event-overlay.service';
-import { LayoutFormat } from '../../services/preference-types';
 import { LayoutService } from '../../services/layout.service';
 import { PreferenceService } from '../../services/preference.service';
-import { TimelineService } from '../../services/timeline.service';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { EventGraphic, TimelineGraphic } from '../../services/graphic-types';
+import { formatEventLabel } from '../../services/layout-utils';
 
 @Component({
 	selector: '[tl-event]',
@@ -17,89 +16,76 @@ import { toSignal } from '@angular/core/rxjs-interop';
 	styleUrl: './event-view.css'
 })
 export class EventView {
-	private timelineService = inject(TimelineService);
 	private overlayService = inject(EventOverlayService);
-	private layout = inject(LayoutService);
+	private layoutService = inject(LayoutService);
 	private preferenceService = inject(PreferenceService);
 
 	// Expose types for template
 	SvgIconOrigin = SvgIconOrigin;
-	LayoutFormat = LayoutFormat;
 
 	// Content
-	timelines = toSignal(this.timelineService.timelines$, {
-		initialValue: this.timelineService.timelines
-	});
-	tlEvent = input.required<HEvent>();
-	index = input.required<number>();
+	tlEvent = input.required<EventGraphic>();
+	eventIdx = input.required<number>();
+	timeline = input.required<TimelineGraphic>();
+	timelineIdx = input.required<number>();
 	label = computed(() => {
-		// Trigger recompute
-		this.preferenceService.dateFormat();
-		return this.layout.events.formatLabel(this.tlEvent());
+		// Trigger recompute if date format changes.
+		return formatEventLabel(this.tlEvent().hEvent, this.preferenceService.dateFormat().format);
 	});
 
 	isPeriod(): boolean {
-		return this.tlEvent().until !== undefined;
+		return this.tlEvent().hEvent.until !== undefined;
+	}
+
+	private get timelineLayout() {
+		return this.layoutService.layout.timelines.items[this.timelineIdx()];
+	}
+	private get eventPosition() {
+		return this.timelineLayout.eventPositions[this.eventIdx()];
 	}
 
 	// Positioning
 	get position(): Point2D {
-		const pos = this.layout.events.getEventPositionInDisplay(this.index());
+		const pos = this.eventPosition;
 		if (pos === undefined) {
-			return new Point2D(INVALID_POSITION_SENTINEL, INVALID_POSITION_SENTINEL);
+			return INVALID_POSITION;
 		}
-		return pos;
+		return pos.start;
 	}
 	get endPosition(): Point2D {
-		const pos = this.layout.events.getEventEndPositionInDisplay(this.index());
-		if (pos === undefined) {
-			return new Point2D(INVALID_POSITION_SENTINEL, INVALID_POSITION_SENTINEL);
+		const pos = this.eventPosition;
+		if (pos === undefined || !pos.end) {
+			return INVALID_POSITION;
 		}
-		return pos;
+		return pos.end;
 	}
-	get eventMarkerSize(): Signal<Size2D> {
-		return this.layout.axis.eventMarkerSize;
+	get eventMarkerSize(): Size2D {
+		return this.timelineLayout.eventMarkerSize;
 	}
-	get layoutFormat(): Signal<LayoutFormat> {
-		return this.layout.events.labelLayoutFormat;
-	}
-	get labelPos(): Point2D {
-		const pos = this.layout.events.labelPositions[this.index()];
-		return pos ?? new Point2D(INVALID_POSITION_SENTINEL, INVALID_POSITION_SENTINEL);
-	}
-	get labelConnectorPath(): string {
-		const pos = this.layout.events.getEventPositionInDisplay(this.index());
-		if (pos === undefined) {
-			return '';
+	get periodBounds(): Rect2D {
+		const pos = this.eventPosition;
+		if (pos === undefined || !pos.periodBounds) {
+			return INVALID_BOUNDS;
 		}
-		return this.layout.events.labelConnectorPaths[this.index()] ?? '';
-	}
-	get labelRotation(): Signal<number> {
-		return this.layout.events.labelRotation;
-	}
-	get periodBounds(): Signal<Rect2D> {
-		return this.layout.events.getPeriodBounds(this.index());
+		return pos.periodBounds;
 	}
 	
 	// Styling
 	textStyle = input<TextStyle>(DEFAULT_TEXT_STYLE);
-	get labelColor(): Signal<string> {
-		return computed(() => this.timelines()[0].theme.primaryColor);
+	get labelColor(): string {
+		return this.tlEvent().theme.primaryColor;
 	}
 	lineStyle = input<LineStyle>(DEFAULT_LINE_STYLE);
-	get periodColor(): Signal<string> {
-		return computed(() => this.timelines()[0].theme.primaryColor);
+	get periodColor(): string {
+		return this.tlEvent().theme.primaryColor;
 	}
-	get lineColor(): Signal<string> {
-		return computed(() => this.timelines()[0].theme.primaryColor);
-	}
-	get markerColor(): Signal<string> {
-		return computed(() => this.timelines()[0].theme.primaryColor);
+	get markerColor(): string {
+		return this.tlEvent().theme.primaryColor;
 	}
 
 	onMarkerMouseEnter(mouseEvent: MouseEvent) {
 		this.overlayService.setOverlay(
-			this.tlEvent(),
+			this.tlEvent().hEvent,
 			mouseEvent.clientX,
 			mouseEvent.clientY
 		);
@@ -108,7 +94,7 @@ export class EventView {
 	onMarkerMouseMove(mouseEvent: MouseEvent) {
 		if (this.overlayService.overlay()) {
 			this.overlayService.setOverlay(
-				this.tlEvent(),
+				this.tlEvent().hEvent,
 				mouseEvent.clientX,
 				mouseEvent.clientY
 			);

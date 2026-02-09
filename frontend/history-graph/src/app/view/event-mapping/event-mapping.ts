@@ -1,10 +1,11 @@
 import { Component, computed, inject, input, Signal } from '@angular/core';
-import { EventPosition } from '../../services/event-layout.service';
 import { LineStyle } from '../../graphics/gfx-style';
 import { Point2D } from '../../graphics/gfx-coord-2d';
-import { TimelineService } from '../../services/timeline.service';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { LayoutService } from '../../services/layout.service';
+import { TimelineService } from '../../services/timeline.service';
+import { EventGraphic, TimelineGraphic } from '../../services/graphic-types';
+import { EventPosition, TimelineLayout } from '../../services/layout-types';
+import { HEvent } from '../../model/historic-event';
 
 export const DEFAULT_EVENT_MAP_LINE_STYLE: LineStyle = {
 	color: '#333333',
@@ -18,58 +19,45 @@ export const DEFAULT_EVENT_MAP_LINE_STYLE: LineStyle = {
 	styleUrl: './event-mapping.css'
 })
 export class EventMapping {
+	private layoutService = inject(LayoutService);
 	private timelineService = inject(TimelineService);
-	private layout = inject(LayoutService);
 
-	timelines = toSignal(this.timelineService.timelines$, {
-		initialValue: this.timelineService.timelines
-	});
-
+	// Content
+	get combinedTimeline(): TimelineGraphic {
+		return this.timelineService.combinedTimeline();
+	}
+	
 	// Positioning
-	getOverviewEventPositions(index: number): EventPosition {
-		return this.layout.events.overviewEventPositions()[index];
+	private getTimelineLayout(hEvent: HEvent): TimelineLayout {
+		const timelineId = hEvent.timelineId;
+		const match = this.layoutService.layout.timelines.items.find(
+			(tlLayout) => tlLayout.timelineId === timelineId);
+		if (match === undefined) {
+			throw new Error(`Timeline layout not found for timeline id ${timelineId}`);
+		}
+		return match;
 	}
-	getEventPositionsInView(index: number): Point2D | undefined {
-		return this.layout.events.getEventPositionInDisplay(index);
+
+	getOverviewEventPositions(combinedEventIdx: number): EventPosition {
+		return this.layoutService.layout.overview.combinedEventPositions[combinedEventIdx];
 	}
-	getEventEndPositionsInView(index: number): Point2D | undefined {
-		return this.layout.events.getEventEndPositionInDisplay(index);
+	getEventPositionsInView(hEvent: HEvent): Point2D | undefined {
+		const tlLayout = this.getTimelineLayout(hEvent);
+		const eventIdx = hEvent.eventIdx;
+		const startPos = tlLayout.eventPositions[eventIdx].start;
+		return tlLayout.axis.contains(startPos) ? startPos : undefined;
 	}
-	get overviewStartPos(): Signal<Point2D> {
-		return computed(() => new Point2D(
-			this.layout.axis.overviewAxisBounds().left,
-			this.layout.axis.overviewAxisBounds().center.y)
-		);
-	}
-	get overviewEndPos(): Signal<Point2D> {
-		return computed(() => new Point2D(
-			this.layout.axis.overviewAxisBounds().right,
-			this.layout.axis.overviewAxisBounds().center.y)
-		);
-	}
-	get axisStartPos(): Signal<Point2D | undefined> {
-		return computed(() => {
-			const pos = this.layout.axis.getStartPosition(0)();
-			if (this.layout.axis.getDisplayBounds(0)().contains(pos)) {
-				return pos;
-			}
-			return undefined;
-		});
-	}
-	get axisEndPos(): Signal<Point2D | undefined> {
-		return computed(() => {
-			const pos = this.layout.axis.getEndPosition(0)();
-			if (this.layout.axis.getDisplayBounds(0)().contains(pos)) {
-				return pos;
-			}
-			return undefined;
-		});
+	getEventEndPositionsInView(hEvent: HEvent): Point2D | undefined {
+		const tlLayout = this.getTimelineLayout(hEvent);
+		const eventIdx = hEvent.eventIdx;
+		const endPos = tlLayout.eventPositions[eventIdx].end;
+		return (endPos && tlLayout.axis.contains(endPos)) ? endPos : undefined;
 	}
 
 	// Styling
 	lineStyle = input<LineStyle>(DEFAULT_EVENT_MAP_LINE_STYLE);
 	opacity = input<number>(0.4);
-	get eventLineColor(): Signal<string> {
-		return computed(() => this.timelines()[0].theme.primaryColor);
+	getEventLineColor(eventGraphic: EventGraphic): string {
+		return eventGraphic.theme.primaryColor;
 	}
 }
