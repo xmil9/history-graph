@@ -1,6 +1,6 @@
 import { Component, inject, input } from '@angular/core';
 import { SvgIcon, SvgIconOrigin } from '../svg-icon/svg-icon';
-import { INVALID_BOUNDS, INVALID_POSITION, Point2D, Rect2D, Size2D } from '../../graphics/gfx-coord-2d';
+import { Point2D, Rect2D, Size2D } from '../../graphics/gfx-coord-2d';
 import { LineStyle } from '../../graphics/gfx-style';
 import { LayoutService } from '../../services/layout.service';
 import { EventPosition } from '../../services/layout-types';
@@ -61,11 +61,11 @@ export class OverviewView {
 	}
 	getOverviewEventEndPosition(index: number): Point2D {
 		const pos = this.layoutService.layout.overview.combinedEventPositions[index].end;
-		return pos ? pos : INVALID_POSITION;
+		return pos ? pos : Point2D.invalid();
 	}
 	getOverviewPeriodBounds(index: number): Rect2D {
 		const bounds = this.layoutService.layout.overview.combinedEventPositions[index].periodBounds;
-		return bounds ? bounds : INVALID_BOUNDS;
+		return bounds ? bounds : Rect2D.empty();
 	}
 	get eventMarkerSize(): Size2D {
 		return this.layoutService.layout.overview.eventMarkerSize;

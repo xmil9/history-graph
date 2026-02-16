@@ -1,5 +1,5 @@
 import { HgLayout, TimelineViewport, DEFAULT_LAYOUT_INPUT, LayoutInput, AxisLayout, EventPosition } from "./layout-types";
-import { INVALID_POSITION, Point2D, Rect2D } from "../graphics/gfx-coord-2d";
+import { Point2D, Rect2D } from "../graphics/gfx-coord-2d";
 import { Tick } from "./tick-calculator";
 import { LayoutFormat } from "./preference-types";
 import { OverviewLayout, TimelineLayout } from "./layout-types";
@@ -177,7 +177,7 @@ class BaseAxisLayoutCalculator implements AxisLayoutCalculator {
 		const dateX = axisStartPos.x + (dateRatio * axisDistance);
 		const pos = new Point2D(dateX, axisStartPos.y);
 
-		return axisBounds.contains(pos) ? pos : INVALID_POSITION;
+		return axisBounds.contains(pos) ? pos : Point2D.invalid();
 	}
 
 	protected calcPeriodBounds(

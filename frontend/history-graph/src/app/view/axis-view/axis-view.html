@@ -19,7 +19,7 @@
 		[attr.stroke]="lineStyle().color"
 		[attr.stroke-width]="lineStyle().width"
 	/>
-	@for (tickPos of tickPositions; track tickPos; let i = $index) {
+	@for (tickPos of tickPositions; track $index; let i = $index) {
 		<g 
 			svg-icon 
 			class="timeline-tick"

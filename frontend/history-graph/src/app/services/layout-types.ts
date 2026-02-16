@@ -1,4 +1,4 @@
-import { INVALID_POSITION, Point2D, Rect2D, Size2D } from "../graphics/gfx-coord-2d";
+import { Point2D, Rect2D, Size2D } from "../graphics/gfx-coord-2d";
 import { DEFAULT_LINE_STYLE, DEFAULT_TEXT_STYLE, LineStyle, TextStyle } from "../graphics/gfx-style";
 import { DEFAULT_DATE_FORMAT, HDateFormat } from "../model/historic-date";
 import { EventGraphic } from "./graphic-types";
@@ -61,7 +61,7 @@ export class TimelineLayout {
 		return this.axis.contains(pos);
 	}
 	clip(pos: Point2D): Point2D {
-		return this.contains(pos) ? pos : INVALID_POSITION;
+		return this.contains(pos) ? pos : Point2D.invalid();
 	}
 }
 
@@ -89,7 +89,7 @@ export class AxisLayout {
 		return this.bounds.contains(pos);
 	}
 	clip(pos: Point2D): Point2D {
-		return this.contains(pos) ? pos : INVALID_POSITION;
+		return this.contains(pos) ? pos : Point2D.invalid();
 	}
 }
 

@@ -1,7 +1,6 @@
 import { Component, computed, inject, input, Signal } from '@angular/core';
-import { INVALID_BOUNDS, INVALID_POSITION, INVALID_POSITION_SENTINEL, Point2D, Rect2D, Size2D } from '../../graphics/gfx-coord-2d';
-import { DEFAULT_LINE_STYLE, DEFAULT_PERIOD_COLOR, DEFAULT_TEXT_STYLE, LineStyle, TextStyle } from '../../graphics/gfx-style';
-import { HEvent } from '../../model/historic-event';
+import { Point2D, Rect2D, Size2D } from '../../graphics/gfx-coord-2d';
+import { DEFAULT_LINE_STYLE, DEFAULT_TEXT_STYLE, LineStyle, TextStyle } from '../../graphics/gfx-style';
 import { SvgIcon, SvgIconOrigin } from '../svg-icon/svg-icon';
 import { EventOverlayService } from '../../services/event-overlay.service';
 import { LayoutService } from '../../services/layout.service';
@@ -48,14 +47,14 @@ export class EventView {
 	get position(): Point2D {
 		const pos = this.eventPosition;
 		if (pos === undefined) {
-			return INVALID_POSITION;
+			return Point2D.invalid();
 		}
 		return pos.start;
 	}
 	get endPosition(): Point2D {
 		const pos = this.eventPosition;
 		if (pos === undefined || !pos.end) {
-			return INVALID_POSITION;
+			return Point2D.invalid();
 		}
 		return pos.end;
 	}
@@ -65,7 +64,7 @@ export class EventView {
 	get periodBounds(): Rect2D {
 		const pos = this.eventPosition;
 		if (pos === undefined || !pos.periodBounds) {
-			return INVALID_BOUNDS;
+			return Rect2D.empty();
 		}
 		return pos.periodBounds;
 	}

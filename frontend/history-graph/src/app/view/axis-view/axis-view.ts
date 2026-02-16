@@ -1,5 +1,5 @@
 import { Component, computed, inject, input, signal, Signal } from '@angular/core';
-import { INVALID_POSITION, INVALID_POSITION_SENTINEL, Point2D, Rect2D, Size2D } from '../../graphics/gfx-coord-2d';
+import { Point2D, Rect2D, Size2D } from '../../graphics/gfx-coord-2d';
 import { DEFAULT_LINE_STYLE, DEFAULT_TEXT_STYLE, LineStyle, TextStyle } from '../../graphics/gfx-style';
 import { SvgIcon, SvgIconOrigin } from '../svg-icon/svg-icon';
 import { LayoutService } from '../../services/layout.service';
@@ -39,11 +39,11 @@ export class AxisView {
 	}
 	get startIconPosition(): Point2D {
 		const pos = this.timelineLayout.axis.startPosition;
-		return this.displayBounds.contains(pos) ? pos : INVALID_POSITION;
+		return this.displayBounds.contains(pos) ? pos : Point2D.invalid();
 	}
 	get endIconPosition(): Point2D {
 		const pos = this.timelineLayout.axis.endPosition;
-		return this.displayBounds.contains(pos) ? pos : INVALID_POSITION;
+		return this.displayBounds.contains(pos) ? pos : Point2D.invalid();
 	}
 	get displayBounds(): Rect2D {
 		return this.timelineLayout.axis.bounds;

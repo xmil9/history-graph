@@ -1,7 +1,7 @@
 import { LayoutFormat } from "./preference-types";
 import { DEFAULT_LAYOUT_INPUT, EventPosition, HgLayout, LabelLayout, LabelPosition, LabelsLayout, LayoutInput, SvgPath, TimelineLayout } from "./layout-types";
 import { EventGraphic, TimelineGraphic } from "./graphic-types";
-import { INVALID_POSITION, INVALID_POSITION_SENTINEL, Point2D, Rect2D } from "../graphics/gfx-coord-2d";
+import { INVALID_POSITION_SENTINEL, Point2D, Rect2D } from "../graphics/gfx-coord-2d";
 import { formatEventLabel, makeFont } from "./layout-utils";
 
 ///////////////////
@@ -131,7 +131,7 @@ class VerticalLabelCalculator extends LabelLayoutCalculator {
 			const isLabelVisible = tlLayout.axis.contains(eventPos.start);
 
 			// Calculate the position of the label.
-			let labelPos = INVALID_POSITION;
+			let labelPos = Point2D.invalid();
 			if (isLabelVisible) {
 				labelPos = new Point2D(
 					eventPos.start.x - this.input.textStyle.size / 3,
@@ -203,7 +203,7 @@ class HorizontalLeftLabelCalculator extends LabelLayoutCalculator {
 			const isLabelVisible = tlLayout.axis.contains(eventPos.start);
 
 			// Calculate the position of the label.
-			let labelPos = INVALID_POSITION;
+			let labelPos = Point2D.invalid();
 			if (isLabelVisible) {
 				rowY += rowHeight;
 				labelPos = new Point2D(rowX, rowY);
@@ -314,7 +314,7 @@ class HorizontalCenterLabelCalculator extends LabelLayoutCalculator {
 			const isLabelVisible = tlLayout.axis.contains(eventPos.start);
 
 			// Calculate the position of the label.
-			let labelPos = INVALID_POSITION;
+			let labelPos = Point2D.invalid();
 			if (isLabelVisible) {
 				const labelText = formatEventLabel(eventGraphic.hEvent, this.input.dateFormat);
 				const textMetrics = context.measureText(labelText);
@@ -389,7 +389,7 @@ class NoneLabelCalculator extends LabelLayoutCalculator {
 		layout.labels.rotation = this.rotation;
 
 		layout.labels.items = combinedTimeline.eventGraphics.map(eventGraphic => {
-			return new LabelLayout(new LabelPosition(eventGraphic, INVALID_POSITION), '');
+			return new LabelLayout(new LabelPosition(eventGraphic, Point2D.invalid()), '');
 		});
 	}
 

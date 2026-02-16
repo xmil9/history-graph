@@ -15,12 +15,14 @@ export class Point2D {
 		return new Point2D(0, 0);
 	}
 
+	static invalid(): Point2D {
+		return new Point2D(INVALID_POSITION_SENTINEL, INVALID_POSITION_SENTINEL);
+	}
+
 	translate(x: number, y: number): Point2D {
 		return new Point2D(this.x + x, this.y + y);
 	}
 }
-
-export const INVALID_POSITION = new Point2D(INVALID_POSITION_SENTINEL, INVALID_POSITION_SENTINEL);
 
 export class Rect2D {
 	constructor(
@@ -103,8 +105,6 @@ export class Rect2D {
 		return new Point2D(this.clampX(pos.x), this.clampY(pos.y));
 	}
 }
-
-export const INVALID_BOUNDS = Rect2D.empty();
 
 export class Size2D {
 	public width: number;
