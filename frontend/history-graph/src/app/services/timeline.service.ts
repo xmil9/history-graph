@@ -3,7 +3,7 @@ import { finalize, take } from 'rxjs';
 import { makeDefaultTimelines, Timeline } from '../model/timeline';
 import { HttpClient } from '@angular/common/http';
 import { parseTimeline } from '../model/timeline-input';
-import { HgGraphic, TimelineGraphic } from './graphic-types';
+import { EventGraphic, HgGraphic, TimelineGraphic, TimelineTheme } from './graphic-types';
 import { HDate, HPeriod } from '../model/historic-date';
 import { GraphicService } from './graphic-service';
 import { calculateTicks, Tick } from './tick-calculator';
@@ -60,7 +60,7 @@ export class TimelineService {
 		// Collect the combined data.
 		let combinedStart = new HDate(1);
 		let combinedEnd = new HDate(2026);
-		const combinedEvents: HEvent[] = [];
+		const combinedEvents: EventGraphic[] = [];
 
 		this.hgGraphic().timelines.map(tlGraphic => {
 			if (tlGraphic.from.less(combinedStart)) {
@@ -70,16 +70,24 @@ export class TimelineService {
 				combinedEnd = tlGraphic.to;
 			}
 
-			combinedEvents.push(...tlGraphic.timeline.events);
+			combinedEvents.push(...tlGraphic.eventGraphics);
 		});
 
 		// Sort the combined events.
-		combinedEvents.sort((a, b) => a.less(b) ? -1 : 1);
+		combinedEvents.sort((a, b) => a.hEvent.less(b.hEvent) ? -1 : 1);
 
 		// Create the combined timeline.
 		const combinedTimeline = new Timeline(
-			0, combinedTitle, new HPeriod(combinedStart, combinedEnd), combinedEvents);
-		return this.makeGraphic(combinedTimeline);
+			0,
+			combinedTitle,
+			new HPeriod(combinedStart, combinedEnd),
+			combinedEvents.map(eventGraphic => eventGraphic.hEvent)
+		);
+		return this.makeGraphicWithEventThemes(
+			combinedTimeline,
+			// Preserve the original event themes.
+			combinedEvents.map(eventGraphic => eventGraphic.theme)
+		);
 	}
 
 	generateTimeline(topic: string): void {
@@ -131,6 +139,10 @@ export class TimelineService {
 
 	private makeGraphic(timeline: Timeline): TimelineGraphic {
 		return this.graphicService.decorateTimeline(timeline);
+	}
+
+	private makeGraphicWithEventThemes(timeline: Timeline, eventThemes: TimelineTheme[]): TimelineGraphic {
+		return this.graphicService.decorateTimelineWithEventThemes(timeline, eventThemes);
 	}
 
 	private makeGraphicFromInput(input: any): TimelineGraphic {
