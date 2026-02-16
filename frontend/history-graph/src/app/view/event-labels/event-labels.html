@@ -1,6 +1,6 @@
 <svg:g xmlns:svg="http://www.w3.org/2000/svg">
-	@for (labelLayout of labels; track labelLayout; let i = $index) {
-		@let labelPos = labelPosition(i);
+	@for (labelLayout of labels; track $index) {
+		@let labelPos = labelPosition($index);
 		@if (layoutFormat === LayoutFormat.Vertical) {
 			<text class="no-text-select"
 				[attr.x]="labelPos.x"
@@ -8,23 +8,23 @@
 				[attr.font-family]="textStyle().font"
 				[attr.font-size]="textStyle().size"
 				[attr.font-weight]="textStyle().weight"
-				[attr.fill]="labelColor(i)"
-				[attr.transform]="'rotate(' + labelRotation() + ' ' + labelPos.x + ' ' + labelPosition(i).y + ')'">{{label(i)}}
+				[attr.fill]="labelColor($index)"
+				[attr.transform]="'rotate(' + labelRotation() + ' ' + labelPos.x + ' ' + labelPosition($index).y + ')'">{{label($index)}}
 			</text>
 		}
 		@if (layoutFormat === LayoutFormat.HorizontalLeft || layoutFormat === LayoutFormat.HorizontalCenter) {
 			<text class="no-text-select"
-				[attr.id]="'event-label-' + i"
+				[attr.id]="'event-label-' + $index"
 				[attr.x]="labelPos.x"
 				[attr.y]="labelPos.y"
 				[attr.font-family]="textStyle().font"
 				[attr.font-size]="textStyle().size"
 				[attr.font-weight]="textStyle().weight"
-				[attr.fill]="labelColor(i)">{{label(i)}}
+				[attr.fill]="labelColor($index)">{{label($index)}}
 			</text>
 			<path class="event-connector"
-				[attr.d]="connectorPath(i)"
-				[attr.stroke]="lineColor(i)"
+				[attr.d]="connectorPath($index)"
+				[attr.stroke]="lineColor($index)"
 				[attr.stroke-width]="lineStyle().width"
 				[attr.fill]="'none'">
 			</path>

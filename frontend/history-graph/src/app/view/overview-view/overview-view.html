@@ -49,12 +49,12 @@
 		[size]="markerSize"
 		[opacity]="endIconOpacity"
 	></g>
-	@for (eventPos of combinedEventPositions; track eventPos; let i = $index) {
-		@let markerColor = getMarkerColor(i);
+	@for (eventPos of combinedEventPositions; track $index) {
+		@let markerColor = getMarkerColor($index);
 
 		@if (eventPos.event.hEvent.isPeriod) {
-			@let periodBounds = getOverviewPeriodBounds(i);
-			@let periodColor = getPeriodColor(i);
+			@let periodBounds = getOverviewPeriodBounds($index);
+			@let periodColor = getPeriodColor($index);
 			<rect
 				[attr.x]="periodBounds.left"
 				[attr.y]="periodBounds.top"
