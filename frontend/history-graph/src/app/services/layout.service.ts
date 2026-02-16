@@ -54,6 +54,12 @@ export class LayoutService {
 			this.ticks_,
 			this.layout
 		);
+
+		this.labelCalculator.calculate(
+			this.timelineService.timelines(),
+			this.timelineService.combinedTimeline(),
+			this.layout
+		);
 	}
 
 	zoom(at: Point2D, factor: number): void {
@@ -63,6 +69,12 @@ export class LayoutService {
 			at,
 			factor,
 			this.ticks_,
+			this.layout
+		);
+
+		this.labelCalculator.calculate(
+			this.timelineService.timelines(),
+			this.timelineService.combinedTimeline(),
 			this.layout
 		);
 	}

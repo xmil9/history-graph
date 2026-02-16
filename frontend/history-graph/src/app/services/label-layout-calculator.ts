@@ -45,19 +45,30 @@ export abstract class LabelLayoutCalculator {
 	}
 
 	protected countVisibleEvents(
-		combinedTimeline: TimelineGraphic,
+		timelines: TimelineGraphic[],
+		layout: HgLayout
 	): number {
-		return combinedTimeline.eventGraphics.filter(eventGraphic => {
-			const tlLayout = this.getTimelineLayout(eventGraphic);
-			const eventPos = tlLayout.eventPositions[eventGraphic.hEvent.eventIdx];
-			return tlLayout.axis.contains(eventPos.start);
-		}).length;
+		let count = 0;
+
+		timelines.forEach((tlGraphic, tlIndex) => {
+			const tlLayout = layout.timelines.items[tlIndex];
+
+			tlGraphic.eventGraphics.forEach((eventGraphic, eventIdx) => {
+				const eventPos = tlLayout.eventPositions[eventGraphic.hEvent.eventIdx];
+				if (tlLayout.axis.contains(eventPos.start))
+					++count;
+			});
+		});
+
+		return count;
 	}
 
-	protected calcLabelAreaBounds(): Rect2D {
+	protected calcLabelAreaBounds(
+		layout: HgLayout
+	): Rect2D {
 		return Rect2D.fromCoordinates(
 			this.labelAreaMargins.left,
-			this.labelAreaMargins.top,
+			layout.timelines.bounds.bottom + this.labelAreaMargins.top,
 			this.input.viewSize.width - this.labelAreaMargins.right,
 			this.input.viewSize.height - this.labelAreaMargins.bottom
 		);
@@ -105,7 +116,7 @@ export abstract class LabelLayoutCalculator {
 			canvas.remove();
 
 		return height;
-	  }
+	}
 }
 
 ///////////////////
@@ -118,37 +129,37 @@ class VerticalLabelCalculator extends LabelLayoutCalculator {
 		combinedTimeline: TimelineGraphic,
 		layout: HgLayout
 	): void {
-		this.initTimelineLayoutLookup(timelines, layout);
-
-		layout.labels.bounds = this.calcLabelAreaBounds();
+		layout.labels.bounds = this.calcLabelAreaBounds(layout);
 		layout.labels.rotation = this.rotation;
+		layout.labels.items = [];
 
-		layout.labels.items = combinedTimeline.eventGraphics.map(eventGraphic => {
-			// Find the layout of the timeline that contains the event.
-			const tlLayout = this.getTimelineLayout(eventGraphic);
+		timelines.forEach((tlGraphic, tlIndex) => {
+			const tlLayout = layout.timelines.items[tlIndex];
 
-			const eventPos = tlLayout.eventPositions[eventGraphic.hEvent.eventIdx];
-			const isLabelVisible = tlLayout.axis.contains(eventPos.start);
+			tlGraphic.eventGraphics.forEach((eventGraphic, eventIdx) => {
+				const eventPos = tlLayout.eventPositions[eventGraphic.hEvent.eventIdx];
+				const isLabelVisible = tlLayout.axis.contains(eventPos.start);
 
-			// Calculate the position of the label.
-			let labelPos = Point2D.invalid();
-			if (isLabelVisible) {
-				labelPos = new Point2D(
-					eventPos.start.x - this.input.textStyle.size / 3,
-					eventPos.start.y + tlLayout.eventMarkerSize.height / 2 + 7
-				);
-			}
-			
-			// No connector paths in a vertical layout.
-			const connectorPath = '';
+				// Calculate the position of the label.
+				let labelPos = Point2D.invalid();
+				if (isLabelVisible) {
+					labelPos = new Point2D(
+						eventPos.start.x - this.input.textStyle.size / 3,
+						eventPos.start.y + tlLayout.eventMarkerSize.height / 2 + 7
+					);
+				}
+				
+				// No connector paths in a vertical layout.
+				const connectorPath = '';
 
-			return new LabelLayout(
-				new LabelPosition(
-					eventGraphic,
-					labelPos
-				),
-				connectorPath
-			);
+				layout.labels.items.push(new LabelLayout(
+					new LabelPosition(
+						eventGraphic,
+						labelPos
+					),
+					connectorPath
+				));
+			});
 		});
 	}
 
@@ -172,92 +183,80 @@ class HorizontalLeftLabelCalculator extends LabelLayoutCalculator {
 		layout: HgLayout
 	): void {
 		this.initTimelineLayoutLookup(timelines, layout);
-		layout.labels.bounds = this.calcLabelAreaBounds();
+
+		layout.labels.bounds = this.calcLabelAreaBounds(layout);
 		layout.labels.rotation = this.rotation;
+		layout.labels.items = [];
 
-		const positions = this.calcLabelPositions(combinedTimeline, layout);
-		const paths = this.calcConnectorPaths(combinedTimeline, positions);
+		// Set up drawing context to measure labels.
+		const canvas = document.createElement('canvas');
+		const context = canvas.getContext('2d');
+		if (!context)
+			throw new Error('Unable to create 2d canvas context.');
+		context.font = makeFont(this.input.textStyle);
 
-		// Combined separate position and path arrays into a label layout for each event.
-		layout.labels.items = positions.map((labelPos, idx) => {
-			return new LabelLayout(labelPos, paths[idx]);
-		});
-	}
-
-	clear(): void {
-	}
-
-	private calcLabelPositions(
-		combinedTimeline: TimelineGraphic,
-		layout: HgLayout
-	) {
-		const numVisibleEvents = this.countVisibleEvents(combinedTimeline);
+		// Set up calculation of row position.
+		const numVisibleEvents = this.countVisibleEvents(timelines, layout);
 		const rowHeight = this.calculateRowHeight(
 			layout, numVisibleEvents, this.firstRowOffsetY, this.lastRowOffsetY);
 		const rowX = this.labelOffsetX;
 		let rowY = layout.labels.bounds.top + this.firstRowOffsetY;
 
-		return combinedTimeline.eventGraphics.map(eventGraphic => {
+		// Calculate label layout for all timelines and events but use the combined timeline
+		// to traverse the events in order.
+		combinedTimeline.eventGraphics.forEach((eventGraphic, eventIdx) => {
 			const tlLayout = this.getTimelineLayout(eventGraphic);
 			const eventPos = tlLayout.eventPositions[eventGraphic.hEvent.eventIdx];
 			const isLabelVisible = tlLayout.axis.contains(eventPos.start);
 
 			// Calculate the position of the label.
-			let labelPos = Point2D.invalid();
+			let labelCoord = Point2D.invalid();
 			if (isLabelVisible) {
 				rowY += rowHeight;
-				labelPos = new Point2D(rowX, rowY);
+				labelCoord = new Point2D(rowX, rowY);
 			}
 
-			return new LabelPosition(
-					eventGraphic,
-					labelPos
-				);
+			const labelPos = new LabelPosition(eventGraphic, labelCoord);
+			const connectorPath = this.calcConnectorPath(eventGraphic, eventPos, labelPos, context);
+
+			layout.labels.items.push(new LabelLayout(labelPos, connectorPath));
 		});
+
+		// Cleanup temp drawing canvas.
+		canvas.remove();
 	}
 
-	private calcConnectorPaths(
-		combinedTimeline: TimelineGraphic,
-		labelPositions: LabelPosition[]
-	): SvgPath[] {
-		const canvas = document.createElement('canvas');
-		const context = canvas.getContext('2d');
-		if (!context)
-			throw new Error('Unable to create 2d canvas context.');
+	clear(): void {
+	}
 
-		context.font = makeFont(this.input.textStyle);
+	private calcConnectorPath(
+		eventGraphic: EventGraphic,
+		eventPos: EventPosition,
+		labelPos: LabelPosition,
+		context: CanvasRenderingContext2D
+	): SvgPath {
+		if (labelPos.coord.x === INVALID_POSITION_SENTINEL) {
+			return '';
+		}
 
-		const paths = combinedTimeline.eventGraphics.map((eventGraphic, idx) => {
-			const labelPos = labelPositions[idx];
-			if (labelPos.coord.x === INVALID_POSITION_SENTINEL) {
-				return '';
-			}
+		const labelText = formatEventLabel(eventGraphic.hEvent, this.input.dateFormat);
+		const textMetrics = context.measureText(labelText);
+		const textWidth = textMetrics.width;
+		// Approximation usually sufficient for vertical center.
+		const textHeight = this.input.textStyle.size;
 
-			const tlLayout = this.getTimelineLayout(eventGraphic);
-			const eventPos = tlLayout.eventPositions[eventGraphic.hEvent.eventIdx];
+		const startX = eventPos.start.x;
+		const startY = eventPos.start.y;
+		// We want to connect to the right-center side of the text.
+		const endX = labelPos.coord.x + textWidth + 5;
+		const endY = labelPos.coord.y - textHeight / 3;
 
-			const labelText = formatEventLabel(eventGraphic.hEvent, this.input.dateFormat);
-			const textMetrics = context.measureText(labelText);
-			const textWidth = textMetrics.width;
-			// Approximation usually sufficient for vertical center.
-			const textHeight = this.input.textStyle.size;
-
-			const startX = eventPos.start.x;
-			const startY = eventPos.start.y;
-			// We want to connect to the right-center side of the text.
-			const endX = labelPos.coord.x + textWidth + 5;
-			const endY = labelPos.coord.y - textHeight / 3;
-
-			if (endX < startX) {
-				// Label is to the left of marker: draw full L-shaped path.
-				return `M ${startX} ${startY} L ${startX} ${endY} L ${endX} ${endY}`;
-			}
-			// Label is to the right of marker: draw only vertical line to the top of the text.
-			return `M ${startX} ${startY} L ${startX} ${endY - 10}`;
-		});
-
-		canvas.remove();
-		return paths;
+		if (endX < startX) {
+			// Label is to the left of marker: draw full L-shaped path.
+			return `M ${startX} ${startY} L ${startX} ${endY} L ${endX} ${endY}`;
+		}
+		// Label is to the right of marker: draw only vertical line to the top of the text.
+		return `M ${startX} ${startY} L ${startX} ${endY - 10}`;
 	}
 }
 
@@ -275,46 +274,35 @@ class HorizontalCenterLabelCalculator extends LabelLayoutCalculator {
 		layout: HgLayout
 	): void {
 		this.initTimelineLayoutLookup(timelines, layout);
-		layout.labels.bounds = this.calcLabelAreaBounds();
+
+		layout.labels.bounds = this.calcLabelAreaBounds(layout);
 		layout.labels.rotation = this.rotation;
+		layout.labels.items = [];
 
-		const positions = this.calcLabelPositions(combinedTimeline, layout);
-		const paths = this.calcConnectorPaths(combinedTimeline, positions);
-
-		// Combined separate position and path arrays into a label layout for each event.
-		layout.labels.items = positions.map((labelPos, idx) => {
-			return new LabelLayout(labelPos, paths[idx]);
-		});
-	}
-
-	clear(): void {
-	}
-
-	private calcLabelPositions(
-		combinedTimeline: TimelineGraphic,
-		layout: HgLayout
-	) {
+		// Set up drawing context to measure labels.
 		const canvas = document.createElement('canvas');
 		const context = canvas.getContext('2d');
 		if (!context)
 			throw new Error('Unable to create 2d canvas context.');
-
 		context.font = makeFont(this.input.textStyle);
 
-		const numVisibleEvents = this.countVisibleEvents(combinedTimeline);
+		// Set up calculation of row position.
+		const numVisibleEvents = this.countVisibleEvents(timelines, layout);
 		const rowHeight = this.calculateRowHeight(
 			layout, numVisibleEvents, this.firstRowOffsetY, this.lastRowOffsetY);
-		const initialRowY = layout.labels.bounds.bottom + this.firstRowOffsetY;
+		const initialRowY = layout.labels.bounds.top + this.firstRowOffsetY;
 		// Rightmost coordinate of drawn labels for each row.
 		const maxXPerRow: number[] = [];
 
-		const labelPositions = combinedTimeline.eventGraphics.map(eventGraphic => {
+		// Calculate label layout for all timelines and events but use the combined timeline
+		// to traverse the events in order.
+		combinedTimeline.eventGraphics.forEach((eventGraphic, eventIdx) => {
 			const tlLayout = this.getTimelineLayout(eventGraphic);
 			const eventPos = tlLayout.eventPositions[eventGraphic.hEvent.eventIdx];
 			const isLabelVisible = tlLayout.axis.contains(eventPos.start);
 
 			// Calculate the position of the label.
-			let labelPos = Point2D.invalid();
+			let labelCoord = Point2D.invalid();
 			if (isLabelVisible) {
 				const labelText = formatEventLabel(eventGraphic.hEvent, this.input.dateFormat);
 				const textMetrics = context.measureText(labelText);
@@ -327,18 +315,21 @@ class HorizontalCenterLabelCalculator extends LabelLayoutCalculator {
 				// Update max x-coordinate for the used row.
 				maxXPerRow[rowIdx] = Math.max(maxXPerRow[rowIdx] || 0, labelX + textWidth);
 
-				labelPos.x = labelX;
-				labelPos.y = labelY;
+				labelCoord.x = labelX;
+				labelCoord.y = labelY;
 			}
 
-			return new LabelPosition(
-					eventGraphic,
-					labelPos
-				);
+			const labelPos = new LabelPosition(eventGraphic, labelCoord);
+			const connectorPath = this.calcConnectorPath(eventPos, labelPos);
+
+			layout.labels.items.push(new LabelLayout(labelPos, connectorPath));
 		});
 
+		// Cleanup temp drawing canvas.
 		canvas.remove();
-		return labelPositions;
+	}
+
+	clear(): void {
 	}
 
 	private findRow(labelX: number, maxXPerRow: number[]): number {
@@ -350,28 +341,21 @@ class HorizontalCenterLabelCalculator extends LabelLayoutCalculator {
 		return rowIdx;
 	}
 
-	private calcConnectorPaths(
-		combinedTimeline: TimelineGraphic,
-		labelPositions: LabelPosition[]
-	): SvgPath[] {
+	private calcConnectorPath(
+		eventPos: EventPosition,
+		labelPos: LabelPosition,
+	): SvgPath {
+		if (labelPos.coord.x === INVALID_POSITION_SENTINEL) {
+			return '';
+		}
 
-		return combinedTimeline.eventGraphics.map((eventGraphic, idx) => {
-			const labelPos = labelPositions[idx];
-			if (labelPos.coord.x === INVALID_POSITION_SENTINEL) {
-				return '';
-			}
+		const textHeight = this.input.textStyle.size;
+		
+		const startX = eventPos.start.x;
+		const startY = eventPos.start.y;
+		const endY = labelPos.coord.y - textHeight / 3;
 
-			const tlLayout = this.getTimelineLayout(eventGraphic);
-			const eventPos = tlLayout.eventPositions[eventGraphic.hEvent.eventIdx];
-
-			const textHeight = this.input.textStyle.size;
-			
-			const startX = eventPos.start.x;
-			const startY = eventPos.start.y;
-			const endY = labelPos.coord.y - textHeight / 3;
-
-			return `M ${startX} ${startY} L ${startX} ${endY - 10}`;
-		});
+		return `M ${startX} ${startY} L ${startX} ${endY - 10}`;
 	}
 }
 
@@ -384,12 +368,16 @@ class NoneLabelCalculator extends LabelLayoutCalculator {
 		combinedTimeline: TimelineGraphic,
 		layout: HgLayout
 	): void {
-		this.initTimelineLayoutLookup(timelines, layout);
-		layout.labels.bounds = this.calcLabelAreaBounds();
+		layout.labels.bounds = this.calcLabelAreaBounds(layout);
 		layout.labels.rotation = this.rotation;
-
-		layout.labels.items = combinedTimeline.eventGraphics.map(eventGraphic => {
-			return new LabelLayout(new LabelPosition(eventGraphic, Point2D.invalid()), '');
+		layout.labels.items = [];
+		
+		timelines.forEach((tlGraphic, tlIndex) => {
+			tlGraphic.eventGraphics.forEach((eventGraphic, eventIdx) => {
+				const labelPos = new LabelPosition(eventGraphic, Point2D.invalid());
+				const connectorPath = '';
+				layout.labels.items.push(new LabelLayout(labelPos, connectorPath));
+			});
 		});
 	}
 

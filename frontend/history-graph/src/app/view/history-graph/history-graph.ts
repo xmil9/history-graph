@@ -26,6 +26,8 @@ const DEFAULT_TL_TEXT_STYLE: TextStyle = {
 	imports: [
 		OverviewView,
 		TimelineView,
+		EventLabels,
+		EventMapping,
 		EventOverlay,
 		HeaderView,
 		PreferenceView,
