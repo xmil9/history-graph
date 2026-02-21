@@ -56,7 +56,7 @@ export class EventMapping {
 
 	// Styling
 	lineStyle = input<LineStyle>(DEFAULT_EVENT_MAP_LINE_STYLE);
-	opacity = input<number>(0.4);
+	opacity = input<number>(0.5);
 	getEventLineColor(eventGraphic: EventGraphic): string {
 		return eventGraphic.theme.primaryColor;
 	}
