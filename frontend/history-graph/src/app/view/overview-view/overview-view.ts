@@ -82,7 +82,9 @@ export class OverviewView {
 	getMarkerColor(index: number): string {
 		return this.layoutService.layout.overview.combinedEventPositions[index].event.theme.primaryColor;
 	}
-
+	getPeriodOpacity(eventPos: EventPosition): number {
+		return this.viewedBounds.contains(eventPos.start) ? 0.3 : 0.2;
+	}
 	get startIconOpacity(): number {
 		return DISPLAYED_ICON_OPACITY;
 	}
