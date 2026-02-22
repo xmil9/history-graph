@@ -1,9 +1,9 @@
-import { HgLayout, TimelineViewport, DEFAULT_LAYOUT_INPUT, LayoutInput, AxisLayout, EventPosition } from "./layout-types";
+import { HgLayout, TimelineViewport, DEFAULT_LAYOUT_INPUT, LayoutInput, EventPosition } from "./layout-types";
 import { Point2D, Rect2D } from "../graphics/gfx-coord-2d";
 import { Tick } from "./tick-calculator";
 import { LayoutFormat } from "./preference-types";
 import { OverviewLayout, TimelineLayout } from "./layout-types";
-import { EventGraphic, TimelineGraphic } from "./graphic-types";
+import { TimelineGraphic } from "./graphic-types";
 import { duration, HDate } from "../model/historic-date";
 
 ///////////////////
@@ -76,6 +76,8 @@ class BaseAxisLayoutCalculator implements AxisLayoutCalculator {
 			});
 
 		this.calcOverviewLayout(combinedTimeline, layout);
+
+		this.updateViewport(layout);
 	}
 
 	protected calcCombinedTimelinesBounds(layout: HgLayout): Rect2D {
@@ -255,27 +257,14 @@ class BaseAxisLayoutCalculator implements AxisLayoutCalculator {
 	}
 
 	protected calcOverviewViewedBounds(layout: HgLayout): Rect2D {
-		const virtualCombinedLeft =
-			layout.timelines.items.map(
-				tl => tl.axis.startPosition.x
-			).reduce(
-				(a, b) => Math.min(a, b), Infinity
-			);
-		const virtualCombinedRight =
-			layout.timelines.items.map(
-				tl => tl.axis.endPosition.x
-			).reduce(
-				(a, b) => Math.max(a, b), -Infinity
-			);
-		const virtualCombinedWidth = virtualCombinedRight - virtualCombinedLeft;
-
-		const viewedLeftRatio = (virtualCombinedLeft - layout.timelines.bounds.left) / virtualCombinedWidth;
+		const virtualBounds = this.calcVirtualCombinedTimelineBounds(layout);
+		const viewedLeftRatio = (virtualBounds.left - layout.timelines.bounds.left) / virtualBounds.width;
 		let viewedLeft =
 			layout.overview.axisBounds.clampX(
 				layout.overview.axisBounds.left - (viewedLeftRatio * layout.overview.axisBounds.width)
 			);
 
-		const viewedRightRatio = (virtualCombinedRight - layout.timelines.bounds.right) / virtualCombinedWidth;
+		const viewedRightRatio = (virtualBounds.right - layout.timelines.bounds.right) / virtualBounds.width;
 		let viewedRight =
 			layout.overview.axisBounds.clampX(
 				layout.overview.axisBounds.right - (viewedRightRatio * layout.overview.axisBounds.width)
@@ -284,6 +273,25 @@ class BaseAxisLayoutCalculator implements AxisLayoutCalculator {
 		return Rect2D.fromCoordinates(
 			viewedLeft, layout.overview.axisBounds.top,
 			viewedRight, layout.overview.axisBounds.bottom);
+	}
+
+	private calcVirtualCombinedTimelineBounds(layout: HgLayout): Rect2D {
+		const leftMost =
+			layout.timelines.items.map(
+				tl => tl.axis.startPosition.x
+			).reduce(
+				(a, b) => Math.min(a, b), Infinity
+			);
+		const rightMost =
+			layout.timelines.items.map(
+				tl => tl.axis.endPosition.x
+			).reduce(
+				(a, b) => Math.max(a, b), -Infinity
+			);
+
+		return Rect2D.fromCoordinates(
+			leftMost, layout.timelines.bounds.top,
+			rightMost, layout.timelines.bounds.bottom);
 	}
 
 	protected calcOverviewEvents(combinedTimeline: TimelineGraphic, layout: HgLayout): EventPosition[] {
@@ -337,6 +345,8 @@ class BaseAxisLayoutCalculator implements AxisLayoutCalculator {
 		layout.timelines.items.forEach((tlLayout, index) => this.panTimeline(
 			timelines[index], combinedTimeline, start, delta, ticks, tlLayout));
 		this.panOverview(start, delta, layout);
+
+		this.updateViewport(layout);
 	}
 
 	private panTimeline(
@@ -378,6 +388,8 @@ class BaseAxisLayoutCalculator implements AxisLayoutCalculator {
 		layout.timelines.items.forEach((tlLayout, index) => this.zoomTimeline(
 			timelines[index], combinedTimeline, at, factor, ticks, tlLayout));
 		this.zoomOverview(at, factor, layout);
+
+		this.updateViewport(layout);
 	}
 
 	private zoomTimeline(
@@ -412,6 +424,16 @@ class BaseAxisLayoutCalculator implements AxisLayoutCalculator {
 
 	private zoomOverview(at: Point2D, factor: number, layout: HgLayout): void {
 		layout.overview.viewedBounds = this.calcOverviewViewedBounds(layout);
+	}
+
+	private updateViewport(layout: HgLayout): void {
+		const virtualBounds = this.calcVirtualCombinedTimelineBounds(layout);
+		const startRatio = (virtualBounds.left - layout.timelines.bounds.left) / layout.timelines.bounds.width;
+		const endRatio = (virtualBounds.right - layout.timelines.bounds.left) / layout.timelines.bounds.width;
+		
+		if (endRatio > startRatio) {
+			layout.timelines.viewport = { startRatio, endRatio };
+		}
 	}
 }
 
