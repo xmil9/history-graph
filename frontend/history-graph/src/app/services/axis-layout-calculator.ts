@@ -1,5 +1,5 @@
 import { HgLayout, TimelineViewport, DEFAULT_LAYOUT_INPUT, LayoutInput, EventPosition } from "./layout-types";
-import { Point2D, Rect2D } from "../graphics/gfx-coord-2d";
+import { INVALID_POSITION_SENTINEL, Point2D, Rect2D } from "../graphics/gfx-coord-2d";
 import { Tick } from "./tick-calculator";
 import { LayoutFormat } from "./preference-types";
 import { OverviewLayout, TimelineLayout } from "./layout-types";
@@ -144,7 +144,7 @@ class BaseAxisLayoutCalculator implements AxisLayoutCalculator {
 				tlLayout.axis.startPosition,
 				tlLayout.axis.endPosition,
 				tlLayout.axis.bounds
-			)!; // <-- Assert to be undefined!
+			)!; // <-- Assert to be not undefined!
 			const end = this.calcDatePosition(
 				eventGraphic.hEvent.until,
 				combinedTimeline,
@@ -189,23 +189,29 @@ class BaseAxisLayoutCalculator implements AxisLayoutCalculator {
 		eventPeriodHeight: number
 	): Rect2D | undefined {
 		let left = start.x;
-		if (left >= axisBounds.right)
-			return undefined;
-		if (left < axisBounds.left)
-			left = axisBounds.left;
-
 		let right = end?.x;
-		if (right === undefined || right <= axisBounds.left)
+
+		// Check for no period bounds at all.
+		if (right === undefined)
 			return undefined;
-		if (right > axisBounds.right)
+		if (left === INVALID_POSITION_SENTINEL && right === INVALID_POSITION_SENTINEL)
+			return undefined;
+		if (left >= axisBounds.right && left !== INVALID_POSITION_SENTINEL)
+			return undefined;
+		if (right <= axisBounds.left && right !== INVALID_POSITION_SENTINEL)
+			return undefined;
+
+		// Clip to axis bounds.
+		if (left < axisBounds.left || left === INVALID_POSITION_SENTINEL)
+			left = axisBounds.left;
+		if (right > axisBounds.right || right === INVALID_POSITION_SENTINEL)
 			right = axisBounds.right;
 
-		return Rect2D.fromCoordinates(
-			left,
-			start.y - eventPeriodHeight,
-			right,
-			start.y + eventPeriodHeight
-		);
+		const axisY = axisBounds.center.y;
+		const top = axisY - eventPeriodHeight;
+		const bottom = axisY + eventPeriodHeight;
+
+		return Rect2D.fromCoordinates(left, top, right, bottom);
 	}
 
 	protected calcLabelPosition(axisPos: Point2D, tlLayout: TimelineLayout): Point2D {

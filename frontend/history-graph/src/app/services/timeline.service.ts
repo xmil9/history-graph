@@ -119,19 +119,14 @@ export class TimelineService {
 	private runDebugTest(): void {
 		const input = {
 			title: 'Test',
-			start_date: '-4540000000',
+			start_date: '1900',
 			end_date: '2020',
 			events: [
 				{
 					label: 'Test Event 1',
-					start_date: '-4540000000',
-					end_date: '-1000000000'
+					start_date: '1920',
+					end_date: '1940'
 				},
-				{
-					label: 'Test Event 2',
-					start_date: '100',
-					end_date: '2020'
-				}
 			]
 		};
 		this.hgGraphic.set(new HgGraphic([this.makeGraphicFromInput(input)]));
