@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { PreferenceService } from '../../services/preference.service';
+import { PreferenceService } from '../../../services/preference.service';
 
 @Component({
 	selector: 'date-format-selector',

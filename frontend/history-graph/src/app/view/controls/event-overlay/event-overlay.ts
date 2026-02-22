@@ -1,6 +1,6 @@
 import { Component, computed, inject, input } from '@angular/core';
-import { EventOverlayService } from '../../services/event-overlay.service';
-import { HDateFormat, DEFAULT_DATE_FORMAT } from '../../model/historic-date';
+import { EventOverlayService } from '../../../services/event-overlay.service';
+import { HDateFormat, DEFAULT_DATE_FORMAT } from '../../../model/historic-date';
 
 @Component({
 	selector: 'event-overlay',

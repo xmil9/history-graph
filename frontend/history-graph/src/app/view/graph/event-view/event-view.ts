@@ -1,12 +1,12 @@
 import { Component, computed, inject, input, Signal } from '@angular/core';
-import { Point2D, Rect2D, Size2D } from '../../graphics/gfx-coord-2d';
-import { DEFAULT_LINE_STYLE, DEFAULT_TEXT_STYLE, LineStyle, TextStyle } from '../../graphics/gfx-style';
-import { SvgIcon, SvgIconOrigin } from '../svg-icon/svg-icon';
-import { EventOverlayService } from '../../services/event-overlay.service';
-import { LayoutService } from '../../services/layout.service';
-import { PreferenceService } from '../../services/preference.service';
-import { EventGraphic, TimelineGraphic } from '../../services/graphic-types';
-import { formatEventLabel } from '../../services/layout-utils';
+import { Point2D, Rect2D, Size2D } from '../../../graphics/gfx-coord-2d';
+import { DEFAULT_LINE_STYLE, DEFAULT_TEXT_STYLE, LineStyle, TextStyle } from '../../../graphics/gfx-style';
+import { SvgIcon, SvgIconOrigin } from '../../util/svg-icon/svg-icon';
+import { EventOverlayService } from '../../../services/event-overlay.service';
+import { LayoutService } from '../../../services/layout.service';
+import { PreferenceService } from '../../../services/preference.service';
+import { EventGraphic, TimelineGraphic } from '../../../services/graphic-types';
+import { formatEventLabel } from '../../../services/layout-utils';
 
 @Component({
 	selector: '[tl-event]',

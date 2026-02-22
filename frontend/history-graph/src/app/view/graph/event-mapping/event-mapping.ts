@@ -1,11 +1,11 @@
 import { Component, computed, inject, input, Signal } from '@angular/core';
-import { LineStyle } from '../../graphics/gfx-style';
-import { Point2D } from '../../graphics/gfx-coord-2d';
-import { LayoutService } from '../../services/layout.service';
-import { TimelineService } from '../../services/timeline.service';
-import { EventGraphic, TimelineGraphic } from '../../services/graphic-types';
-import { EventPosition, TimelineLayout } from '../../services/layout-types';
-import { HEvent } from '../../model/historic-event';
+import { LineStyle } from '../../../graphics/gfx-style';
+import { Point2D } from '../../../graphics/gfx-coord-2d';
+import { LayoutService } from '../../../services/layout.service';
+import { TimelineService } from '../../../services/timeline.service';
+import { EventGraphic, TimelineGraphic } from '../../../services/graphic-types';
+import { EventPosition, TimelineLayout } from '../../../services/layout-types';
+import { HEvent } from '../../../model/historic-event';
 
 export const DEFAULT_EVENT_MAP_LINE_STYLE: LineStyle = {
 	color: '#333333',

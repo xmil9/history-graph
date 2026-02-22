@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
-import { LayoutFormat } from '../../services/preference-types';
-import { PreferenceService } from '../../services/preference.service';
-import { LayoutService } from '../../services/layout.service';
+import { LayoutFormat } from '../../../services/preference-types';
+import { PreferenceService } from '../../../services/preference.service';
+import { LayoutService } from '../../../services/layout.service';
 
 @Component({
 	selector: 'tl-layout-selector',

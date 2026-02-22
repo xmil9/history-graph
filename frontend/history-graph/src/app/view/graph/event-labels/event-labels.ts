@@ -1,10 +1,10 @@
 import { Component, inject, input } from '@angular/core';
-import { DEFAULT_LINE_STYLE, DEFAULT_TEXT_STYLE, LineStyle, TextStyle } from '../../graphics/gfx-style';
-import { Point2D } from '../../graphics/gfx-coord-2d';
-import { LayoutService } from '../../services/layout.service';
-import { LabelLayout } from '../../services/layout-types';
-import { LayoutFormat } from '../../services/preference-types';
-import { PreferenceService } from '../../services/preference.service';
+import { DEFAULT_LINE_STYLE, DEFAULT_TEXT_STYLE, LineStyle, TextStyle } from '../../../graphics/gfx-style';
+import { Point2D } from '../../../graphics/gfx-coord-2d';
+import { LayoutService } from '../../../services/layout.service';
+import { LabelLayout } from '../../../services/layout-types';
+import { LayoutFormat } from '../../../services/preference-types';
+import { PreferenceService } from '../../../services/preference.service';
 
 @Component({
 	selector: '[event-labels]',

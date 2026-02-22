@@ -1,18 +1,18 @@
 import { AfterViewInit, Component, computed, effect, ElementRef, HostListener, inject, input, signal, ViewChild } from '@angular/core';
 import { TimelineService } from '../../services/timeline.service';
 import { Point2D, Size2D } from '../../graphics/gfx-coord-2d';
-import { PromptView } from '../prompt-view/prompt-view';
-import { EventOverlay } from '../event-overlay/event-overlay';
-import { PreferenceView } from '../preference-view/preference-view';
+import { PromptView } from '../controls/prompt-view/prompt-view';
+import { EventOverlay } from '../controls/event-overlay/event-overlay';
+import { PreferenceView } from '../controls/preference-view/preference-view';
 import { DEFAULT_LINE_STYLE, DEFAULT_TEXT_STYLE, LineStyle, TextStyle } from '../../graphics/gfx-style';
 import { LayoutService } from '../../services/layout.service';
-import { OverviewView } from '../overview-view/overview-view';
-import { EventMapping } from '../event-mapping/event-mapping';
-import { HeaderView } from '../header-view/header-view';
+import { OverviewView } from '../graph/overview-view/overview-view';
+import { EventMapping } from '../graph/event-mapping/event-mapping';
+import { HeaderView } from '../controls/header-view/header-view';
 import { PreferenceService } from '../../services/preference.service';
 import { HDateFormat } from '../../model/historic-date';
-import { TimelineView } from '../timeline-view/timeline-view';
-import { EventLabels } from '../event-labels/event-labels';
+import { TimelineView } from '../graph/timeline-view/timeline-view';
+import { EventLabels } from '../graph/event-labels/event-labels';
 
 const DEFAULT_TL_TEXT_STYLE: TextStyle = {
 	...DEFAULT_TEXT_STYLE,

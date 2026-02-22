@@ -1,9 +1,9 @@
 import { Component, inject, input } from '@angular/core';
-import { SvgIcon, SvgIconOrigin } from '../svg-icon/svg-icon';
-import { Point2D, Rect2D, Size2D } from '../../graphics/gfx-coord-2d';
-import { LineStyle } from '../../graphics/gfx-style';
-import { LayoutService } from '../../services/layout.service';
-import { EventPosition } from '../../services/layout-types';
+import { SvgIcon, SvgIconOrigin } from '../../util/svg-icon/svg-icon';
+import { Point2D, Rect2D, Size2D } from '../../../graphics/gfx-coord-2d';
+import { LineStyle } from '../../../graphics/gfx-style';
+import { LayoutService } from '../../../services/layout.service';
+import { EventPosition } from '../../../services/layout-types';
 
 export const DEFAULT_OVERVIEW_BACKGROUND = '#d0d0d0';
 export const DEFAULT_OVERVIEW_LINE_STYLE: LineStyle = {

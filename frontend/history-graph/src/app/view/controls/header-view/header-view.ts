@@ -1,6 +1,6 @@
 import { Component, input } from '@angular/core';
-import { Timeline } from '../../model/timeline';
-import { HDateFormat } from '../../model/historic-date';
+import { Timeline } from '../../../model/timeline';
+import { HDateFormat } from '../../../model/historic-date';
 
 @Component({
 	selector: 'tl-header',
