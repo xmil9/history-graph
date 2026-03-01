@@ -78,7 +78,7 @@ export class TimelineService {
 	}
 
 	private calculateCombinedTimeline(): TimelineGraphic {
-		const combinedTitle = 'Combined Timeline';
+		const combinedTitle = 'Overview';
 
 		// Collect the combined data.
 		let combinedStart = new HDate(1);
