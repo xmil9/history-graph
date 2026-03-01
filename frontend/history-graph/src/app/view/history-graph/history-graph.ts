@@ -13,6 +13,7 @@ import { PreferenceService } from '../../services/preference.service';
 import { HDateFormat } from '../../model/historic-date';
 import { TimelineView } from '../graph/timeline-view/timeline-view';
 import { EventLabels } from '../graph/event-labels/event-labels';
+import { TimelineLegend } from '../controls/timeline-legend/timeline-legend';
 
 const DEFAULT_TL_TEXT_STYLE: TextStyle = {
 	...DEFAULT_TEXT_STYLE,
@@ -31,7 +32,8 @@ const DEFAULT_TL_TEXT_STYLE: TextStyle = {
 		EventOverlay,
 		HeaderView,
 		PreferenceView,
-		PromptView
+		PromptView,
+		TimelineLegend
 	],
 	templateUrl: './history-graph.html',
 	styleUrl: './history-graph.css'
@@ -49,6 +51,8 @@ export class HistoryGraph implements AfterViewInit {
 		return labeledFormat.format;
 	});
 	timelines = this.timelineService.timelines;
+	combinedTimeline = this.timelineService.combinedTimeline;
+	isOverviewVisible = this.timelineService.isOverviewVisible;
 
 	startLabel = computed(() => {
 		const tlGraphic = this.timelineService.combinedTimeline();

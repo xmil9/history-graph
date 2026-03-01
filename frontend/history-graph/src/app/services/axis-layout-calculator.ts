@@ -45,9 +45,9 @@ export interface AxisLayoutCalculator {
 class BaseAxisLayoutCalculator implements AxisLayoutCalculator {
 	labelRotation: number = 0;
 	protected input: LayoutInput = DEFAULT_LAYOUT_INPUT;
-	protected readonly displayMargins = Rect2D.fromCoordinates(50, 60, 50, 0);
+	protected readonly displayMargins = Rect2D.fromCoordinates(200, 60, 50, 0);
 	protected readonly displayHeight = 60;
-	protected readonly overviewMargins = Rect2D.fromCoordinates(50, 25, 50, 0);
+	protected readonly overviewMargins = Rect2D.fromCoordinates(200, 25, 50, 0);
 	protected readonly overviewHeight = 20;
 
 	setInput(input: LayoutInput): void {

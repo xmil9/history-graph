@@ -1,12 +1,10 @@
 import { Component, computed, inject, input, signal, Signal } from '@angular/core';
 import { Point2D, Rect2D, Size2D } from '../../../graphics/gfx-coord-2d';
-import { DEFAULT_LINE_STYLE, DEFAULT_TEXT_STYLE, LineStyle, TextStyle } from '../../../graphics/gfx-style';
+import { DEFAULT_AXIS_BACKGROUND, DEFAULT_LINE_STYLE, DEFAULT_TEXT_STYLE, LineStyle, TextStyle } from '../../../graphics/gfx-style';
 import { SvgIcon, SvgIconOrigin } from '../../util/svg-icon/svg-icon';
 import { LayoutService } from '../../../services/layout.service';
 import { TimelineGraphic } from '../../../services/graphic-types';
 import { TimelineLayout } from '../../../services/layout-types';
-
-export const DEFAULT_AXIS_BACKGROUND = '#f8f8f8';
 
 @Component({
 	selector: '[tl-axis]',

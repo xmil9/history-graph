@@ -42,16 +42,30 @@ export class EventMapping {
 		return this.layoutService.layout.overview.combinedEventPositions[combinedEventIdx];
 	}
 	getEventPositionsInView(hEvent: HEvent): Point2D | undefined {
+		if (!this.isEventVisible(hEvent)) {
+			return undefined;
+		}
 		const tlLayout = this.getTimelineLayout(hEvent);
 		const eventIdx = hEvent.eventIdx;
 		const startPos = tlLayout.eventPositions[eventIdx].start;
 		return tlLayout.axis.contains(startPos) ? startPos : undefined;
 	}
 	getEventEndPositionsInView(hEvent: HEvent): Point2D | undefined {
+		if (!this.isEventVisible(hEvent)) {
+			return undefined;
+		}
 		const tlLayout = this.getTimelineLayout(hEvent);
 		const eventIdx = hEvent.eventIdx;
 		const endPos = tlLayout.eventPositions[eventIdx].end;
 		return (endPos && tlLayout.axis.contains(endPos)) ? endPos : undefined;
+	}
+
+	private isEventVisible(hEvent: HEvent): boolean {
+		const tl = this.timelineService.getTimeline(hEvent.timelineId);
+		if (!tl) {
+			return false;
+		}
+		return tl.isVisible;
 	}
 
 	// Styling

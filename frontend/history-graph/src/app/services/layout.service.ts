@@ -45,6 +45,10 @@ export class LayoutService {
 		this.calculateLayout(this.layout.timelines.viewport);
 	}
 
+	refreshLayout(): void {
+		this.calculateLayout(this.layout.timelines.viewport);
+	}
+
 	pan(start: Point2D, delta: Point2D): void {
 		this.axisCalculator.pan(
 			this.timelineService.timelines(),

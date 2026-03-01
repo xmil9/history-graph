@@ -11,6 +11,7 @@ export abstract class LabelLayoutCalculator {
 	protected readonly labelAreaMargins = Rect2D.fromCoordinates(50, 25, 50, 25);
 	protected input: LayoutInput = DEFAULT_LAYOUT_INPUT;
 	protected timelineLayoutLut: Map<number, TimelineLayout> = new Map();
+	protected timelineLut: Map<number, TimelineGraphic> = new Map();
 
 	setInput(input: LayoutInput): void {
 		this.input = input;
@@ -24,7 +25,7 @@ export abstract class LabelLayoutCalculator {
 	
 	abstract clear(): void;
 
-	protected initTimelineLayoutLookup(
+	protected initTimelineLookups(
 		timelines: TimelineGraphic[],
 		layout: HgLayout
 	): void {
@@ -32,16 +33,39 @@ export abstract class LabelLayoutCalculator {
 		timelines.forEach((tl, tlIdx) => {
 			this.timelineLayoutLut.set(tl.timeline.id, layout.timelines.items[tlIdx]);
 		});
+
+		this.timelineLut.clear();
+		timelines.forEach((tl, tlIdx) => {
+			this.timelineLut.set(tl.timeline.id, tl);
+		});
+	}
+
+	protected getTimelineById(timelineId: number): TimelineGraphic {
+		const timeline = this.timelineLut.get(timelineId);
+		if (!timeline) {
+			throw new Error(`Timeline ${timelineId} not found`);
+		}
+		return timeline;
+	}
+
+	protected getTimeline(eventGraphic: EventGraphic): TimelineGraphic {
+		return this.getTimelineById(eventGraphic.hEvent.timelineId);
+	}
+
+	protected getTimelineLayoutById(
+		timelineId: number,
+	): TimelineLayout {
+		const layout = this.timelineLayoutLut.get(timelineId);
+		if (!layout) {
+			throw new Error(`Timeline ${timelineId} not found`);
+		}
+		return layout;
 	}
 
 	protected getTimelineLayout(
 		eventGraphic: EventGraphic,
 	): TimelineLayout {
-		const layout = this.timelineLayoutLut.get(eventGraphic.hEvent.timelineId);
-		if (!layout) {
-			throw new Error(`Timeline ${eventGraphic.hEvent.timelineId} not found`);
-		}
-		return layout;
+		return this.getTimelineLayoutById(eventGraphic.hEvent.timelineId);
 	}
 
 	protected countVisibleEvents(
@@ -138,7 +162,7 @@ class VerticalLabelCalculator extends LabelLayoutCalculator {
 
 			tlGraphic.eventGraphics.forEach((eventGraphic, eventIdx) => {
 				const eventPos = tlLayout.eventPositions[eventGraphic.hEvent.eventIdx];
-				const isLabelVisible = tlLayout.axis.contains(eventPos.start);
+				const isLabelVisible = tlGraphic.isVisible && tlLayout.axis.contains(eventPos.start);
 
 				// Calculate the position of the label.
 				let labelPos = Point2D.invalid();
@@ -182,7 +206,7 @@ class HorizontalLeftLabelCalculator extends LabelLayoutCalculator {
 		combinedTimeline: TimelineGraphic,
 		layout: HgLayout
 	): void {
-		this.initTimelineLayoutLookup(timelines, layout);
+		this.initTimelineLookups(timelines, layout);
 
 		layout.labels.bounds = this.calcLabelAreaBounds(layout);
 		layout.labels.rotation = this.rotation;
@@ -207,7 +231,8 @@ class HorizontalLeftLabelCalculator extends LabelLayoutCalculator {
 		combinedTimeline.eventGraphics.forEach((eventGraphic, eventIdx) => {
 			const tlLayout = this.getTimelineLayout(eventGraphic);
 			const eventPos = tlLayout.eventPositions[eventGraphic.hEvent.eventIdx];
-			const isLabelVisible = tlLayout.axis.contains(eventPos.start);
+			const isLabelVisible = this.getTimeline(eventGraphic).isVisible &&
+				tlLayout.axis.contains(eventPos.start);
 
 			// Calculate the position of the label.
 			let labelCoord = Point2D.invalid();
@@ -273,7 +298,7 @@ class HorizontalCenterLabelCalculator extends LabelLayoutCalculator {
 		combinedTimeline: TimelineGraphic,
 		layout: HgLayout
 	): void {
-		this.initTimelineLayoutLookup(timelines, layout);
+		this.initTimelineLookups(timelines, layout);
 
 		layout.labels.bounds = this.calcLabelAreaBounds(layout);
 		layout.labels.rotation = this.rotation;
@@ -299,7 +324,8 @@ class HorizontalCenterLabelCalculator extends LabelLayoutCalculator {
 		combinedTimeline.eventGraphics.forEach((eventGraphic, eventIdx) => {
 			const tlLayout = this.getTimelineLayout(eventGraphic);
 			const eventPos = tlLayout.eventPositions[eventGraphic.hEvent.eventIdx];
-			const isLabelVisible = tlLayout.axis.contains(eventPos.start);
+			const isLabelVisible = this.getTimeline(eventGraphic).isVisible &&
+				tlLayout.axis.contains(eventPos.start);
 
 			// Calculate the position of the label.
 			let labelCoord = Point2D.invalid();

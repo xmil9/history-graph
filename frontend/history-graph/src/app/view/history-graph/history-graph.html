@@ -5,8 +5,15 @@
 	</div>
 	<tl-header [timeline]="timelines()[0].timeline" [dateFormat]="dateFormat()" />
 	<div #historyGraphArea class="history-graph-area">
+		<timeline-legend
+			[timelines]="timelines()"
+			[combinedTimeline]="combinedTimeline()"
+			[dateFormat]="dateFormat()"
+		/>
 		<svg [attr.width]="viewSize().width" [attr.height]="viewSize().height" xmlns="http://www.w3.org/2000/svg">
-			<g tl-overview />
+			@if (isOverviewVisible()) {
+				<g tl-overview />
+			}
 			@for (timeline of timelines(); track timeline; let i = $index) {
 				<g tl-timeline
 					[timeline]="timeline"

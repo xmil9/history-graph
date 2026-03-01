@@ -2,6 +2,7 @@
 
 export const DEFAULT_CONTENT_COLOR = '#222';
 export const DEFAULT_PERIOD_COLOR = 'rgba(40, 113, 230, 1)';
+export const DEFAULT_AXIS_BACKGROUND = '#f8f8f8';
 
 ///////////////////
 

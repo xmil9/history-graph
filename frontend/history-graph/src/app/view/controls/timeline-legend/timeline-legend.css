@@ -1,0 +1,102 @@
+:host {
+	display: block;
+}
+
+.timeline-legend {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 192px;
+	z-index: 5;
+	pointer-events: none;
+}
+
+.legend-item {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	height: 60px;
+	padding: 0 10px 0 12px;
+	border-left: 4px solid transparent;
+	box-sizing: border-box;
+	background: rgba(248, 248, 248, 1);
+	backdrop-filter: blur(6px);
+	border-radius: 0 6px 6px 0;
+	margin-bottom: 0;
+	pointer-events: auto;
+	transition: background 0.2s;
+}
+
+.legend-item:hover {
+	background: rgba(230, 230, 230, 1);
+}
+
+.legend-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 6px;
+}
+
+.legend-title {
+	font-family: 'Inter', 'Segoe UI', sans-serif;
+	font-size: 12px;
+	font-weight: 600;
+	color: #1a1a1a;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	flex: 1;
+	min-width: 0;
+}
+
+.toggle-btn {
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 22px;
+	height: 22px;
+	padding: 0;
+	border: none;
+	border-radius: 4px;
+	background: transparent;
+	color: #727885;
+	cursor: pointer;
+	transition: color 0.15s, background 0.15s;
+}
+
+.toggle-btn svg {
+	width: 14px;
+	height: 14px;
+}
+
+.toggle-btn:hover {
+	color: #a8a8aa;
+}
+
+.toggle-btn.hidden {
+	color: #4a5068;
+}
+
+.legend-meta {
+	display: flex;
+	flex-direction: column;
+	gap: 1px;
+	margin-top: 3px;
+}
+
+.legend-period {
+	font-family: 'Inter', 'Segoe UI', sans-serif;
+	font-size: 10px;
+	color: #6b7494;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.legend-count {
+	font-family: 'Inter', 'Segoe UI', sans-serif;
+	font-size: 10px;
+	color: #4e5570;
+}

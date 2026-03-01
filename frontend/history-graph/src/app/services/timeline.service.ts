@@ -29,9 +29,31 @@ export class TimelineService {
 		return computed(() => this.hgGraphic().timelines);
 	}
 
+	public getTimeline(id: number): TimelineGraphic | undefined {
+		return this.hgGraphic().timelines.find(tl => tl.timeline.id === id);
+	}
+
+	toggleTimelineVisibility(id: number): void {
+		const tl = this.getTimeline(id);
+		if (!tl) {
+			return;
+		}
+		tl.isVisible = !tl.isVisible;
+	}
+
 	private combinedTimeline_: WritableSignal<TimelineGraphic>;
 	public get combinedTimeline(): Signal<TimelineGraphic> {
 		return this.combinedTimeline_;
+	}
+
+	private isOverviewVisible_ = signal(true);
+	public get isOverviewVisible(): Signal<boolean> {
+		return this.isOverviewVisible_;
+	}
+	toggleOverviewVisibility(): void {
+		const isVisible = this.combinedTimeline().isVisible;
+		this.combinedTimeline().isVisible = !isVisible;
+		this.isOverviewVisible_.set(!isVisible);
 	}
 
 	private ticks_: WritableSignal<Tick[]>;
@@ -46,6 +68,7 @@ export class TimelineService {
 
 		this.hgGraphic = signal(new HgGraphic(defaultTimelines));
 		this.combinedTimeline_ = signal(this.calculateCombinedTimeline());
+		this.isOverviewVisible_.set(this.combinedTimeline().isVisible);
 		this.ticks_ = signal(calculateTicks(this.combinedTimeline().timeline.period, DEFAULT_DATE_FORMAT));
 
 		// Recalculate combined timeline when the graphic changes.

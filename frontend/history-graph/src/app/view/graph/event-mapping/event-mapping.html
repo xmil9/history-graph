@@ -1,32 +1,34 @@
 <svg:g xmlns:svg="http://www.w3.org/2000/svg">
-	@for (eventGraphic of combinedTimeline.eventGraphics; track eventGraphic.hEvent; let i = $index) {
-		@let overviewEventPos = getOverviewEventPositions(i);
-		@let eventPos = getEventPositionsInView(eventGraphic.hEvent);
-		@if (eventPos) {
-			<line
-				id="event-mapping"
-				[attr.x1]="overviewEventPos.start.x"
-				[attr.y1]="overviewEventPos.start.y"
-				[attr.x2]="eventPos.x"
-				[attr.y2]="eventPos.y"
-				[attr.stroke]="getEventLineColor(eventGraphic)"
-				[attr.stroke-width]="lineStyle().width"
-				[attr.opacity]="opacity()"
-			/>
-		}
+	@if (combinedTimeline.isVisible) {
+		@for (eventGraphic of combinedTimeline.eventGraphics; track eventGraphic.hEvent; let i = $index) {
+			@let overviewEventPos = getOverviewEventPositions(i);
+			@let eventPos = getEventPositionsInView(eventGraphic.hEvent);
+			@if (eventPos) {
+				<line
+					id="event-mapping"
+					[attr.x1]="overviewEventPos.start.x"
+					[attr.y1]="overviewEventPos.start.y"
+					[attr.x2]="eventPos.x"
+					[attr.y2]="eventPos.y"
+					[attr.stroke]="getEventLineColor(eventGraphic)"
+					[attr.stroke-width]="lineStyle().width"
+					[attr.opacity]="opacity()"
+				/>
+			}
 
-		@let eventEndPos = getEventEndPositionsInView(eventGraphic.hEvent);
-		@if (eventEndPos) {
-			<line
-				id="event-end-mapping"
-				[attr.x1]="overviewEventPos.end!.x"
-				[attr.y1]="overviewEventPos.end!.y"
-				[attr.x2]="eventEndPos.x"
-				[attr.y2]="eventEndPos.y"
-				[attr.stroke]="getEventLineColor(eventGraphic)"
-				[attr.stroke-width]="lineStyle().width"
-				[attr.opacity]="opacity()"
-			/>
+			@let eventEndPos = getEventEndPositionsInView(eventGraphic.hEvent);
+			@if (eventEndPos) {
+				<line
+					id="event-end-mapping"
+					[attr.x1]="overviewEventPos.end!.x"
+					[attr.y1]="overviewEventPos.end!.y"
+					[attr.x2]="eventEndPos.x"
+					[attr.y2]="eventEndPos.y"
+					[attr.stroke]="getEventLineColor(eventGraphic)"
+					[attr.stroke-width]="lineStyle().width"
+					[attr.opacity]="opacity()"
+				/>
+			}
 		}
 	}
 </svg:g>
