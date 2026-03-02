@@ -1,5 +1,5 @@
 <svg:g xmlns:svg="http://www.w3.org/2000/svg">
-	@if (combinedTimeline.isVisible) {
+	@if (combinedTimeline.isVisible()) {
 		@for (eventGraphic of combinedTimeline.eventGraphics; track eventGraphic.hEvent; let i = $index) {
 			@let overviewEventPos = getOverviewEventPositions(i);
 			@let eventPos = getEventPositionsInView(eventGraphic.hEvent);

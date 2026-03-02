@@ -65,7 +65,7 @@ export class EventMapping {
 		if (!tl) {
 			return false;
 		}
-		return tl.isVisible;
+		return tl.isVisible();
 	}
 
 	// Styling

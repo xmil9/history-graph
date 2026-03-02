@@ -1,5 +1,6 @@
 import { Timeline } from "../model/timeline";
 import { HEvent } from "../model/historic-event";
+import { signal } from "@angular/core";
 
 export interface TimelineTheme {
 	primaryColor: string;
@@ -26,7 +27,7 @@ export class TimelineGraphic {
 		public readonly timeline: Timeline,
 		public readonly theme: TimelineTheme,
 		public readonly eventGraphics: EventGraphic[],
-		public isVisible: boolean = true
+		public isVisible = signal<boolean>(true)
 	) {
 	}
 

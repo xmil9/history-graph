@@ -5,11 +5,11 @@
 			<span class="legend-title">{{ combinedLegendItem().title }}</span>
 			<button
 				class="toggle-btn"
-				[class.hidden]="!combinedLegendItem().isVisible"
-				[title]="combinedLegendItem().isVisible ? 'Hide overview' : 'Show overview'"
+				[class.hidden]="!combinedLegendItem().isVisible()"
+				[title]="combinedLegendItem().isVisible() ? 'Hide overview' : 'Show overview'"
 				(click)="toggleOverview()"
 			>
-				@if (combinedLegendItem().isVisible) {
+				@if (combinedLegendItem().isVisible()) {
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 						<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
 						<circle cx="12" cy="12" r="3"/>
@@ -36,11 +36,11 @@
 				<span class="legend-title">{{ item.title }}</span>
 				<button
 					class="toggle-btn"
-					[class.hidden]="!item.isVisible"
-					[title]="item.isVisible ? 'Hide timeline' : 'Show timeline'"
+					[class.hidden]="!item.isVisible()"
+					[title]="item.isVisible() ? 'Hide timeline' : 'Show timeline'"
 					(click)="toggle(item.id)"
 				>
-					@if (item.isVisible) {
+					@if (item.isVisible()) {
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 							<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
 							<circle cx="12" cy="12" r="3"/>

@@ -162,7 +162,7 @@ class VerticalLabelCalculator extends LabelLayoutCalculator {
 
 			tlGraphic.eventGraphics.forEach((eventGraphic, eventIdx) => {
 				const eventPos = tlLayout.eventPositions[eventGraphic.hEvent.eventIdx];
-				const isLabelVisible = tlGraphic.isVisible && tlLayout.axis.contains(eventPos.start);
+				const isLabelVisible = tlGraphic.isVisible() && tlLayout.axis.contains(eventPos.start);
 
 				// Calculate the position of the label.
 				let labelPos = Point2D.invalid();
@@ -231,7 +231,7 @@ class HorizontalLeftLabelCalculator extends LabelLayoutCalculator {
 		combinedTimeline.eventGraphics.forEach((eventGraphic, eventIdx) => {
 			const tlLayout = this.getTimelineLayout(eventGraphic);
 			const eventPos = tlLayout.eventPositions[eventGraphic.hEvent.eventIdx];
-			const isLabelVisible = this.getTimeline(eventGraphic).isVisible &&
+			const isLabelVisible = this.getTimeline(eventGraphic).isVisible() &&
 				tlLayout.axis.contains(eventPos.start);
 
 			// Calculate the position of the label.
@@ -324,7 +324,7 @@ class HorizontalCenterLabelCalculator extends LabelLayoutCalculator {
 		combinedTimeline.eventGraphics.forEach((eventGraphic, eventIdx) => {
 			const tlLayout = this.getTimelineLayout(eventGraphic);
 			const eventPos = tlLayout.eventPositions[eventGraphic.hEvent.eventIdx];
-			const isLabelVisible = this.getTimeline(eventGraphic).isVisible &&
+			const isLabelVisible = this.getTimeline(eventGraphic).isVisible() &&
 				tlLayout.axis.contains(eventPos.start);
 
 			// Calculate the position of the label.

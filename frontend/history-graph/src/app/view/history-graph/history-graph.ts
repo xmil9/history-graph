@@ -52,7 +52,7 @@ export class HistoryGraph implements AfterViewInit {
 	});
 	timelines = this.timelineService.timelines;
 	combinedTimeline = this.timelineService.combinedTimeline;
-	isOverviewVisible = this.timelineService.isOverviewVisible;
+	isOverviewVisible = computed(() => this.timelineService.combinedTimeline().isVisible());
 
 	startLabel = computed(() => {
 		const tlGraphic = this.timelineService.combinedTimeline();

@@ -8,7 +8,6 @@ import { HDate, HPeriod } from '../model/historic-date';
 import { GraphicService } from './graphic-service';
 import { calculateTicks, Tick } from './tick-calculator';
 import { DEFAULT_DATE_FORMAT } from '../model/historic-date';
-import { HEvent } from '../model/historic-event';
 import { IdGenerator } from '../model/id-generator';
 
 @Injectable({
@@ -38,7 +37,7 @@ export class TimelineService {
 		if (!tl) {
 			return;
 		}
-		tl.isVisible = !tl.isVisible;
+		tl.isVisible.set(!tl.isVisible());
 	}
 
 	private combinedTimeline_: WritableSignal<TimelineGraphic>;
@@ -46,14 +45,9 @@ export class TimelineService {
 		return this.combinedTimeline_;
 	}
 
-	private isOverviewVisible_ = signal(true);
-	public get isOverviewVisible(): Signal<boolean> {
-		return this.isOverviewVisible_;
-	}
 	toggleOverviewVisibility(): void {
-		const isVisible = this.combinedTimeline().isVisible;
-		this.combinedTimeline().isVisible = !isVisible;
-		this.isOverviewVisible_.set(!isVisible);
+		const isVisible = this.combinedTimeline().isVisible();
+		this.combinedTimeline().isVisible.set(!isVisible);
 	}
 
 	private ticks_: WritableSignal<Tick[]>;
@@ -68,7 +62,6 @@ export class TimelineService {
 
 		this.hgGraphic = signal(new HgGraphic(defaultTimelines));
 		this.combinedTimeline_ = signal(this.calculateCombinedTimeline());
-		this.isOverviewVisible_.set(this.combinedTimeline().isVisible);
 		this.ticks_ = signal(calculateTicks(this.combinedTimeline().timeline.period, DEFAULT_DATE_FORMAT));
 
 		// Recalculate combined timeline when the graphic changes.
