@@ -8,7 +8,6 @@ import { DEFAULT_LINE_STYLE, DEFAULT_TEXT_STYLE, LineStyle, TextStyle } from '..
 import { LayoutService } from '../../services/layout.service';
 import { OverviewView } from '../graph/overview-view/overview-view';
 import { EventMapping } from '../graph/event-mapping/event-mapping';
-import { HeaderView } from '../controls/header-view/header-view';
 import { PreferenceService } from '../../services/preference.service';
 import { HDateFormat } from '../../model/historic-date';
 import { TimelineView } from '../graph/timeline-view/timeline-view';
@@ -30,7 +29,6 @@ const DEFAULT_TL_TEXT_STYLE: TextStyle = {
 		EventLabels,
 		EventMapping,
 		EventOverlay,
-		HeaderView,
 		PreferenceView,
 		PromptView,
 		TimelineLegend

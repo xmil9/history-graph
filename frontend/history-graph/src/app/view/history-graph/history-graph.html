@@ -3,7 +3,6 @@
 		<prompt-view (submit)="onPromptEntered($event)" [isLoading]="isLoading()" />
 		<preference-view />
 	</div>
-	<tl-header [timeline]="timelines()[0].timeline" [dateFormat]="dateFormat()" />
 	<div #historyGraphArea class="history-graph-area">
 		<timeline-legend
 			[timelines]="timelines()"
