@@ -115,7 +115,7 @@ export class HistoryGraph implements AfterViewInit {
 	}
 
 	onPromptEntered(prompt: string): void {
-		this.timelineService.generateTimeline(prompt);
+		this.timelineService.addTimeline(prompt);
 	}
 
 	@HostListener('window:resize')

@@ -106,29 +106,41 @@ export class TimelineService {
 		);
 	}
 
-	generateTimeline(topic: string): void {
+	async addTimeline(topic: string): Promise<void> {
 		if (topic === 'run-debug-test') {
 			this.runDebugTest();
 			return;
 		}
 		
-		const url = 'http://localhost:3000/api/generate-timeline?topic=' + encodeURIComponent(topic);
-		this.isLoading_.set(true);
+		const timeline = await this.requestTimeline(topic);
+		if (!timeline) {
+			return;
+		}
+		this.hgGraphic.set(new HgGraphic([...this.hgGraphic().timelines, timeline]));
+	}
+
+	private requestTimeline(topic: string): Promise<TimelineGraphic | undefined> {
+		return new Promise((resolve, reject) => {
+			const url = 'http://localhost:3000/api/generate-timeline?topic=' + encodeURIComponent(topic);
+			this.isLoading_.set(true);
 		
-		this.http.get<any>(url).pipe(
-			take(1),
-			finalize(() => this.isLoading_.set(false))
-		).subscribe({
-			next: (timelineInput) => {
-				try {
-					this.hgGraphic.set(
-						new HgGraphic([...this.hgGraphic().timelines, this.makeGraphicFromInput(timelineInput)])
-					);
-				} catch (e) {
-					console.error('Failed to parse timeline:', e);
+			this.http.get<any>(url).pipe(
+				take(1),
+				finalize(() => this.isLoading_.set(false))
+			).subscribe({
+				next: (timelineInput) => {
+					try {
+						resolve(this.makeGraphicFromInput(timelineInput));
+					} catch (e) {
+						console.error('Failed to parse timeline:', e);
+						resolve(undefined);
+					}
+				},
+				error: (err) => {
+					console.error('Failed to fetch timeline:', err);
+					resolve(undefined);
 				}
-			},
-			error: (err) => console.error('Failed to fetch timeline:', err)
+			});
 		});
 	}
 
