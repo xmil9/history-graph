@@ -29,25 +29,15 @@ export class TimelineService {
 	}
 
 	public getTimeline(id: number): TimelineGraphic | undefined {
-		return this.hgGraphic().timelines.find(tl => tl.timeline.id === id);
-	}
-
-	toggleTimelineVisibility(id: number): void {
-		const tl = this.getTimeline(id);
-		if (!tl) {
-			return;
+		if (id === this.	combinedTimeline().timeline.id) {
+			return this.combinedTimeline();
 		}
-		tl.isVisible.set(!tl.isVisible());
+		return this.hgGraphic().timelines.find(tl => tl.timeline.id === id);
 	}
 
 	private combinedTimeline_: WritableSignal<TimelineGraphic>;
 	public get combinedTimeline(): Signal<TimelineGraphic> {
 		return this.combinedTimeline_;
-	}
-
-	toggleOverviewVisibility(): void {
-		const isVisible = this.combinedTimeline().isVisible();
-		this.combinedTimeline().isVisible.set(!isVisible);
 	}
 
 	private ticks_: WritableSignal<Tick[]>;
@@ -104,6 +94,14 @@ export class TimelineService {
 			// Preserve the original event themes.
 			combinedEvents.map(eventGraphic => eventGraphic.theme)
 		);
+	}
+
+	toggleTimelineVisibility(id: number): void {
+		const tl = this.getTimeline(id);
+		if (!tl) {
+			return;
+		}
+		tl.isVisible.set(!tl.isVisible());
 	}
 
 	async addTimeline(topic: string): Promise<void> {

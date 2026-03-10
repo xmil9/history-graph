@@ -1,9 +1,31 @@
-import { Component, computed, inject, input } from '@angular/core';
+import { Component, computed, inject, input, WritableSignal } from '@angular/core';
 import { TimelineGraphic } from '../../../services/graphic-types';
 import { HDateFormat } from '../../../model/historic-date';
 import { TimelineService } from '../../../services/timeline.service';
 import { DEFAULT_AXIS_BACKGROUND } from '../../../graphics/gfx-style';
 import { LayoutService } from '../../../services/layout.service';
+
+interface LegendItem {
+	id: number;
+	title: string;
+	from: string;
+	to: string;
+	eventCount: number;
+	isVisible: WritableSignal<boolean>;
+	color: string;
+}
+
+function makeLegendItem(tl: TimelineGraphic, dateFormat: HDateFormat, color?: string): LegendItem {
+	return {
+		id: tl.timeline.id,
+		title: tl.timeline.title,
+		from: dateFormat.format(tl.timeline.from),
+		to: dateFormat.format(tl.timeline.to),
+		eventCount: tl.timeline.events.length,
+		isVisible: tl.isVisible,
+		color: color ?? tl.theme.primaryColor,
+	};
+}
 
 @Component({
 	selector: 'timeline-legend',
@@ -19,37 +41,15 @@ export class TimelineLegend {
 	dateFormat = input.required<HDateFormat>();
 	background = input<string>(DEFAULT_AXIS_BACKGROUND);
 
-	legendItems = computed(() =>
-		this.timelines().map(tl => ({
-			id: tl.timeline.id,
-			title: tl.timeline.title,
-			from: this.dateFormat().format(tl.timeline.from),
-			to: this.dateFormat().format(tl.timeline.to),
-			eventCount: tl.timeline.events.length,
-			isVisible: tl.isVisible,
-			color: tl.theme.primaryColor,
-		}))
-	);
-
-	combinedLegendItem = computed(() => {
-		const tl = this.combinedTimeline();
-		return {
-			title: tl.timeline.title,
-			from: this.dateFormat().format(tl.timeline.from),
-			to: this.dateFormat().format(tl.timeline.to),
-			eventCount: tl.timeline.events.length,
-			isVisible: this.timelineService.combinedTimeline().isVisible,
-			color: '#888',
-		};
+	legendItems = computed(() => {
+		const combinedTl = this.combinedTimeline();
+		const items = [makeLegendItem(combinedTl, this.dateFormat(), '#888')];
+		items.push(...this.timelines().map(tl => makeLegendItem(tl, this.dateFormat())));
+		return items;
 	});
 
 	toggle(id: number): void {
 		this.timelineService.toggleTimelineVisibility(id);
-		this.layoutService.refreshLayout();
-	}
-
-	toggleOverview(): void {
-		this.timelineService.toggleOverviewVisibility();
 		this.layoutService.refreshLayout();
 	}
 }
