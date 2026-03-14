@@ -6,8 +6,6 @@ import { parseTimeline } from '../model/timeline-input';
 import { EventGraphic, HgGraphic, TimelineGraphic, TimelineTheme } from './graphic-types';
 import { HDate, HPeriod } from '../model/historic-date';
 import { GraphicService } from './graphic-service';
-import { calculateTicks, Tick } from './tick-calculator';
-import { DEFAULT_DATE_FORMAT } from '../model/historic-date';
 import { IdGenerator } from '../model/id-generator';
 
 @Injectable({
@@ -40,11 +38,6 @@ export class TimelineService {
 		return this.combinedTimeline_;
 	}
 
-	private ticks_: WritableSignal<Tick[]>;
-	public get ticks(): Signal<Tick[]> {
-		return this.ticks_;
-	}
-
 	constructor() {
 		const defaultTimelines = makeDefaultTimelines(this.timelineIdGen).map(
 			timeline => this.makeGraphic(timeline)
@@ -52,7 +45,6 @@ export class TimelineService {
 
 		this.hgGraphic = signal(new HgGraphic(defaultTimelines));
 		this.combinedTimeline_ = signal(this.calculateCombinedTimeline());
-		this.ticks_ = signal(calculateTicks(this.combinedTimeline().timeline.period, DEFAULT_DATE_FORMAT));
 
 		// Recalculate combined timeline when the graphic changes.
 		effect(() => {
