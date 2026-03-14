@@ -51,7 +51,7 @@
 	min-width: 0;
 }
 
-.toggle-btn {
+.toggle-btn, .remove-btn {
 	flex-shrink: 0;
 	display: flex;
 	align-items: center;
@@ -67,12 +67,12 @@
 	transition: color 0.15s, background 0.15s;
 }
 
-.toggle-btn svg {
+.toggle-btn svg, .remove-btn svg {
 	width: 14px;
 	height: 14px;
 }
 
-.toggle-btn:hover {
+.toggle-btn:hover, .remove-btn:hover {
 	color: #a8a8aa;
 }
 

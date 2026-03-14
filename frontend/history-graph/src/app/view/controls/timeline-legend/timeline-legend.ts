@@ -13,9 +13,10 @@ interface LegendItem {
 	eventCount: number;
 	isVisible: WritableSignal<boolean>;
 	color: string;
+	canRemove: boolean;
 }
 
-function makeLegendItem(tl: TimelineGraphic, dateFormat: HDateFormat, color?: string): LegendItem {
+function makeLegendItem(tl: TimelineGraphic, dateFormat: HDateFormat, canRemove: boolean, color?: string): LegendItem {
 	return {
 		id: tl.timeline.id,
 		title: tl.timeline.title,
@@ -24,6 +25,7 @@ function makeLegendItem(tl: TimelineGraphic, dateFormat: HDateFormat, color?: st
 		eventCount: tl.timeline.events.length,
 		isVisible: tl.isVisible,
 		color: color ?? tl.theme.primaryColor,
+		canRemove
 	};
 }
 
@@ -43,13 +45,18 @@ export class TimelineLegend {
 
 	legendItems = computed(() => {
 		const combinedTl = this.combinedTimeline();
-		const items = [makeLegendItem(combinedTl, this.dateFormat(), '#888')];
-		items.push(...this.timelines().map(tl => makeLegendItem(tl, this.dateFormat())));
+		const items = [makeLegendItem(combinedTl, this.dateFormat(), false, '#888')];
+		items.push(...this.timelines().map(tl => makeLegendItem(tl, this.dateFormat(), true)));
 		return items;
 	});
 
 	toggle(id: number): void {
 		this.timelineService.toggleTimelineVisibility(id);
+		this.layoutService.refreshLayout();
+	}
+
+	remove(id: number): void {
+		this.timelineService.removeTimeline(id);
 		this.layoutService.refreshLayout();
 	}
 }

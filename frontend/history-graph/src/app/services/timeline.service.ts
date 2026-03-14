@@ -104,6 +104,14 @@ export class TimelineService {
 		tl.isVisible.set(!tl.isVisible());
 	}
 
+	removeTimeline(id: number): void {
+		const combinedId = this.combinedTimeline().timeline.id;
+		if (id !== combinedId) {
+			const timelines = this.hgGraphic().timelines.filter(tl => tl.timeline.id !== id);
+			this.hgGraphic.set(new HgGraphic(timelines));
+		}
+	}
+
 	async addTimeline(topic: string): Promise<void> {
 		if (topic === 'run-debug-test') {
 			this.runDebugTest();
