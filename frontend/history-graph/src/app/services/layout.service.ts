@@ -34,10 +34,11 @@ export class LayoutService {
 	}
 
 	resetLayout(resetTicks: boolean = false): void {
+		this.calculateLayout(DEFAULT_VIEWPORT);
+
 		if (resetTicks) {
 			this.calculateTicks();
 		}
-		this.calculateLayout(DEFAULT_VIEWPORT);
 	}
 
 	updateLayout(input: LayoutInput): void {
@@ -64,6 +65,8 @@ export class LayoutService {
 			this.timelineService.combinedTimeline(),
 			this.layout
 		);
+
+		this.calculateTicks();
 	}
 
 	zoom(at: Point2D, factor: number): void {
@@ -81,6 +84,8 @@ export class LayoutService {
 			this.timelineService.combinedTimeline(),
 			this.layout
 		);
+
+		this.calculateTicks();
 	}
 
 	private calculateLayout(targetViewport: TimelineViewport): void {
@@ -104,7 +109,8 @@ export class LayoutService {
 	private calculateTicks(): void {
 		this.ticks_ = calculateTicks(
 			this.timelineService.combinedTimeline().timeline.period,
-			this.input.dateFormat
+			this.input.dateFormat,
+			this.layout
 		);
 	}
 }

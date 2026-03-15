@@ -1,4 +1,5 @@
 import { duration, HDate, HDateFormat, HPeriod } from "../model/historic-date";
+import { HgLayout, TimelineViewport } from "./layout-types";
 
 export interface Tick {
 	date: HDate;
@@ -7,27 +8,22 @@ export interface Tick {
 	tlRatio: number;
 }
 
-export function calculateTicks(period: HPeriod, dateFormat: HDateFormat): Tick[] {
-	const interval = intervalInYears(period);
-		if (interval === 0) {
+export function calculateTicks(period: HPeriod, dateFormat: HDateFormat, layout: HgLayout): Tick[] {
+		// const tickRange = calcViewedTickRange(period, layout, 10);
+		const tickRange = calcEpochTickRange(period);
+		if (tickRange.interval === 0) {
 			return [];
 		}
-
-		const tlStartYear = period.from.year;
-		const tlDuration = period.duration;
-
-		// Add ticks for half the timeline duration on each side.
-		// const margin = (this.timeline.to.year - this.timeline.from.year) / 2;
-		const margin = 0;
-		const from = Math.ceil((tlStartYear - margin) / interval) * interval;
-		const to = Math.floor((period.to.year + margin) / interval) * interval;
+		
+		const from = tickRange.period.from.year;
+		const to = tickRange.period.to.year;
+		const interval = tickRange.interval;
+		const periodDuration = period.duration;
 
 		const ticks: Tick[] = [];
 		for (let year = from; year <= to; year += interval) {
 			const date = new HDate(year);
-			const ratio = year < tlStartYear ?
-				-duration(date, period.from) / tlDuration :
-				duration(period.from, date) / tlDuration;
+			const ratio = duration(period.from, date) / periodDuration;
 			ticks.push({
 				date,
 				label: dateFormat.format(date),
@@ -38,11 +34,51 @@ export function calculateTicks(period: HPeriod, dateFormat: HDateFormat): Tick[]
 		return ticks;
 }
 
-function intervalInYears(period: HPeriod): number {
+///////////////////
+
+interface TickRange {
+	period: HPeriod;
+	interval: number;
+}
+
+// Calculates the tick range that matches the viewport of the given period and the given number of ticks.
+function calcViewedTickRange(period: HPeriod, layout: HgLayout, numTicks: number): TickRange {
 	const years = period.to.year - period.from.year;
 	if (years === 0) {
-		return 0;
+		return { period, interval: 0 };
 	}
+
+	const overview = layout.overview;
+	const startRatio = (overview.viewedBounds.left - overview.axisBounds.left) / overview.axisBounds.width;
+	const startYear = Math.floor(period.from.year + startRatio * years)	;
+	const endRatio = (overview.viewedBounds.right - overview.axisBounds.left) / overview.axisBounds.width;
+	const endYear = Math.floor(period.from.year + endRatio * years);
+
+	const viewedPeriod = new HPeriod(
+		new HDate(startYear),
+		new HDate(endYear)
+	);
+
+	const viewedYears = viewedPeriod.to.year - viewedPeriod.from.year;
+	const interval = Math.floor(viewedYears / numTicks);
+
+	return { period: viewedPeriod, interval };
+}
+
+// Calculates the tick range that suits the epoch of the given period.
+// For example, if the period is 100 years long, the interval will be 10 years.
+// If the period is 1000 years long, the interval will be 100 years.
+function calcEpochTickRange(period: HPeriod): TickRange {
+	const years = period.to.year - period.from.year;
+	if (years === 0) {
+		return { period, interval: 0 };
+	}
+	
 	const log = Math.log10(years);
-	return Math.pow(10, Math.floor(log));
+	const interval = Math.pow(10, Math.floor(log));
+
+	const startYear = Math.ceil(period.from.year / interval) * interval;
+	const endYear = Math.floor(period.to.year / interval) * interval;
+
+	return { period: new HPeriod(new HDate(startYear), new HDate(endYear)), interval };
 }
