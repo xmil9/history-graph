@@ -1,16 +1,14 @@
-import { duration, HDate, HDateFormat, HPeriod } from "../model/historic-date";
-import { HgLayout, TimelineViewport } from "./layout-types";
+import { HDate, HDateFormat, HPeriod } from "../model/historic-date";
+import { HgLayout } from "./layout-types";
 
 export interface Tick {
 	date: HDate;
 	label: string;
-	// Relative position of the tick in the timeline.
-	tlRatio: number;
 }
 
 export function calculateTicks(period: HPeriod, dateFormat: HDateFormat, layout: HgLayout): Tick[] {
-		// const tickRange = calcViewedTickRange(period, layout, 10);
-		const tickRange = calcEpochTickRange(period);
+		const tickRange = calcViewedTickRange(period, layout, 10);
+		// const tickRange = calcEpochTickRange(period);
 		if (tickRange.interval === 0) {
 			return [];
 		}
@@ -18,16 +16,13 @@ export function calculateTicks(period: HPeriod, dateFormat: HDateFormat, layout:
 		const from = tickRange.period.from.year;
 		const to = tickRange.period.to.year;
 		const interval = tickRange.interval;
-		const periodDuration = period.duration;
 
 		const ticks: Tick[] = [];
 		for (let year = from; year <= to; year += interval) {
 			const date = new HDate(year);
-			const ratio = duration(period.from, date) / periodDuration;
 			ticks.push({
 				date,
-				label: dateFormat.format(date),
-				tlRatio: ratio
+				label: dateFormat.format(date)
 			});
 		}
 
@@ -43,6 +38,10 @@ interface TickRange {
 
 // Calculates the tick range that matches the viewport of the given period and the given number of ticks.
 function calcViewedTickRange(period: HPeriod, layout: HgLayout, numTicks: number): TickRange {
+	if (numTicks <= 0) {
+		return { period, interval: 0 };
+	}
+	
 	const years = period.to.year - period.from.year;
 	if (years === 0) {
 		return { period, interval: 0 };
@@ -50,17 +49,26 @@ function calcViewedTickRange(period: HPeriod, layout: HgLayout, numTicks: number
 
 	const overview = layout.overview;
 	const startRatio = (overview.viewedBounds.left - overview.axisBounds.left) / overview.axisBounds.width;
-	const startYear = Math.floor(period.from.year + startRatio * years)	;
+	const startYear = Math.ceil(period.from.year + startRatio * years)	;
 	const endRatio = (overview.viewedBounds.right - overview.axisBounds.left) / overview.axisBounds.width;
 	const endYear = Math.floor(period.from.year + endRatio * years);
 
+	const viewedYears = endYear - startYear;
+	if (viewedYears === 0) {
+		return { period, interval: 0 };
+	}
+	else if (viewedYears < numTicks) {
+		numTicks = viewedYears;
+	}
+
+	const interval = Math.floor(viewedYears / numTicks);
+	const endYearForNonDecimalInterval = startYear + interval * numTicks;
+
 	const viewedPeriod = new HPeriod(
 		new HDate(startYear),
-		new HDate(endYear)
+		new HDate(endYearForNonDecimalInterval)
 	);
 
-	const viewedYears = viewedPeriod.to.year - viewedPeriod.from.year;
-	const interval = Math.floor(viewedYears / numTicks);
 
 	return { period: viewedPeriod, interval };
 }

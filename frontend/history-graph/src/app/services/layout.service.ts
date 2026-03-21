@@ -1,4 +1,4 @@
-import { inject, Injectable, signal } from "@angular/core";
+import { inject, Injectable, signal, WritableSignal, Signal } from "@angular/core";
 import { LayoutFormat } from "./preference-types";
 import { Point2D } from "../graphics/gfx-coord-2d";
 import { DEFAULT_LAYOUT_INPUT, DEFAULT_VIEWPORT, HgLayout, LayoutInput, TimelineViewport } from "./layout-types";
@@ -44,6 +44,7 @@ export class LayoutService {
 	updateLayout(input: LayoutInput): void {
 		this.input = input;
 		this.calculateLayout(this.layout.timelines.viewport);
+		this.calculateTicks();
 	}
 
 	refreshLayout(): void {

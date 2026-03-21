@@ -97,11 +97,12 @@ class BaseAxisLayoutCalculator implements AxisLayoutCalculator {
 		timelineIdx: number,
 		tlLayout: TimelineLayout
 	): void {
-		this.calcTimelineAxisLayout(targetViewport, ticks, timelineIdx, tlLayout);
+		this.calcTimelineAxisLayout(combinedTimeline, targetViewport, ticks, timelineIdx, tlLayout);
 		this.calcTimelineEventLayout(timeline, combinedTimeline, tlLayout);
 	}
 
 	protected calcTimelineAxisLayout(
+		combinedTimeline: TimelineGraphic,
 		targetViewport: TimelineViewport,
 		ticks: Tick[],
 		timelineIdx: number,
@@ -126,7 +127,7 @@ class BaseAxisLayoutCalculator implements AxisLayoutCalculator {
 		);
 		tlLayout.axis.startLabelPosition = this.calcLabelPosition(tlLayout.axis.startPosition, tlLayout);
 		tlLayout.axis.endLabelPosition = this.calcLabelPosition(tlLayout.axis.endPosition, tlLayout);
-		tlLayout.axis.tickPositions = this.calcTickPositions(ticks, tlLayout);
+		tlLayout.axis.tickPositions = this.calcTickPositions(ticks, combinedTimeline, tlLayout);
 		tlLayout.axis.tickLabelPositions = this.calcTickLabelPositions(tlLayout);
 	}
 
@@ -222,16 +223,28 @@ class BaseAxisLayoutCalculator implements AxisLayoutCalculator {
 		return tlLayout.clip(labelPos);
 	}
 
-	protected calcTickPositions(ticks: Tick[], tlLayout: TimelineLayout): Point2D[] {
-		const tlLength = tlLayout.axis.endPosition.x - tlLayout.axis.startPosition.x;
-		return ticks.map((tick) => this.calcTickPosition(tick, tlLayout, tlLength));
+	protected calcTickPositions(
+		ticks: Tick[],
+		combinedTimeline: TimelineGraphic,
+		tlLayout: TimelineLayout
+	): Point2D[] {
+		return ticks.map((tick) => this.calcTickPosition(tick, combinedTimeline, tlLayout));
 	}
 
-	protected calcTickPosition(tick: Tick, tlLayout: TimelineLayout, tlLength: number): Point2D {
-		return tlLayout.axis.clip(new Point2D(
-			tlLayout.axis.startPosition.x + (tick.tlRatio * tlLength),
-			tlLayout.axis.startPosition.y
-		));
+	protected calcTickPosition(
+		tick: Tick,
+		combinedTimeline: TimelineGraphic,
+		tlLayout: TimelineLayout
+	): Point2D {
+		const pos = this.calcDatePosition(
+			tick.date,
+			combinedTimeline,
+			tlLayout.axis.startPosition,
+			tlLayout.axis.endPosition,
+			tlLayout.axis.bounds
+		);
+
+		return pos !== undefined ? pos : Point2D.invalid();
 	}
 
 	protected calcTickLabelPositions(tlLayout: TimelineLayout): Point2D[] {
@@ -367,7 +380,7 @@ class BaseAxisLayoutCalculator implements AxisLayoutCalculator {
 		tlLayout.axis.endPosition = tlLayout.axis.endPosition.translate(delta.x, delta.y);
 		tlLayout.axis.startLabelPosition = this.calcLabelPosition(tlLayout.axis.startPosition, tlLayout);
 		tlLayout.axis.endLabelPosition = this.calcLabelPosition(tlLayout.axis.endPosition, tlLayout);
-		tlLayout.axis.tickPositions = this.calcTickPositions(ticks, tlLayout);
+		tlLayout.axis.tickPositions = this.calcTickPositions(ticks, combinedTimeline, tlLayout);
 		tlLayout.axis.tickLabelPositions = this.calcTickLabelPositions(tlLayout);
 
 		this.calcTimelineEventLayout(timeline, combinedTimeline, tlLayout);
@@ -422,7 +435,7 @@ class BaseAxisLayoutCalculator implements AxisLayoutCalculator {
 		tlLayout.axis.startLabelPosition = this.calcLabelPosition(tlLayout.axis.startPosition, tlLayout);
 		tlLayout.axis.endLabelPosition = this.calcLabelPosition(tlLayout.axis.endPosition, tlLayout);
 
-		tlLayout.axis.tickPositions = this.calcTickPositions(ticks, tlLayout);
+		tlLayout.axis.tickPositions = this.calcTickPositions(ticks, combinedTimeline, tlLayout);
 		tlLayout.axis.tickLabelPositions = this.calcTickLabelPositions(tlLayout);
 
 		this.calcTimelineEventLayout(timeline, combinedTimeline, tlLayout);

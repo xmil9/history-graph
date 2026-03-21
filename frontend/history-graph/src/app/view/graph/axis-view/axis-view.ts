@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, signal, Signal } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { Point2D, Rect2D, Size2D } from '../../../graphics/gfx-coord-2d';
 import { DEFAULT_AXIS_BACKGROUND, DEFAULT_LINE_STYLE, DEFAULT_TEXT_STYLE, LineStyle, TextStyle } from '../../../graphics/gfx-style';
 import { SvgIcon, SvgIconOrigin } from '../../util/svg-icon/svg-icon';
@@ -59,7 +59,8 @@ export class AxisView {
 		return this.timelineLayout.axis.tickPositions;
 	}
 	getTickLabel(index: number): string {
-		return this.layoutService.ticks[index].label;
+		const tick = this.layoutService.ticks[index];
+		return tick ? tick.label : '';
 	}
 	get tickLabelPositions(): Point2D[] {
 		return this.timelineLayout.axis.tickLabelPositions;

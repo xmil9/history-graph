@@ -79,7 +79,12 @@ export class HistoryGraph implements AfterViewInit {
 			// Trigger layout reset when the timeline set changes.
 			effect(() => {
 				this.timelines(); // The trigger signal
-				this.layoutService.resetLayout(true);
+
+				// Only reset layout when the view size is valid because this effect gets triggered
+				// very early in the application lifecycle when the view size is not yet valid.
+				if (this.viewSize().width > 0 && this.viewSize().height > 0) {
+					this.layoutService.resetLayout(true);
+				}
 			});
 
 			// Trigger a layout update when any of the inputs change.
