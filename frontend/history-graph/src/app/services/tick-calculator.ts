@@ -6,16 +6,26 @@ export interface Tick {
 	label: string;
 }
 
-export function calculateTicks(period: HPeriod, dateFormat: HDateFormat, layout: HgLayout): Tick[] {
-		const tickRange = calcViewedTickRange(period, layout, 10);
-		// const tickRange = calcEpochTickRange(period);
-		if (tickRange.interval === 0) {
+interface TickRange {
+	period: HPeriod;
+	interval: number;
+}
+
+export class TickCalculator
+{
+	private range?: TickRange;
+
+	calculateTicks(period: HPeriod, dateFormat: HDateFormat, layout: HgLayout, recalcInterval = false): Tick[] {
+		const tickInterval = recalcInterval ? undefined : this.range?.interval;
+		this.range = calcViewedTickRange(period, layout, 10, tickInterval);
+		// this.range = calcEpochTickRange(period, tickInterval);
+		if (this.range.interval === 0) {
 			return [];
 		}
 		
-		const from = tickRange.period.from.year;
-		const to = tickRange.period.to.year;
-		const interval = tickRange.interval;
+		const from = this.range.period.from.year;
+		const to = this.range.period.to.year;
+		const interval = this.range.interval;
 
 		const ticks: Tick[] = [];
 		for (let year = from; year <= to; year += interval) {
@@ -27,17 +37,14 @@ export function calculateTicks(period: HPeriod, dateFormat: HDateFormat, layout:
 		}
 
 		return ticks;
+
+	}
 }
 
 ///////////////////
 
-interface TickRange {
-	period: HPeriod;
-	interval: number;
-}
-
 // Calculates the tick range that matches the viewport of the given period and the given number of ticks.
-function calcViewedTickRange(period: HPeriod, layout: HgLayout, numTicks: number): TickRange {
+function calcViewedTickRange(period: HPeriod, layout: HgLayout, numTicks: number, withInterval?: number): TickRange {
 	if (numTicks <= 0) {
 		return { period, interval: 0 };
 	}
@@ -66,7 +73,7 @@ function calcViewedTickRange(period: HPeriod, layout: HgLayout, numTicks: number
 		numTicks = viewedYears;
 	}
 
-	const interval = Math.ceil(viewedYears / numTicks);
+	const interval = withInterval !== undefined ? withInterval : Math.ceil(viewedYears / numTicks);
 	// Always base the tick period on the timeline start year to avoid jumping of ticks when
 	// panning.
 	const tickStartYear = period.from.year + Math.floor(Math.abs(period.from.year - viewedStartYear) / interval) * interval;
@@ -86,14 +93,17 @@ function calcViewedTickRange(period: HPeriod, layout: HgLayout, numTicks: number
 // Calculates the tick range that suits the epoch of the given period.
 // For example, if the period is 100 years long, the interval will be 10 years.
 // If the period is 1000 years long, the interval will be 100 years.
-function calcEpochTickRange(period: HPeriod): TickRange {
+function calcEpochTickRange(period: HPeriod, withInterval?: number): TickRange {
 	const years = period.to.year - period.from.year;
 	if (years === 0) {
 		return { period, interval: 0 };
 	}
 	
-	const log = Math.log10(years);
-	const interval = Math.pow(10, Math.floor(log));
+	let interval = withInterval;
+	if (interval === undefined) {
+		const log = Math.log10(years);
+		interval = Math.pow(10, Math.floor(log));
+	}
 
 	const startYear = Math.ceil(period.from.year / interval) * interval;
 	const endYear = Math.floor(period.to.year / interval) * interval;

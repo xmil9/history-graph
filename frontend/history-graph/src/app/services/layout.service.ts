@@ -4,7 +4,7 @@ import { Point2D } from "../graphics/gfx-coord-2d";
 import { DEFAULT_LAYOUT_INPUT, DEFAULT_VIEWPORT, HgLayout, LayoutInput, TimelineViewport } from "./layout-types";
 import { TimelineService } from "./timeline.service";
 import { AxisLayoutCalculator, createAxisLayoutCalculator } from "./axis-layout-calculator";
-import { calculateTicks, Tick } from "./tick-calculator";
+import { Tick, TickCalculator } from "./tick-calculator";
 import { LabelLayoutCalculator, createLabelLayoutCalculator } from "./label-layout-calculator";
 
 @Injectable({
@@ -15,6 +15,7 @@ export class LayoutService {
 	layoutFormat = signal<LayoutFormat>(LayoutFormat.HorizontalCenter);
 	private axisCalculator: AxisLayoutCalculator = createAxisLayoutCalculator(this.layoutFormat());
 	private labelCalculator: LabelLayoutCalculator = createLabelLayoutCalculator(this.layoutFormat());
+	private tickCalculator = new TickCalculator();
 	layout = new HgLayout();
 	private input = DEFAULT_LAYOUT_INPUT;
 
@@ -37,14 +38,14 @@ export class LayoutService {
 		this.calculateLayout(DEFAULT_VIEWPORT);
 
 		if (resetTicks) {
-			this.calculateTicks();
+			this.calculateTicks(true);
 		}
 	}
 
 	updateLayout(input: LayoutInput): void {
 		this.input = input;
 		this.calculateLayout(this.layout.timelines.viewport);
-		this.calculateTicks();
+		this.calculateTicks(true);
 	}
 
 	refreshLayout(): void {
@@ -67,7 +68,8 @@ export class LayoutService {
 			this.layout
 		);
 
-		this.calculateTicks();
+		// Not recalculating the tick interval avoids jumpy ticks when panning.
+		this.calculateTicks(false);
 	}
 
 	zoom(at: Point2D, factor: number): void {
@@ -86,7 +88,7 @@ export class LayoutService {
 			this.layout
 		);
 
-		this.calculateTicks();
+		this.calculateTicks(true);
 	}
 
 	private calculateLayout(targetViewport: TimelineViewport): void {
@@ -107,11 +109,12 @@ export class LayoutService {
 		);
 	}
 
-	private calculateTicks(): void {
-		this.ticks_ = calculateTicks(
+	private calculateTicks(recalcInterval: boolean): void {
+		this.ticks_ = this.tickCalculator.calculateTicks(
 			this.timelineService.combinedTimeline().timeline.period,
 			this.input.dateFormat,
-			this.layout
+			this.layout,
+			recalcInterval
 		);
 
 		this.axisCalculator.updateTickPositions(
