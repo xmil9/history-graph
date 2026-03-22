@@ -38,6 +38,12 @@ export interface AxisLayoutCalculator {
 		ticks: Tick[],
 		layout: HgLayout
 	): void;
+
+	updateTickPositions(
+		combinedTimeline: TimelineGraphic,
+		ticks: Tick[],
+		layout: HgLayout
+	): void;
 }
 
 ///////////////////
@@ -127,8 +133,6 @@ class BaseAxisLayoutCalculator implements AxisLayoutCalculator {
 		);
 		tlLayout.axis.startLabelPosition = this.calcLabelPosition(tlLayout.axis.startPosition, tlLayout);
 		tlLayout.axis.endLabelPosition = this.calcLabelPosition(tlLayout.axis.endPosition, tlLayout);
-		tlLayout.axis.tickPositions = this.calcTickPositions(ticks, combinedTimeline, tlLayout);
-		tlLayout.axis.tickLabelPositions = this.calcTickLabelPositions(tlLayout);
 	}
 
 	protected calcTimelineEventLayout(
@@ -313,6 +317,17 @@ class BaseAxisLayoutCalculator implements AxisLayoutCalculator {
 			rightMost, layout.timelines.bounds.bottom);
 	}
 
+	updateTickPositions(
+		combinedTimeline: TimelineGraphic,
+		ticks: Tick[],
+		layout: HgLayout
+	): void {
+		layout.timelines.items.forEach((tlLayout) => {
+			tlLayout.axis.tickPositions = this.calcTickPositions(ticks, combinedTimeline, tlLayout);
+			tlLayout.axis.tickLabelPositions = this.calcTickLabelPositions(tlLayout);
+		});
+	}
+
 	protected calcOverviewEvents(combinedTimeline: TimelineGraphic, layout: HgLayout): EventPosition[] {
 		const axisStartPos = new Point2D(layout.overview.axisBounds.left, layout.overview.axisBounds.center.y);
 		const axisEndPos = new Point2D(layout.overview.axisBounds.right, layout.overview.axisBounds.center.y);
@@ -380,8 +395,6 @@ class BaseAxisLayoutCalculator implements AxisLayoutCalculator {
 		tlLayout.axis.endPosition = tlLayout.axis.endPosition.translate(delta.x, delta.y);
 		tlLayout.axis.startLabelPosition = this.calcLabelPosition(tlLayout.axis.startPosition, tlLayout);
 		tlLayout.axis.endLabelPosition = this.calcLabelPosition(tlLayout.axis.endPosition, tlLayout);
-		tlLayout.axis.tickPositions = this.calcTickPositions(ticks, combinedTimeline, tlLayout);
-		tlLayout.axis.tickLabelPositions = this.calcTickLabelPositions(tlLayout);
 
 		this.calcTimelineEventLayout(timeline, combinedTimeline, tlLayout);
 	}
@@ -434,9 +447,6 @@ class BaseAxisLayoutCalculator implements AxisLayoutCalculator {
 
 		tlLayout.axis.startLabelPosition = this.calcLabelPosition(tlLayout.axis.startPosition, tlLayout);
 		tlLayout.axis.endLabelPosition = this.calcLabelPosition(tlLayout.axis.endPosition, tlLayout);
-
-		tlLayout.axis.tickPositions = this.calcTickPositions(ticks, combinedTimeline, tlLayout);
-		tlLayout.axis.tickLabelPositions = this.calcTickLabelPositions(tlLayout);
 
 		this.calcTimelineEventLayout(timeline, combinedTimeline, tlLayout);
 	}

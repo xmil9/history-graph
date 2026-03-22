@@ -113,5 +113,11 @@ export class LayoutService {
 			this.input.dateFormat,
 			this.layout
 		);
+
+		this.axisCalculator.updateTickPositions(
+			this.timelineService.combinedTimeline(),
+			this.ticks_,
+			this.layout
+		);
 	}
 }
