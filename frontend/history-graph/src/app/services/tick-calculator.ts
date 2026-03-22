@@ -47,30 +47,40 @@ function calcViewedTickRange(period: HPeriod, layout: HgLayout, numTicks: number
 		return { period, interval: 0 };
 	}
 
+	// Calculate the time period that is displayed.
 	const overview = layout.overview;
 	const startRatio = (overview.viewedBounds.left - overview.axisBounds.left) / overview.axisBounds.width;
-	const startYear = Math.ceil(period.from.year + startRatio * years)	;
+	const viewedStartYear = Math.floor(period.from.year + startRatio * years)	;
 	const endRatio = (overview.viewedBounds.right - overview.axisBounds.left) / overview.axisBounds.width;
-	const endYear = Math.floor(period.from.year + endRatio * years);
+	const viewedEndYear = Math.ceil(period.from.year + endRatio * years);
 
-	const viewedYears = endYear - startYear;
+	const viewedYears = viewedEndYear - viewedStartYear;
+
+	// For now, no ticks for less than one year time periods.
 	if (viewedYears === 0) {
 		return { period, interval: 0 };
 	}
-	else if (viewedYears < numTicks) {
+
+	// Limit number of ticks to one per year.
+	if (viewedYears < numTicks) {
 		numTicks = viewedYears;
 	}
 
-	const interval = Math.floor(viewedYears / numTicks);
-	const endYearForNonDecimalInterval = startYear + interval * numTicks;
+	const interval = Math.ceil(viewedYears / numTicks);
+	// Always base the tick period on the timeline start year to avoid jumping of ticks when
+	// panning.
+	const tickStartYear = period.from.year + Math.floor(Math.abs(period.from.year - viewedStartYear) / interval) * interval;
+	const tickEndYear = period.from.year + Math.ceil(Math.abs(period.from.year - viewedEndYear) / interval) * interval;
 
-	const viewedPeriod = new HPeriod(
-		new HDate(startYear),
-		new HDate(endYearForNonDecimalInterval)
+	if (tickStartYear >= tickEndYear)
+		return { period, interval: 0};
+
+	const tickPeriod = new HPeriod(
+		new HDate(tickStartYear),
+		new HDate(tickEndYear)
 	);
 
-
-	return { period: viewedPeriod, interval };
+	return { period: tickPeriod, interval };
 }
 
 // Calculates the tick range that suits the epoch of the given period.
