@@ -1,6 +1,11 @@
 import { HDate, HDateFormat, HPeriod } from "../model/historic-date";
 import { HgLayout } from "./layout-types";
 
+export enum TickFormat {
+	Epoch,
+	FixedNumber
+}
+
 export interface Tick {
 	date: HDate;
 	label: string;
@@ -15,10 +20,25 @@ export class TickCalculator
 {
 	private range?: TickRange;
 
-	calculateTicks(period: HPeriod, dateFormat: HDateFormat, layout: HgLayout, recalcInterval = false): Tick[] {
+	constructor(private format: TickFormat) {}
+
+	calculateTicks(
+		period: HPeriod,
+		dateFormat: HDateFormat,
+		layout: HgLayout,
+		recalcInterval = false
+	): Tick[] {
 		const tickInterval = recalcInterval ? undefined : this.range?.interval;
-		this.range = calcViewedTickRange(period, layout, 10, tickInterval);
-		// this.range = calcEpochTickRange(period, tickInterval);
+
+		switch (this.format) {
+			case TickFormat.Epoch:
+				this.range = calcEpochTickRange(period, tickInterval);
+				break;
+			case TickFormat.FixedNumber:
+				this.range = calcFixedNumberTickRange(period, layout, 10, tickInterval);
+				break;
+		}
+		
 		if (this.range.interval === 0) {
 			return [];
 		}
@@ -43,8 +63,13 @@ export class TickCalculator
 
 ///////////////////
 
-// Calculates the tick range that matches the viewport of the given period and the given number of ticks.
-function calcViewedTickRange(period: HPeriod, layout: HgLayout, numTicks: number, withInterval?: number): TickRange {
+// Calculates a tick range that matches the viewport of the given period and a given number of ticks.
+function calcFixedNumberTickRange(
+	period: HPeriod,
+	layout: HgLayout,
+	numTicks: number,
+	withInterval?: number
+): TickRange {
 	if (numTicks <= 0) {
 		return { period, interval: 0 };
 	}

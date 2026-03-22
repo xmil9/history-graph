@@ -4,7 +4,7 @@ import { Point2D } from "../graphics/gfx-coord-2d";
 import { DEFAULT_LAYOUT_INPUT, DEFAULT_VIEWPORT, HgLayout, LayoutInput, TimelineViewport } from "./layout-types";
 import { TimelineService } from "./timeline.service";
 import { AxisLayoutCalculator, createAxisLayoutCalculator } from "./axis-layout-calculator";
-import { Tick, TickCalculator } from "./tick-calculator";
+import { Tick, TickCalculator, TickFormat } from "./tick-calculator";
 import { LabelLayoutCalculator, createLabelLayoutCalculator } from "./label-layout-calculator";
 
 @Injectable({
@@ -15,7 +15,7 @@ export class LayoutService {
 	layoutFormat = signal<LayoutFormat>(LayoutFormat.HorizontalCenter);
 	private axisCalculator: AxisLayoutCalculator = createAxisLayoutCalculator(this.layoutFormat());
 	private labelCalculator: LabelLayoutCalculator = createLabelLayoutCalculator(this.layoutFormat());
-	private tickCalculator = new TickCalculator();
+	private tickCalculator = new TickCalculator(TickFormat.FixedNumber);
 	layout = new HgLayout();
 	private input = DEFAULT_LAYOUT_INPUT;
 
