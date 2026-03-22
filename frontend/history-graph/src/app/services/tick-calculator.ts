@@ -2,7 +2,8 @@ import { HDate, HDateFormat, HPeriod } from "../model/historic-date";
 import { HgLayout } from "./layout-types";
 
 export enum TickFormat {
-	Epoch,
+	EpochForTimeline,
+	EpochForViewedPeriod,
 	FixedNumber
 }
 
@@ -12,15 +13,24 @@ export interface Tick {
 }
 
 interface TickRange {
-	period: HPeriod;
+	// Do not use HPeriod here because we have to allow the year value to be zero.
+	startYear: number;
+	endYear: number;
 	interval: number;
 }
 
-export class TickCalculator
-{
+function invalidTickRange(): TickRange {
+	return { startYear: 0, endYear: 0, interval: 0 };
+}
+
+function isValidTickRange(range: TickRange): boolean {
+	return range.interval > 0;
+}
+
+export class TickCalculator {
 	private range?: TickRange;
 
-	constructor(private format: TickFormat) {}
+	constructor(private format: TickFormat) { }
 
 	calculateTicks(
 		period: HPeriod,
@@ -29,22 +39,29 @@ export class TickCalculator
 		recalcInterval = false
 	): Tick[] {
 		const tickInterval = recalcInterval ? undefined : this.range?.interval;
-
-		switch (this.format) {
-			case TickFormat.Epoch:
-				this.range = calcEpochTickRange(period, tickInterval);
-				break;
-			case TickFormat.FixedNumber:
-				this.range = calcFixedNumberTickRange(period, layout, 10, tickInterval);
-				break;
-		}
-		
-		if (this.range.interval === 0) {
+		const viewedPeriod = this.getViewedPeriod(period, layout);
+		if (viewedPeriod === undefined) {
 			return [];
 		}
-		
-		const from = this.range.period.from.year;
-		const to = this.range.period.to.year;
+
+		switch (this.format) {
+		case TickFormat.EpochForTimeline:
+			this.range = this.calcTimelineEpochTickRange(period, tickInterval);
+			break;
+		case TickFormat.EpochForViewedPeriod:
+			this.range = this.calcViewedEpochTickRange(period, viewedPeriod, tickInterval);
+			break;
+		case TickFormat.FixedNumber:
+			this.range = this.calcFixedNumberTickRange(period, viewedPeriod, 10, tickInterval);
+			break;
+		}
+
+		if (!isValidTickRange(this.range)) {
+			return [];
+		}
+
+		const from = this.range.startYear;
+		const to = this.range.endYear;
 		const interval = this.range.interval;
 
 		const ticks: Tick[] = [];
@@ -59,79 +76,99 @@ export class TickCalculator
 		return ticks;
 
 	}
-}
 
-///////////////////
+	private getViewedPeriod(period: HPeriod, layout: HgLayout): HPeriod | undefined {
+		const overview = layout.overview;
+		const startRatio = (overview.viewedBounds.left - overview.axisBounds.left) / overview.axisBounds.width;
+		const viewedStartYear = Math.floor(period.from.year + startRatio * (period.to.year - period.from.year));
+		const endRatio = (overview.viewedBounds.right - overview.axisBounds.left) / overview.axisBounds.width;
+		const viewedEndYear = Math.ceil(period.from.year + endRatio * (period.to.year - period.from.year));
 
-// Calculates a tick range that matches the viewport of the given period and a given number of ticks.
-function calcFixedNumberTickRange(
-	period: HPeriod,
-	layout: HgLayout,
-	numTicks: number,
-	withInterval?: number
-): TickRange {
-	if (numTicks <= 0) {
-		return { period, interval: 0 };
-	}
-	
-	const years = period.to.year - period.from.year;
-	if (years === 0) {
-		return { period, interval: 0 };
+		if (viewedStartYear >= viewedEndYear) {
+			return undefined;
+		}
+		return new HPeriod(new HDate(viewedStartYear), new HDate(viewedEndYear));
 	}
 
-	// Calculate the time period that is displayed.
-	const overview = layout.overview;
-	const startRatio = (overview.viewedBounds.left - overview.axisBounds.left) / overview.axisBounds.width;
-	const viewedStartYear = Math.floor(period.from.year + startRatio * years)	;
-	const endRatio = (overview.viewedBounds.right - overview.axisBounds.left) / overview.axisBounds.width;
-	const viewedEndYear = Math.ceil(period.from.year + endRatio * years);
+	// Calculates a tick range that matches the viewport of the given period and a given number of ticks.
+	private calcFixedNumberTickRange(
+		period: HPeriod,
+		viewedPeriod: HPeriod | undefined,
+		numTicks: number,
+		withInterval?: number
+	): TickRange {
+		if (viewedPeriod === undefined || numTicks <= 0) {
+			return invalidTickRange();
+		}
 
-	const viewedYears = viewedEndYear - viewedStartYear;
+		const viewedYears = viewedPeriod.to.year - viewedPeriod.from.year;
 
-	// For now, no ticks for less than one year time periods.
-	if (viewedYears === 0) {
-		return { period, interval: 0 };
+		// Limit number of ticks to one per year.
+		if (viewedYears < numTicks) {
+			numTicks = viewedYears;
+		}
+
+		const interval = withInterval !== undefined ? withInterval : Math.ceil(viewedYears / numTicks);
+
+		return this.calcTickRange(period, viewedPeriod, interval);
 	}
 
-	// Limit number of ticks to one per year.
-	if (viewedYears < numTicks) {
-		numTicks = viewedYears;
+	// Calculates the tick range that suits the epoch of the given period.
+	// For example, if the period is 100 years long, the interval will be 10 years.
+	// If the period is 1000 years long, the interval will be 100 years.
+	private calcTimelineEpochTickRange(period: HPeriod, withInterval?: number): TickRange {
+		const years = period.to.year - period.from.year;
+		if (years === 0) {
+			return invalidTickRange();
+		}
+
+		let interval = withInterval;
+		if (interval === undefined) {
+			const log = Math.log10(years);
+			interval = Math.pow(10, Math.floor(log));
+		}
+
+		return this.calcTickRange(period, period, interval);
 	}
 
-	const interval = withInterval !== undefined ? withInterval : Math.ceil(viewedYears / numTicks);
-	// Always base the tick period on the timeline start year to avoid jumping of ticks when
-	// panning.
-	const tickStartYear = period.from.year + Math.floor(Math.abs(period.from.year - viewedStartYear) / interval) * interval;
-	const tickEndYear = period.from.year + Math.ceil(Math.abs(period.from.year - viewedEndYear) / interval) * interval;
+	// Calculates the tick range that suits the epoch of the given viewed period.
+	// For example, if the viewed period is 100 years long, the interval will be 10 years.
+	// If the viewed period is 1000 years long, the interval will be 100 years.
+	private calcViewedEpochTickRange(
+		period: HPeriod,
+		viewedPeriod: HPeriod | undefined,
+		withInterval?: number
+	): TickRange {
+		if (viewedPeriod === undefined) {
+			return invalidTickRange();
+		}
 
-	if (tickStartYear >= tickEndYear)
-		return { period, interval: 0};
+		const viewedYears = viewedPeriod.to.year - viewedPeriod.from.year;
 
-	const tickPeriod = new HPeriod(
-		new HDate(tickStartYear),
-		new HDate(tickEndYear)
-	);
+		let interval = withInterval;
+		if (interval === undefined) {
+			const log = Math.log10(viewedYears);
+			interval = Math.pow(10, Math.floor(log));
+		}
 
-	return { period: tickPeriod, interval };
-}
-
-// Calculates the tick range that suits the epoch of the given period.
-// For example, if the period is 100 years long, the interval will be 10 years.
-// If the period is 1000 years long, the interval will be 100 years.
-function calcEpochTickRange(period: HPeriod, withInterval?: number): TickRange {
-	const years = period.to.year - period.from.year;
-	if (years === 0) {
-		return { period, interval: 0 };
-	}
-	
-	let interval = withInterval;
-	if (interval === undefined) {
-		const log = Math.log10(years);
-		interval = Math.pow(10, Math.floor(log));
+		return this.calcTickRange(period, viewedPeriod, interval);
 	}
 
-	const startYear = Math.ceil(period.from.year / interval) * interval;
-	const endYear = Math.floor(period.to.year / interval) * interval;
+	private calcTickRange(
+		period: HPeriod,
+		viewedPeriod: HPeriod,
+		interval: number
+	): TickRange {
+		// Always base the tick period on the timeline start year to avoid jumping of ticks when
+		// panning.
+		const startYear = period.from.year +
+			Math.floor(Math.abs(period.from.year - viewedPeriod.from.year) / interval) * interval;
+		const endYear = period.from.year +
+			Math.ceil(Math.abs(period.from.year - viewedPeriod.to.year) / interval) * interval;
 
-	return { period: new HPeriod(new HDate(startYear), new HDate(endYear)), interval };
+		if (startYear >= endYear)
+			return invalidTickRange();
+
+		return { startYear, endYear, interval };
+	}
 }
