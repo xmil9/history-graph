@@ -46,6 +46,17 @@ export interface AxisLayoutCalculator {
 	): void;
 }
 
+enum DatePositionStatus {
+	BeforeStart,
+	AfterEnd,
+	OnAxis
+}
+
+interface DatePosition {
+	status: DatePositionStatus;
+	position: Point2D;
+}
+
 ///////////////////
 
 class BaseAxisLayoutCalculator implements AxisLayoutCalculator {
@@ -163,7 +174,7 @@ class BaseAxisLayoutCalculator implements AxisLayoutCalculator {
 				tlLayout.axis.bounds,
 				eventPeriodHeight
 			);
-			return new EventPosition(eventGraphic, start, end, periodBounds);
+			return new EventPosition(eventGraphic, start.position, end?.position, periodBounds);
 		});	
 	}
 
@@ -173,7 +184,7 @@ class BaseAxisLayoutCalculator implements AxisLayoutCalculator {
 		axisStartPos: Point2D,
 		axisEndPos: Point2D,
 		axisBounds: Rect2D
-	): Point2D | undefined {
+	): DatePosition | undefined {
 		if (date === undefined) {
 			return undefined;
 		}
@@ -184,25 +195,34 @@ class BaseAxisLayoutCalculator implements AxisLayoutCalculator {
 		const dateX = axisStartPos.x + (dateRatio * axisDistance);
 		const pos = new Point2D(dateX, axisStartPos.y);
 
-		return axisBounds.contains(pos) ? pos : Point2D.invalid();
+		if (pos.x < axisBounds.left)
+			return { status: DatePositionStatus.BeforeStart, position: Point2D.invalid() };
+		if (pos.x > axisBounds.right)
+			return { status: DatePositionStatus.AfterEnd, position: Point2D.invalid() };
+		return { status: DatePositionStatus.OnAxis, position: pos };
 	}
 
 	protected calcPeriodBounds(
-		start: Point2D,
-		end: Point2D | undefined,
+		start: DatePosition,
+		end: DatePosition | undefined,
 		axisBounds: Rect2D,
 		eventPeriodHeight: number
 	): Rect2D | undefined {
-		let left = start.x;
-		let right = end?.x;
+		let left = start.position.x;
+		let right = end?.position.x;
 
 		// Check for no period bounds at all.
+		// 1. If end is undefined, no period bounds.
 		if (right === undefined)
 			return undefined;
-		if (left === INVALID_POSITION_SENTINEL && right === INVALID_POSITION_SENTINEL)
+		// 2. If both start and end are outside the axis bounds but not on opposite sides, no period bounds.
+		if (left === INVALID_POSITION_SENTINEL && right === INVALID_POSITION_SENTINEL &&
+			!(start.status === DatePositionStatus.BeforeStart && end?.status === DatePositionStatus.AfterEnd))
 			return undefined;
+		// 3. If start is off to the right, no period bounds.
 		if (left >= axisBounds.right && left !== INVALID_POSITION_SENTINEL)
 			return undefined;
+		// 4. If end is off to the left, no period bounds.
 		if (right <= axisBounds.left && right !== INVALID_POSITION_SENTINEL)
 			return undefined;
 
@@ -240,7 +260,7 @@ class BaseAxisLayoutCalculator implements AxisLayoutCalculator {
 		combinedTimeline: TimelineGraphic,
 		tlLayout: TimelineLayout
 	): Point2D {
-		const pos = this.calcDatePosition(
+		const datePos = this.calcDatePosition(
 			tick.date,
 			combinedTimeline,
 			tlLayout.axis.startPosition,
@@ -248,7 +268,7 @@ class BaseAxisLayoutCalculator implements AxisLayoutCalculator {
 			tlLayout.axis.bounds
 		);
 
-		return pos !== undefined ? pos : Point2D.invalid();
+		return datePos !== undefined ? datePos.position : Point2D.invalid();
 	}
 
 	protected calcTickLabelPositions(tlLayout: TimelineLayout): Point2D[] {
@@ -339,7 +359,7 @@ class BaseAxisLayoutCalculator implements AxisLayoutCalculator {
 				axisStartPos,
 				axisEndPos,
 				layout.overview.axisBounds
-			)!;
+			)!;  // <-- Assert to be not undefined!
 			const end = this.calcDatePosition(
 				eventGraphic.hEvent.until,
 				combinedTimeline,
@@ -353,7 +373,7 @@ class BaseAxisLayoutCalculator implements AxisLayoutCalculator {
 				layout.overview.axisBounds,
 				layout.overview.periodBarHeight / 2
 			);
-			return new EventPosition(eventGraphic, start, end, periodBounds);
+			return new EventPosition(eventGraphic, start.position, end?.position, periodBounds);
 		});
 	}
 
