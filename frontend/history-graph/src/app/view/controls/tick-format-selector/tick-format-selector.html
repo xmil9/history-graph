@@ -1,0 +1,10 @@
+<div class="tick-format-selector">
+  <label class="selector-label" for="tick-format">Tick Format:</label>
+  <select id="tick-format" (change)="onFormatChange($event)">
+    @for (format of allTickFormats; track format.value) {
+      <option [value]="format.value" [selected]="isActive(format.value)">
+        {{ format.label }}
+      </option>
+    }
+  </select>
+</div>

@@ -2,6 +2,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import { MDYYYYFormat, DEFAULT_DATE_FORMAT } from '../model/historic-date';
 import { LabeledDateFormat, LayoutFormat } from './preference-types';
 import { LayoutService } from './layout.service';
+import { TickFormat } from './tick-calculator';
 
 @Injectable({
 	providedIn: 'root'
@@ -35,5 +36,19 @@ export class PreferenceService {
 	setLayoutFormat(format: LayoutFormat) {
 		this.layoutFormat.set(format);
 		this.layoutService.setLayoutFormat(format);
+	}
+
+	// Tick format
+	allTickFormats = [
+		{ value: TickFormat.DynamicEpoch, label: 'Dynamic Epoch' },
+		{ value: TickFormat.TimelineEpoch, label: 'Timeline Epoch' },
+		{ value: TickFormat.FixedNumber, label: 'Fixed Number' },
+	];
+
+	tickFormat = signal<TickFormat>(TickFormat.DynamicEpoch);
+
+	setTickFormat(format: TickFormat) {
+		this.tickFormat.set(format);
+		this.layoutService.setTickFormat(format);
 	}
 }

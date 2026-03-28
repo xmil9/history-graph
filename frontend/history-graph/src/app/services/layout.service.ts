@@ -15,7 +15,7 @@ export class LayoutService {
 	layoutFormat = signal<LayoutFormat>(LayoutFormat.HorizontalCenter);
 	private axisCalculator: AxisLayoutCalculator = createAxisLayoutCalculator(this.layoutFormat());
 	private labelCalculator: LabelLayoutCalculator = createLabelLayoutCalculator(this.layoutFormat());
-	private tickCalculator = new TickCalculator(TickFormat.EpochForViewedPeriod);
+	private tickCalculator = new TickCalculator(TickFormat.DynamicEpoch);
 	layout = new HgLayout();
 	private input = DEFAULT_LAYOUT_INPUT;
 
@@ -32,6 +32,11 @@ export class LayoutService {
 		this.labelCalculator = createLabelLayoutCalculator(this.layoutFormat());
 
 		this.calculateLayout(keepViewport);
+	}
+
+	setTickFormat(format: TickFormat): void {
+		this.tickCalculator = new TickCalculator(format);
+		this.calculateTicks(true);
 	}
 
 	resetLayout(resetTicks: boolean = false): void {

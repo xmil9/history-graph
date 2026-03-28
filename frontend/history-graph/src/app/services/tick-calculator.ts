@@ -2,8 +2,8 @@ import { HDate, HDateFormat, HPeriod } from "../model/historic-date";
 import { HgLayout } from "./layout-types";
 
 export enum TickFormat {
-	EpochForTimeline,
-	EpochForViewedPeriod,
+	TimelineEpoch,
+	DynamicEpoch,
 	FixedNumber
 }
 
@@ -45,10 +45,10 @@ export class TickCalculator {
 		}
 
 		switch (this.format) {
-		case TickFormat.EpochForTimeline:
+		case TickFormat.TimelineEpoch:
 			this.range = this.calcTimelineEpochTickRange(period, tickInterval);
 			break;
-		case TickFormat.EpochForViewedPeriod:
+		case TickFormat.DynamicEpoch:
 			this.range = this.calcViewedEpochTickRange(period, viewedPeriod, tickInterval);
 			break;
 		case TickFormat.FixedNumber:
