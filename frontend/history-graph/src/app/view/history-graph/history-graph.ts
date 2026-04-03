@@ -13,6 +13,7 @@ import { HDateFormat } from '../../model/historic-date';
 import { TimelineView } from '../graph/timeline-view/timeline-view';
 import { EventLabels } from '../graph/event-labels/event-labels';
 import { TimelineLegend } from '../controls/timeline-legend/timeline-legend';
+import { MapComponent } from '../graph/map/map.component';
 
 const DEFAULT_TL_TEXT_STYLE: TextStyle = {
 	...DEFAULT_TEXT_STYLE,
@@ -31,7 +32,8 @@ const DEFAULT_TL_TEXT_STYLE: TextStyle = {
 		EventOverlay,
 		PreferenceView,
 		PromptView,
-		TimelineLegend
+		TimelineLegend,
+		MapComponent
 	],
 	templateUrl: './history-graph.html',
 	styleUrl: './history-graph.css'
@@ -41,7 +43,7 @@ export class HistoryGraph implements AfterViewInit {
 	private layoutService = inject(LayoutService);
 	private preferenceService = inject(PreferenceService);
 
-	@ViewChild('historyGraphArea', { read: ElementRef }) historyGraphAreaElem!: ElementRef<HTMLDivElement>;
+	@ViewChild('timelineArea', { read: ElementRef }) timelineAreaElem!: ElementRef<HTMLDivElement>;
 
 	// Content
 	dateFormat = computed<HDateFormat>(() => {
@@ -112,8 +114,8 @@ export class HistoryGraph implements AfterViewInit {
 	}
 
 	private updateViewSize(): void {
-		if (this.historyGraphAreaElem?.nativeElement) {
-			const rect = this.historyGraphAreaElem.nativeElement.getBoundingClientRect();
+		if (this.timelineAreaElem?.nativeElement) {
+			const rect = this.timelineAreaElem.nativeElement.getBoundingClientRect();
 			console.log('viewSize', rect);
 			this.viewSize.set(new Size2D(rect.width, rect.height));
 		}

@@ -197,7 +197,7 @@ class HorizontalLeftLabelCalculator extends LabelLayoutCalculator {
 	// Offset for the first row of labels to avoid overlapping with the axis.
 	private readonly firstRowOffsetY = 10;
 	// Offset of the last row of labels to the bottom of the label area.
-	private readonly lastRowOffsetY = 20;
+	private readonly lastRowOffsetY = 0;
 	// Offset of labels from the left side of the label area.
 	private readonly labelOffsetX = 50;
 
@@ -291,7 +291,7 @@ class HorizontalCenterLabelCalculator extends LabelLayoutCalculator {
 	// Offset for the first row of labels to avoid overlapping with the axis.
 	private readonly firstRowOffsetY = 10;
 	// Offset of the last row of labels to the bottom of the label area.
-	private readonly lastRowOffsetY = 20;
+	private readonly lastRowOffsetY = 0;
 
 	calculate(
 		timelines: TimelineGraphic[],

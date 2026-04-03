@@ -1,0 +1,14 @@
+:host {
+	display: block;
+	padding: 16px;
+	box-sizing: border-box;
+}
+
+.map-container,
+.map-frame,
+#map {
+	height: 100%;
+	width: 100%;
+	border-radius: 8px; /* Added slight rounding for styling, optional but nice */
+	overflow: hidden;
+}

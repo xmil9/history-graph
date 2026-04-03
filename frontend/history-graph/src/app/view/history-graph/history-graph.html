@@ -3,7 +3,7 @@
 		<prompt-view (submit)="onPromptEntered($event)" [isLoading]="isLoading()" />
 		<preference-view />
 	</div>
-	<div #historyGraphArea class="history-graph-area">
+	<div #timelineArea class="history-graph-area">
 		<timeline-legend
 			[timelines]="timelines()"
 			[combinedTimeline]="combinedTimeline()"
@@ -28,6 +28,7 @@
 			<g event-mapping />
 		</svg>
 	</div>
+	<tl-map />
 	
 	<!-- Global overlay component for timeline events -->
 	<event-overlay [dateFormat]="dateFormat()" />
