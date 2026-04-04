@@ -1,5 +1,6 @@
-import { AfterViewInit, ChangeDetectorRef, Component, inject } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, effect, inject } from '@angular/core';
 import { TimelineMap } from '../../../services/timeline-map';
+import { TimelineService } from '../../../services/timeline.service';
 
 @Component({
 	selector: 'tl-map',
@@ -9,21 +10,32 @@ import { TimelineMap } from '../../../services/timeline-map';
 	styleUrl: './map.component.css'
 })
 export class MapComponent implements AfterViewInit {
-	private cd = inject(ChangeDetectorRef);
+	private timelineService = inject(TimelineService);
 	private map?: TimelineMap;
 
-	constructor() { }
+	timelines = this.timelineService.timelines;
+
+	constructor() {
+		// Repopulate the map when the timeline set changes.
+		effect(() => {
+			this.populateMap();
+		});
+	}
 
 	ngAfterViewInit(): void {
 		this.initMap();
-		this.initTrails();
-		this.cd.detectChanges();
+		this.populateMap();
 	}
 
 	private initMap(): void {
 		this.map = new TimelineMap('map');
 	}
 
-	private initTrails() {
+	private populateMap() {
+		this.map?.clear();
+
+		this.timelines().forEach((timeline) => {
+			this.map?.addTimeline(timeline);
+		});
 	}
 }
