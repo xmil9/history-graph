@@ -2,12 +2,17 @@ import * as z from "zod";
 import { Timeline } from "./timeline";
 import { HEvent } from "./historic-event";
 import { HDate, HPeriod } from "./historic-date";
+import { GeoLocation } from "./geo-location";
 
 const EventInputSchema = z.object({
 	label: z.string(),
 	start_date: z.string(),
 	end_date: z.string().nullable().optional(),
-	description: z.string().optional()
+	description: z.string().optional(),
+	locations: z.array(z.object({
+		latitude: z.number(),
+		longitude: z.number()
+	})).optional()
 });
 type EventInput = z.infer<typeof EventInputSchema>;
 
@@ -36,6 +41,9 @@ function parseEvents(events: EventInput[], timelineId: number): HEvent[] {
 			const startDate = parseDate(event.start_date);
 			const endDate = event.end_date ? parseDate(event.end_date) : undefined;
 			const isPeriod = endDate && !endDate.equals(startDate);
+
+			const location = event.locations && event.locations.length > 0 ?
+				new GeoLocation(event.locations[0].latitude, event.locations[0].longitude) : undefined;
 			
 			if (isPeriod) {
 				return new HEvent(
@@ -43,7 +51,8 @@ function parseEvents(events: EventInput[], timelineId: number): HEvent[] {
 					event.label,
 					timelineId,
 					eventIdx,
-					event.description
+					event.description,
+					location
 				);
 			}
 
@@ -52,7 +61,8 @@ function parseEvents(events: EventInput[], timelineId: number): HEvent[] {
 				event.label,
 				timelineId,
 				eventIdx,
-				event.description
+				event.description,
+				location
 			);
 		}
 		catch (error) {

@@ -1,3 +1,4 @@
+import { GeoLocation } from "./geo-location";
 import { duration, HDate, HDuration, HPeriod } from "./historic-date";
 
 export class HEvent {
@@ -5,6 +6,7 @@ export class HEvent {
 	readonly until?: HDate;
 	readonly label: string;
 	readonly description?: string;
+	readonly location?: GeoLocation;
 	readonly timelineId: number;
 	readonly eventIdx: number;
 
@@ -18,13 +20,35 @@ export class HEvent {
 		return this.isPeriod ? duration(this.when, this.until!) : 0;
 	}
 
-	constructor(when: HDate, label: string, timelineId: number, eventIdx: number, description?: string);
-	constructor(period: HPeriod, label: string, timelineId: number, eventIdx: number, description?: string);
-	constructor(time: HDate | HPeriod, label: string, timelineId: number, eventIdx: number, description?: string) {
+	constructor(
+		when: HDate,
+		label: string,
+		timelineId: number,
+		eventIdx: number,
+		description?: string,
+		location?: GeoLocation
+	);
+	constructor(
+		period: HPeriod,
+		label: string,
+		timelineId: number,
+		eventIdx: number,
+		description?: string,
+		location?: GeoLocation
+	);
+	constructor(
+		time: HDate | HPeriod,
+		label: string,
+		timelineId: number,
+		eventIdx: number,
+		description?: string,
+		location?: GeoLocation
+	) {
 		this.when = time instanceof HDate ? time : time.from;
 		this.until = time instanceof HPeriod ? time.to : undefined;
 		this.label = label;
 		this.description = description;
+		this.location = location;
 		this.timelineId = timelineId;
 		this.eventIdx = eventIdx;
 	}
