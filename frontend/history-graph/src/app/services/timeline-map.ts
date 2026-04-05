@@ -32,6 +32,7 @@ export class TimelineMap extends L.Map {
 
 	private initInteractionEvents() {
 		this.on('click', this.onMapClicked.bind(this));
+		this.on('zoomend', this.onMapZoomEnd.bind(this));
 	}
 
 	private onMapClicked(e: L.LeafletMouseEvent) {
@@ -40,6 +41,16 @@ export class TimelineMap extends L.Map {
 		if (clickedMarkers.length > 0) {
 			this.showPopup(formatEventsAsHtml(clickedMarkers.map(m => m.tlEvent)), e.latlng);
 		}
+	}
+
+	private onMapZoomEnd(e: L.LeafletEvent) {
+		const zoom = this.getZoom();
+		// Exponential scaling: radius doubles for each zoom level zoomed out.
+		// This maintains a relatively consistent visual size in pixels on the screen.
+		const newRadius = Math.pow(2, 18 - zoom) * 15;
+		this.markers.forEach((marker) => {
+			marker.setRadius(newRadius);
+		});
 	}
 
 	private findEventMarkersAt(at: GeoCoord) {
@@ -64,11 +75,14 @@ export class TimelineMap extends L.Map {
 			return;
 		}
 
+		const currentZoom = this.getZoom();
+		const radius = Math.pow(2, 18 - currentZoom) * 15;
+
 		const marker = new EventGeoMarker(
 			event,
 			[event.hEvent.location.lat, event.hEvent.location.lng],
 			event.theme.primaryColor,
-			200
+			radius
 		);
 		marker.addTo(this);
 		this.markers.push(marker);
