@@ -1,6 +1,7 @@
 import * as L from 'leaflet';
 import { EventGraphic, TimelineGraphic } from './graphic-types';
-import { EventGeoMarker } from './geo-types';
+import { EventGeoMarker, GeoCoord } from './geo-types';
+import { formatEventsAsHtml } from './event-geo-formating';
 
 export class TimelineMap extends L.Map {
 	private markers = new Array<EventGeoMarker>();
@@ -34,6 +35,22 @@ export class TimelineMap extends L.Map {
 	}
 
 	private onMapClicked(e: L.LeafletMouseEvent) {
+		const clickedMarkers = this.findEventMarkersAt(e.latlng);
+		
+		if (clickedMarkers.length > 0) {
+			this.showPopup(formatEventsAsHtml(clickedMarkers.map(m => m.tlEvent)), e.latlng);
+		}
+	}
+
+	private findEventMarkersAt(at: GeoCoord) {
+		return this.markers.filter(marker => marker.getBounds().contains(at));
+	}
+
+	private showPopup(content: string, at: GeoCoord) {
+		this.tlEventPopup
+			.setLatLng(at)
+			.setContent(content)
+			.openOn(this);
 	}
 
 	addTimeline(timeline: TimelineGraphic) {
