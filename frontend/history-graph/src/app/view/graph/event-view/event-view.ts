@@ -7,6 +7,7 @@ import { LayoutService } from '../../../services/layout.service';
 import { PreferenceService } from '../../../services/preference.service';
 import { EventGraphic, TimelineGraphic } from '../../../services/graphic-types';
 import { formatEventLabel } from '../../../services/layout-utils';
+import { MapService } from '../../../services/map.service';
 
 @Component({
 	selector: '[tl-event]',
@@ -18,6 +19,7 @@ export class EventView {
 	private overlayService = inject(EventOverlayService);
 	private layoutService = inject(LayoutService);
 	private preferenceService = inject(PreferenceService);
+	private mapService = inject(MapService);
 
 	// Expose types for template
 	SvgIconOrigin = SvgIconOrigin;
@@ -88,6 +90,7 @@ export class EventView {
 			mouseEvent.clientX,
 			mouseEvent.clientY
 		);
+		this.mapService.highlightTimelineEvent(this.tlEvent());
 	}
 
 	onMarkerMouseMove(mouseEvent: MouseEvent) {
@@ -102,5 +105,6 @@ export class EventView {
 
 	onMarkerMouseLeave() {
 		this.overlayService.clearOverlay();
+		this.mapService.unhighlightTimelineEvent(this.tlEvent());
 	}
 }

@@ -94,4 +94,18 @@ export class TimelineMap extends L.Map {
 		});
 		this.markers.length = 0;
 	}
+
+	hightlightTimelineEvent(event: EventGraphic) {
+		const marker = this.markers.find(marker => marker.tlEvent.equals(event));
+		if (marker) {
+			marker.highlight();
+		}
+	}
+
+	unhightlightTimelineEvent(event: EventGraphic) {
+		const marker = this.markers.find(marker => marker.tlEvent.equals(event));
+		if (marker) {
+			marker.unhighlight();
+		}
+	}
 }

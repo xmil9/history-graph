@@ -52,4 +52,8 @@ export class EventGraphic {
 		public readonly theme: TimelineTheme
 	) {
 	}
+
+	equals(other: EventGraphic): boolean {
+		return this.hEvent.equals(other.hEvent);
+	}
 }

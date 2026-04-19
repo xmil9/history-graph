@@ -74,4 +74,8 @@ export class HEvent {
 	greaterEqual(other: HEvent): boolean {
 		return !this.less(other);
 	}
+
+	equals(other: HEvent): boolean {
+		return this.timelineId === other.timelineId && this.eventIdx === other.eventIdx;
+	}
 }
