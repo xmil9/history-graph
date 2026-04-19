@@ -123,6 +123,11 @@ export class HDate {
 			time += DaysInMonth[i - 1];
 		return time;
 	}
+
+	static now(): HDate {
+		const now = new Date();
+		return new HDate(now.getFullYear(), now.getMonth() + 1, now.getDate());
+	}
 }
 
 const DaysInMonth = [ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 ];

@@ -56,20 +56,27 @@ export class TimelineService {
 		const combinedTitle = 'Overview';
 
 		// Collect the combined data.
-		let combinedStart = new HDate(1);
-		let combinedEnd = new HDate(2026);
+		let combinedStart: HDate | undefined = undefined;
+		let combinedEnd: HDate | undefined = undefined;
 		const combinedEvents: EventGraphic[] = [];
 
 		this.hgGraphic().timelines.map(tlGraphic => {
-			if (tlGraphic.from.less(combinedStart)) {
+			if (!combinedStart || tlGraphic.from.less(combinedStart)) {
 				combinedStart = tlGraphic.from;
 			}
-			if (tlGraphic.to.greater(combinedEnd)) {
+			if (!combinedEnd || tlGraphic.to.greater(combinedEnd)) {
 				combinedEnd = tlGraphic.to;
 			}
 
 			combinedEvents.push(...tlGraphic.eventGraphics);
 		});
+
+		if (!combinedStart) {
+			combinedStart = HDate.now();
+		}
+		if (!combinedEnd) {
+			combinedEnd = HDate.now();
+		}
 
 		// Sort the combined events.
 		combinedEvents.sort((a, b) => a.hEvent.less(b.hEvent) ? -1 : 1);
