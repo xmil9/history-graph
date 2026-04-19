@@ -27,7 +27,9 @@ export class MapService {
 		this.map?.clear();
 
 		this.timelines().forEach((timeline) => {
-			this.map?.addTimeline(timeline);
+			if (timeline.isVisible()) {
+				this.map?.addTimeline(timeline);
+			}
 		});
 	}
 
