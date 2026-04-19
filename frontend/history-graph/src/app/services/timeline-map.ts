@@ -99,6 +99,7 @@ export class TimelineMap extends L.Map {
 		const marker = this.markers.find(marker => marker.tlEvent.equals(event));
 		if (marker) {
 			marker.highlight();
+			this.panTo(marker.getLatLng());
 		}
 	}
 
