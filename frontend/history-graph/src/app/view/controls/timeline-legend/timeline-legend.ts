@@ -52,11 +52,11 @@ export class TimelineLegend {
 
 	toggle(id: number): void {
 		this.timelineService.toggleTimelineVisibility(id);
-		this.layoutService.refreshLayout();
+		setTimeout(() => this.layoutService.refreshLayout(), 0);
 	}
 
 	remove(id: number): void {
 		this.timelineService.removeTimeline(id);
-		this.layoutService.refreshLayout();
+		setTimeout(() => this.layoutService.refreshLayout(), 0);
 	}
 }
