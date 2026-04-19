@@ -20,7 +20,7 @@ app.get('/api/generate-timeline', async (req, res) => {
 		const instructions = `Generate a timeline for the topic: "${topic}". Format the response as a JSON object. The timeline should have a title for the topic, a start and and end date for the covered time period, and an array of events. The key for the title should be "title". The key for the timeline start date should be "start_date". The key for the timeline end date should be "end_date". The key for the events should be "events". The events should be in the format of a JSON array of objects. For each event, provide the start date, end date (if there is one), a label, a short description, and one or more geographical locations where the event took place. The key for the event start date should be "start_date". The key for the event end date should be "end_date". The key for the event label should be "label". The key for the event description should be "description". The key for the event locations should be "locations". The dates should be in the format YYYY-MM-DD if the day is known, in the format YYYY-MM if the month is known, or YYYY if the year is known. Years with less than 4 digits should *not* be padded with zeros. For any date before the year 0 should use a negative year number. The dates should always be strings. The format of the geographical locations should be an array of objects with keys "longitude" and "latitude". The longitude and latitude values should be decimal numbers. Sort the events in chronological order. Do not include any other text in the response.`;
 
 		const response = await ai.models.generateContent({
-			model: "gemma-3-27b-it",
+			model: "gemma-4-31b-it",
 			contents: `${instructions}`,
 		});
 		console.debug("Response: ", response.text);
