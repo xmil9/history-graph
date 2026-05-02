@@ -328,7 +328,7 @@ class HorizontalCenterLabelCalculator extends LabelLayoutCalculator {
 				tlLayout.axis.contains(eventPos.start);
 
 			// Calculate the position of the label.
-			let labelCoord = Point2D.invalid();
+			let labelPt = Point2D.invalid();
 			if (isLabelVisible) {
 				const labelText = formatEventLabel(eventGraphic.hEvent, this.input.dateFormat);
 				const textMetrics = context.measureText(labelText);
@@ -341,11 +341,10 @@ class HorizontalCenterLabelCalculator extends LabelLayoutCalculator {
 				// Update max x-coordinate for the used row.
 				maxXPerRow[rowIdx] = Math.max(maxXPerRow[rowIdx] || 0, labelX + textWidth);
 
-				labelCoord.x = labelX;
-				labelCoord.y = labelY;
+				labelPt = new Point2D(labelX, labelY);
 			}
 
-			const labelPos = new LabelPosition(eventGraphic, labelCoord);
+			const labelPos = new LabelPosition(eventGraphic, labelPt);
 			const connectorPath = this.calcConnectorPath(eventPos, labelPos);
 
 			layout.labels.items.push(new LabelLayout(labelPos, connectorPath));

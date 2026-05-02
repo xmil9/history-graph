@@ -28,13 +28,11 @@ export class EventMapping {
 	}
 	
 	// Positioning
-	private getTimelineLayout(hEvent: HEvent): TimelineLayout {
+	private getTimelineLayout(hEvent: HEvent): TimelineLayout | undefined {
 		const timelineId = hEvent.timelineId;
 		const match = this.layoutService.layout.timelines.items.find(
-			(tlLayout) => tlLayout.timelineId === timelineId);
-		if (match === undefined) {
-			throw new Error(`Timeline layout not found for timeline id ${timelineId}`);
-		}
+			(tlLayout) => tlLayout.timelineId === timelineId
+		);
 		return match;
 	}
 
@@ -46,6 +44,9 @@ export class EventMapping {
 			return undefined;
 		}
 		const tlLayout = this.getTimelineLayout(hEvent);
+		if (!tlLayout) {
+			return undefined;
+		}
 		const eventIdx = hEvent.eventIdx;
 		const startPos = tlLayout.eventPositions[eventIdx].start;
 		return tlLayout.axis.contains(startPos) ? startPos : undefined;
@@ -55,6 +56,9 @@ export class EventMapping {
 			return undefined;
 		}
 		const tlLayout = this.getTimelineLayout(hEvent);
+		if (!tlLayout) {
+			return undefined;
+		}
 		const eventIdx = hEvent.eventIdx;
 		const endPos = tlLayout.eventPositions[eventIdx].end;
 		return (endPos && tlLayout.axis.contains(endPos)) ? endPos : undefined;

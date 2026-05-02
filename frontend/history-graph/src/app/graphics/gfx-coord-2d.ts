@@ -7,8 +7,8 @@ export const INVALID_POSITION_SENTINEL = 1e10; // 10,000,000,000
 
 export class Point2D {
 	constructor(
-		public x: number,
-		public y: number,
+		public readonly x: number,
+		public readonly y: number,
 	) {}
 
 	static empty(): Point2D {
@@ -26,8 +26,8 @@ export class Point2D {
 
 export class Rect2D {
 	constructor(
-		private tl: Point2D,
-		private br: Point2D,
+		private readonly tl: Point2D,
+		private readonly br: Point2D,
 	) {}
 
 	static fromCoordinates(left: number, top: number, right: number, bottom: number): Rect2D {
@@ -107,11 +107,97 @@ export class Rect2D {
 }
 
 export class Size2D {
-	public width: number;
-	public height: number;
+	public readonly width: number;
+	public readonly height: number;
 	
 	constructor(width: number, height?: number) {
 		this.width = width;
 		this.height = height ?? width;
+	}
+
+	equals(other: Size2D): boolean {
+		return this.width === other.width && this.height === other.height;
+	}
+
+	isEmpty(): boolean {
+		return this.width <= 0 || this.height <= 0;
+	}
+
+	static empty(): Size2D {
+		return new Size2D(0);
+	}
+}
+
+export class Viewport2D {
+	constructor(
+		public readonly offset: Point2D,
+		public readonly scale: number
+	) {}
+
+	static identity(): Viewport2D {
+		return new Viewport2D(Point2D.empty(), 1);
+	}
+
+	translate(offset: Point2D): Viewport2D {
+		return new Viewport2D(
+			this.offset.translate(offset.x, offset.y),
+			this.scale
+		);
+	}
+
+	zoomAt(center: Point2D, factor: number): Viewport2D {
+		if (factor === 0)
+			return this;
+
+		const newOffsetX = center.x - (center.x - this.offset.x) * factor;
+		
+		return new Viewport2D(
+			new Point2D(newOffsetX, this.offset.y),
+			this.scale * factor
+		);
+	}
+
+	transformX(val: number): number {
+		return val * this.scale + this.offset.x;
+	}
+
+	transformY(val: number): number {
+		return val * this.scale + this.offset.y;
+	}
+
+	transformPoint(pos: Point2D): Point2D {
+		return new Point2D(
+			pos.x * this.scale + this.offset.x,
+			pos.y * this.scale + this.offset.y
+		);
+	}
+
+	transformRect(rect: Rect2D): Rect2D {
+		return new Rect2D(
+			this.transformPoint(rect.topLeft),
+			this.transformPoint(rect.bottomRight)
+		);
+	}
+
+	invertX(val: number): number {
+		return (val - this.offset.x) / this.scale;
+	}
+
+	invertY(val: number): number {
+		return (val - this.offset.y) / this.scale;
+	}
+
+	invertPoint(pos: Point2D): Point2D {
+		return new Point2D(
+			(pos.x - this.offset.x) / this.scale,
+			(pos.y - this.offset.y) / this.scale
+		);
+	}
+
+	invertRect(rect: Rect2D): Rect2D {
+		return new Rect2D(
+			this.invertPoint(rect.topLeft),
+			this.invertPoint(rect.bottomRight)
+		);
 	}
 }

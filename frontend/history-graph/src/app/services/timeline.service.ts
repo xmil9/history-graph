@@ -27,7 +27,7 @@ export class TimelineService {
 	}
 
 	public getTimeline(id: number): TimelineGraphic | undefined {
-		if (id === this.	combinedTimeline().timeline.id) {
+		if (id === this.combinedTimeline().timeline.id) {
 			return this.combinedTimeline();
 		}
 		return this.hgGraphic().timelines.find(tl => tl.timeline.id === id);

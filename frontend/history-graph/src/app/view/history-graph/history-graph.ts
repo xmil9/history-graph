@@ -92,12 +92,14 @@ export class HistoryGraph implements AfterViewInit {
 			// Trigger a layout update when any of the inputs change.
 			effect(() => {
 				try {
-					this.layoutService.updateLayout({
-						viewSize: this.viewSize(),
-						textStyle: this.textStyle(),
-						lineStyle: this.lineStyle(),
-						dateFormat: this.dateFormat(),
-					});
+					if (!this.viewSize().isEmpty()) {
+						this.layoutService.updateLayout({
+							viewSize: this.viewSize(),
+							textStyle: this.textStyle(),
+							lineStyle: this.lineStyle(),
+							dateFormat: this.dateFormat(),
+						});
+					}
 				} catch (e) {
 					console.error('Error in layout update effect:', e);
 				}

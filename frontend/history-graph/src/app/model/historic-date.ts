@@ -19,7 +19,7 @@ export class HDate {
 		public readonly circa = false,
     ) {
 		if (this.year === 0) {
-			console.warn('Year zero is not a valid year. Setting year to one.')
+			// console.warn('Year zero is not a valid year. Setting year to one.')
 			this.year = 1;
 		}
 		if (this.month) {
@@ -196,6 +196,8 @@ export function duration(from: HDate, to: HDate): HDuration {
 
 // Historic time period. A span between two dates.
 export class HPeriod {
+	private _duration: HDuration | undefined = undefined;
+	
 	constructor(
 		public readonly from: HDate,
 		public readonly to: HDate,
@@ -204,18 +206,20 @@ export class HPeriod {
 			throw new Error('Unable to create historic period. Start date must be less than end date.');
 	}
 
-	contains(date: HDate): boolean {
-		return date.greaterEqual(this.from) && date.less(this.to);
+	get duration(): HDuration {
+		if (this._duration === undefined)
+			this._duration = duration(this.from, this.to);
+		return this._duration;
 	}
 
-	position(date: HDate): number | undefined {
+	contains(date: HDate): boolean {
+		return date.greaterEqual(this.from) && date.lessEqual(this.to);
+	}
+
+	getRatio(date: HDate): number | undefined {
 		if (!this.contains(date))
 			return undefined;
 		return duration(this.from, date) / this.duration;
-	}
-
-	get duration(): HDuration {
-		return duration(this.from, this.to);
 	}
 }
 

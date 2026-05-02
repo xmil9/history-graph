@@ -42,7 +42,12 @@ export class EventView {
 		return this.layoutService.layout.timelines.items[this.timelineIdx()];
 	}
 	private get eventPosition() {
-		return this.timelineLayout.eventPositions[this.eventIdx()];
+		if (this.timelineLayout &&
+			this.timelineLayout.eventPositions &&
+			this.timelineLayout.eventPositions.length > this.eventIdx()) {
+			return this.timelineLayout.eventPositions[this.eventIdx()];
+		}
+		return undefined;
 	}
 
 	// Positioning
@@ -61,7 +66,7 @@ export class EventView {
 		return pos.end;
 	}
 	get eventMarkerSize(): Size2D {
-		return this.timelineLayout.eventMarkerSize;
+		return this.timelineLayout?.eventMarkerSize ?? Size2D.empty();
 	}
 	get periodBounds(): Rect2D {
 		const pos = this.eventPosition;

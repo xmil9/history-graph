@@ -2,6 +2,7 @@ import { Point2D, Rect2D, Size2D } from "../graphics/gfx-coord-2d";
 import { DEFAULT_LINE_STYLE, DEFAULT_TEXT_STYLE, LineStyle, TextStyle } from "../graphics/gfx-style";
 import { DEFAULT_DATE_FORMAT, HDateFormat } from "../model/historic-date";
 import { EventGraphic } from "./graphic-types";
+import { DEFAULT_DATE_PROJECTION } from "../model/projection";
 
 const DEFAULT_AXIS_BORDER_MARKER_SIZE = new Size2D(16);
 const DEFAULT_AXIS_EVENT_MARKER_SIZE = new Size2D(8);
@@ -19,6 +20,8 @@ export class HgLayout {
 }
 
 export class OverviewLayout {
+	// Projection of the timeline.
+	projection = DEFAULT_DATE_PROJECTION;
 	// On-screen bounds of the overview display area.
 	bounds = Rect2D.empty();
 	// On-screen bounds of the axis display area in the overview.
@@ -42,12 +45,14 @@ export class TimelinesLayout {
 	bounds = Rect2D.empty();
 	// Individual timeline layouts.
 	items: TimelineLayout[] = [];
-	// The current viewport of the timeline axes.
-	viewport: TimelineViewport = DEFAULT_VIEWPORT;
 }
 
 export class TimelineLayout {
+	// Projection of the timeline.
+	projection = DEFAULT_DATE_PROJECTION;
+	// Axis layout.
 	axis = new AxisLayout();
+	// Event positions.
 	eventPositions: EventPosition[] = [];
 	// Size of the event markers on the timeline axis.
 	eventMarkerSize = DEFAULT_AXIS_EVENT_MARKER_SIZE;
@@ -68,9 +73,9 @@ export class TimelineLayout {
 export class AxisLayout {
 	// On-screen bounds of the axis display area.
 	bounds = Rect2D.empty();
-	// On-screen position of the start of the axis.
+	// Virtual position of the start of the axis.
 	startPosition = Point2D.empty();
-	// On-screen position of the end of the axis.
+	// Virtual position of the end of the axis.
 	endPosition = Point2D.empty();
 	// On-screen position of the start label.
 	startLabelPosition = Point2D.empty();
@@ -136,17 +141,6 @@ export class LabelPosition {
 		this.coord = position;
 	}
 }
-
-export interface TimelineViewport {
-	// Start and end positions of combined timeline period relative to the axis display bounds.
-	startRatio: number;
-	endRatio: number;
-}
-
-export const DEFAULT_VIEWPORT: TimelineViewport = {
-	startRatio: 0,
-	endRatio: 1,
-};
 
 // External data that affects the layout calculation.
 export interface LayoutInput {

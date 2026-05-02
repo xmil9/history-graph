@@ -25,48 +25,71 @@ export class AxisView {
 	endLabel = input.required<string>();
 
 	// Positioning
-	private get timelineLayout(): TimelineLayout {
-		return this.layoutService.layout.timelines.items[this.timelineIdx()];
+	private get timelineLayout(): TimelineLayout | undefined {
+		if (this.layoutService.layout.timelines.items.length > this.timelineIdx()) {
+			return this.layoutService.layout.timelines.items[this.timelineIdx()];
+		}
+		return undefined;
 	}
 
 	get startPosition(): Point2D {
-		return this.timelineLayout.axis.bounds.clamp(this.timelineLayout.axis.startPosition);
+		const layout = this.timelineLayout;
+		if (!layout) {
+			return Point2D.invalid();
+		}
+		return layout.axis.bounds.clamp(layout.axis.startPosition);
 	}
 	get endPosition(): Point2D {
-		return this.timelineLayout.axis.bounds.clamp(this.timelineLayout.axis.endPosition);
+		const layout = this.timelineLayout;
+		if (!layout) {
+			return Point2D.invalid();
+		}
+		return layout.axis.bounds.clamp(layout.axis.endPosition);
 	}
 	get startIconPosition(): Point2D {
-		const pos = this.timelineLayout.axis.startPosition;
-		return this.displayBounds.contains(pos) ? pos : Point2D.invalid();
+		const layout = this.timelineLayout;
+		if (layout) {
+			const pos = layout.axis.startPosition;
+			if (layout.axis.bounds.contains(pos)) {
+				return pos;
+			}
+		}
+		return Point2D.invalid();
 	}
 	get endIconPosition(): Point2D {
-		const pos = this.timelineLayout.axis.endPosition;
-		return this.displayBounds.contains(pos) ? pos : Point2D.invalid();
+		const layout = this.timelineLayout;
+		if (layout) {
+			const pos = layout.axis.endPosition;
+			if (layout.axis.bounds.contains(pos)) {
+				return pos;
+			}
+		}
+		return Point2D.invalid();
 	}
 	get displayBounds(): Rect2D {
-		return this.timelineLayout.axis.bounds;
+		return this.timelineLayout?.axis.bounds ?? Rect2D.empty();
 	}
 	get axisMarkerSize(): Size2D {
-		return this.timelineLayout.axis.endMarkerSize;
+		return this.timelineLayout?.axis.endMarkerSize ?? Size2D.empty();
 	}
 	get startLabelPosition(): Point2D {
-		return this.timelineLayout.axis.startLabelPosition;
+		return this.timelineLayout?.axis.startLabelPosition ?? Point2D.invalid();
 	}
 	get endLabelPosition(): Point2D {
-		return this.timelineLayout.axis.endLabelPosition;
+		return this.timelineLayout?.axis.endLabelPosition ?? Point2D.invalid();
 	}
 	get tickPositions(): Point2D[] {
-		return this.timelineLayout.axis.tickPositions;
+		return this.timelineLayout?.axis.tickPositions ?? [];
 	}
 	getTickLabel(index: number): string {
 		const tick = this.layoutService.ticks[index];
 		return tick ? tick.label : '';
 	}
 	get tickLabelPositions(): Point2D[] {
-		return this.timelineLayout.axis.tickLabelPositions;
+		return this.timelineLayout?.axis.tickLabelPositions ?? [];
 	}
 	get tickMarkerSize(): Size2D {
-		return this.timelineLayout.axis.tickMarkerSize;
+		return this.timelineLayout?.axis.tickMarkerSize ?? Size2D.empty();
 	}
 
 	// Styling
