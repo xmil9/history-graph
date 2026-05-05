@@ -8,6 +8,7 @@ import { Tick, TickCalculator, TickFormat } from "./tick-calculator";
 import { LabelLayoutCalculator, createLabelLayoutCalculator } from "./label-layout-calculator";
 import { HDate } from "../model/historic-date";
 import { GraphLayoutCalculator, createGraphLayoutCalculator } from "./graph-layout-calculator";
+import { EventGraphic } from "./graphic-types";
 
 @Injectable({
 	providedIn: 'root'
@@ -200,13 +201,13 @@ export class LayoutService {
 		this.calculateTicks(false);
 	}
 
-	panTo(date: HDate): void {
+	panTo(tlEvent: EventGraphic): void {
 		if (this.layout.timelines.items.length === 0)
 			return;
 
 		const sharedProj = this.layout.timelines.items[0].projection;
 
-		const projected = sharedProj.toPosition(date);
+		const projected = sharedProj.toPosition(tlEvent.hEvent.when);
 		if (projected.x === INVALID_POSITION_SENTINEL)
 			return;
 

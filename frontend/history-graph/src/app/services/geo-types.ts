@@ -1,5 +1,6 @@
 import * as L from 'leaflet';
 import { EventGraphic } from './graphic-types';
+import { DEFAULT_HIGHLIGHT_COLOR } from '../graphics/gfx-style';
 
 export type GeoCoord = L.LatLngExpression;
 
@@ -17,7 +18,7 @@ export class EventGeoMarker extends L.Circle {
 
 	highlight() {
 		this.bringToFront();
-		this.setStyle({ color: 'red', weight: 3 });
+		this.setStyle({ color: DEFAULT_HIGHLIGHT_COLOR, weight: 3 });
 	}
 
 	unhighlight() {

@@ -8,7 +8,8 @@ export class TimelineMap extends L.Map {
 	private dateFormat: HDateFormat = DEFAULT_DATE_FORMAT;
 	private markers = new Array<EventGeoMarker>();
 	private tlEventPopup = L.popup();
-	public onMarkerClick?: (date: HDate) => void;
+	public onMarkerClick?: (markers: EventGeoMarker[]) => void;
+	public onMapClick?: () => void;
 
 	constructor(elementId: string) {
 		super(elementId, {
@@ -43,6 +44,9 @@ export class TimelineMap extends L.Map {
 	}
 
 	private onMapClicked(e: L.LeafletMouseEvent) {
+		if (this.onMapClick)
+			this.onMapClick();
+
 		const clickedMarkers = this.findEventMarkersAt(e.latlng);
 		
 		if (clickedMarkers.length > 0) {
@@ -51,9 +55,8 @@ export class TimelineMap extends L.Map {
 				e.latlng
 			);
 
-			const firstEventDate = clickedMarkers[0].tlEvent.hEvent.when;
-			if (firstEventDate && this.onMarkerClick) {
-				this.onMarkerClick(firstEventDate);
+			if (this.onMarkerClick) {
+				this.onMarkerClick(clickedMarkers);
 			}
 		}
 	}

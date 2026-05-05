@@ -1,6 +1,6 @@
 import { Timeline } from "../model/timeline";
 import { HEvent } from "../model/historic-event";
-import { signal } from "@angular/core";
+import { computed, Signal, signal, WritableSignal } from "@angular/core";
 
 export interface TimelineTheme {
 	primaryColor: string;
@@ -47,6 +47,8 @@ export class TimelineGraphic {
 // Event data plus graphic properties.
 // Not spacial positions, though. Those are managed by the layout data structures.
 export class EventGraphic {
+	private color_: WritableSignal<string | undefined> = signal<string | undefined>(undefined);
+
 	constructor(
 		public readonly hEvent: HEvent,
 		public readonly theme: TimelineTheme
@@ -55,5 +57,22 @@ export class EventGraphic {
 
 	equals(other: EventGraphic): boolean {
 		return this.hEvent.equals(other.hEvent);
+	}
+
+	get color(): Signal<string> {
+		return computed(() => {
+			const c = this.color_();
+			if (c !== undefined)
+				return c;
+			return this.theme.primaryColor;
+		});
+	}
+
+	setColor(c: string) {
+		this.color_.set(c);
+	}
+
+	clearColor() {
+		this.color_.set(undefined);
 	}
 }

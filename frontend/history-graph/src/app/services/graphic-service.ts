@@ -28,12 +28,12 @@ export class GraphicService {
 		);
 	}
 
-	decorateTimelineWithEventThemes(timeline: Timeline, eventThemes: TimelineTheme[]): TimelineGraphic {
+	decorateTimelineWithEventGraphics(timeline: Timeline, eventGraphics: EventGraphic[]): TimelineGraphic {
 		const tlTheme = this.nextTheme();
 		return new TimelineGraphic(
 			timeline,
 			tlTheme,
-			timeline.events.map((event, eventIdx) => this.decorateEvent(event, eventThemes[eventIdx]))
+			eventGraphics
 		);
 	}
 

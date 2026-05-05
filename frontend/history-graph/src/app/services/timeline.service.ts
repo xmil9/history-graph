@@ -7,6 +7,7 @@ import { EventGraphic, HgGraphic, TimelineGraphic, TimelineTheme } from './graph
 import { HDate, HPeriod } from '../model/historic-date';
 import { GraphicService } from './graphic-service';
 import { IdGenerator } from '../model/id-generator';
+import { DEFAULT_HIGHLIGHT_COLOR } from '../graphics/gfx-style';
 
 @Injectable({
 	providedIn: 'root'
@@ -88,11 +89,8 @@ export class TimelineService {
 			new HPeriod(combinedStart, combinedEnd),
 			combinedEvents.map(eventGraphic => eventGraphic.hEvent)
 		);
-		return this.makeGraphicWithEventThemes(
-			combinedTimeline,
-			// Preserve the original event themes.
-			combinedEvents.map(eventGraphic => eventGraphic.theme)
-		);
+
+		return this.makeGraphicWithEventGraphics(combinedTimeline, combinedEvents);
 	}
 
 	toggleTimelineVisibility(id: number): void {
@@ -149,6 +147,16 @@ export class TimelineService {
 		});
 	}
 
+	highlightEvent(tlEvent: EventGraphic) {
+		tlEvent.setColor(DEFAULT_HIGHLIGHT_COLOR);
+	}
+
+	clearHighlights() {
+		this.timelines().forEach(tl => {
+			tl.eventGraphics.forEach(tlGraphic => tlGraphic.clearColor());
+		});
+	}
+
 	private runDebugTest(): void {
 		const input = {
 			title: 'Test',
@@ -169,8 +177,8 @@ export class TimelineService {
 		return this.graphicService.decorateTimeline(timeline);
 	}
 
-	private makeGraphicWithEventThemes(timeline: Timeline, eventThemes: TimelineTheme[]): TimelineGraphic {
-		return this.graphicService.decorateTimelineWithEventThemes(timeline, eventThemes);
+	private makeGraphicWithEventGraphics(timeline: Timeline, eventGraphics: EventGraphic[]): TimelineGraphic {
+		return this.graphicService.decorateTimelineWithEventGraphics(timeline, eventGraphics);
 	}
 
 	private makeGraphicFromInput(input: any): TimelineGraphic {

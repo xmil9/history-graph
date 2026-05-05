@@ -78,15 +78,12 @@ export class EventView {
 	
 	// Styling
 	textStyle = input<TextStyle>(DEFAULT_TEXT_STYLE);
-	get labelColor(): string {
-		return this.tlEvent().theme.primaryColor;
-	}
 	lineStyle = input<LineStyle>(DEFAULT_LINE_STYLE);
 	get periodColor(): string {
-		return this.tlEvent().theme.primaryColor;
+		return this.tlEvent().color();
 	}
 	get markerColor(): string {
-		return this.tlEvent().theme.primaryColor;
+		return this.tlEvent().color();
 	}
 
 	onMarkerMouseEnter(mouseEvent: MouseEvent) {

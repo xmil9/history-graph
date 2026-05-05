@@ -45,9 +45,9 @@ export class EventLabels {
 	textStyle = input<TextStyle>(DEFAULT_TEXT_STYLE);
 	lineStyle = input<LineStyle>(DEFAULT_LINE_STYLE);
 	labelColor(eventIdx: number): string {
-		return this.labels[eventIdx].position.event.theme.primaryColor;
+		return this.labels[eventIdx].position.event.color();
 	}
 	lineColor(eventIdx: number): string {
-		return this.labels[eventIdx].position.event.theme.primaryColor;
+		return this.labels[eventIdx].position.event.color();
 	}
 }

@@ -1,4 +1,4 @@
-import { effect, inject, Injectable } from "@angular/core";
+import { effect, inject, Injectable, NgZone } from "@angular/core";
 import { TimelineService } from "./timeline.service";
 import { TimelineMap } from "./timeline-map";
 import { EventGraphic } from "./graphic-types";
@@ -12,6 +12,7 @@ export class MapService {
 	private timelineService = inject(TimelineService);
 	private preferenceService = inject(PreferenceService);
 	private layoutService = inject(LayoutService);
+	private ngZone = inject(NgZone);
 	private map?: TimelineMap;
 
 	timelines = this.timelineService.timelines;
@@ -34,8 +35,17 @@ export class MapService {
 	initMap(): void {
 		this.map = new TimelineMap('map');
 		this.map.setDateFormat(this.preferenceService.dateFormat().format);
-		this.map.onMarkerClick = (date) => {
-			this.layoutService.panTo(date);
+		this.map.onMapClick = () => {
+			this.ngZone.run(() => {
+				this.timelineService.clearHighlights();
+			});
+		};
+		this.map.onMarkerClick = (markers) => {
+			this.ngZone.run(() => {
+				const first = markers[0];
+				this.timelineService.highlightEvent(first.tlEvent);
+				this.layoutService.panTo(first.tlEvent);
+			});
 		};
 	}
 
