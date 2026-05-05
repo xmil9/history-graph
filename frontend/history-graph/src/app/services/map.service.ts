@@ -3,6 +3,7 @@ import { TimelineService } from "./timeline.service";
 import { TimelineMap } from "./timeline-map";
 import { EventGraphic } from "./graphic-types";
 import { PreferenceService } from "./preference.service";
+import { LayoutService } from "./layout.service";
 
 @Injectable({
 	providedIn: 'root'
@@ -10,6 +11,7 @@ import { PreferenceService } from "./preference.service";
 export class MapService {
 	private timelineService = inject(TimelineService);
 	private preferenceService = inject(PreferenceService);
+	private layoutService = inject(LayoutService);
 	private map?: TimelineMap;
 
 	timelines = this.timelineService.timelines;
@@ -32,6 +34,9 @@ export class MapService {
 	initMap(): void {
 		this.map = new TimelineMap('map');
 		this.map.setDateFormat(this.preferenceService.dateFormat().format);
+		this.map.onMarkerClick = (date) => {
+			this.layoutService.panTo(date);
+		};
 	}
 
 	populateMap() {

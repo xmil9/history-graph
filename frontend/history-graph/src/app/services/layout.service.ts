@@ -1,6 +1,6 @@
 import { inject, Injectable, signal, WritableSignal, Signal } from "@angular/core";
 import { LayoutFormat } from "./preference-types";
-import { Point2D, Viewport2D } from "../graphics/gfx-coord-2d";
+import { INVALID_POSITION_SENTINEL, Point2D, Viewport2D } from "../graphics/gfx-coord-2d";
 import { DEFAULT_LAYOUT_INPUT, HgLayout, LayoutInput } from "./layout-types";
 import { TimelineService } from "./timeline.service";
 import { AxisLayoutCalculator, createAxisLayoutCalculator } from "./axis-layout-calculator";
@@ -201,6 +201,44 @@ export class LayoutService {
 	}
 
 	panTo(date: HDate): void {
+		if (this.layout.timelines.items.length === 0)
+			return;
+
+		const sharedProj = this.layout.timelines.items[0].projection;
+
+		const projected = sharedProj.toPosition(date);
+		if (projected.x === INVALID_POSITION_SENTINEL)
+			return;
+
+		const dx = sharedProj.display.center.x - projected.x;
+
+		const pannedViewport = new Viewport2D(
+			new Point2D(sharedProj.viewport.offset.x + dx, sharedProj.viewport.offset.y),
+			sharedProj.viewport.scale
+		);
+
+		this.graphCalculator.updateViewport(
+			pannedViewport,
+			this.input.viewSize,
+			this.timelineService.timelines(),
+			this.timelineService.combinedTimeline(),
+			this.layout
+		);
+
+		this.axisCalculator.calculate(
+			this.timelineService.timelines(),
+			this.timelineService.combinedTimeline(),
+			this.layout
+		);
+
+		this.labelCalculator.calculate(
+			this.timelineService.timelines(),
+			this.timelineService.combinedTimeline(),
+			this.layout
+		);
+
+		// Not recalculating the tick interval avoids jumpy ticks when panning.
+		this.calculateTicks(false);
 	}
 
 	zoom(at: Point2D, factor: number): void {

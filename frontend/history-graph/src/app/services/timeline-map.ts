@@ -2,12 +2,13 @@ import * as L from 'leaflet';
 import { EventGraphic, TimelineGraphic } from './graphic-types';
 import { EventGeoMarker, GeoCoord } from './geo-types';
 import { formatEventsAsHtml } from './event-geo-formating';
-import { DEFAULT_DATE_FORMAT, HDateFormat } from '../model/historic-date';
+import { DEFAULT_DATE_FORMAT, HDateFormat, HDate } from '../model/historic-date';
 
 export class TimelineMap extends L.Map {
 	private dateFormat: HDateFormat = DEFAULT_DATE_FORMAT;
 	private markers = new Array<EventGeoMarker>();
 	private tlEventPopup = L.popup();
+	public onMarkerClick?: (date: HDate) => void;
 
 	constructor(elementId: string) {
 		super(elementId, {
@@ -49,6 +50,11 @@ export class TimelineMap extends L.Map {
 				formatEventsAsHtml(clickedMarkers.map(m => m.tlEvent), this.dateFormat),
 				e.latlng
 			);
+
+			const firstEventDate = clickedMarkers[0].tlEvent.hEvent.when;
+			if (firstEventDate && this.onMarkerClick) {
+				this.onMarkerClick(firstEventDate);
+			}
 		}
 	}
 
