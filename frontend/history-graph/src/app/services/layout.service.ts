@@ -52,6 +52,7 @@ export class LayoutService {
 			this.layout
 		);
 
+		this.labelCalculator.setInput(this.input);
 		this.labelCalculator.calculate(
 			this.timelineService.timelines(),
 			this.timelineService.combinedTimeline(),
@@ -88,6 +89,7 @@ export class LayoutService {
 			this.layout
 		);
 
+		this.labelCalculator.setInput(this.input);
 		this.labelCalculator.calculate(
 			this.timelineService.timelines(),
 			this.timelineService.combinedTimeline(),
@@ -154,6 +156,7 @@ export class LayoutService {
 			this.layout
 		);
 
+		this.labelCalculator.setInput(this.input);
 		this.labelCalculator.calculate(
 			this.timelineService.timelines(),
 			this.timelineService.combinedTimeline(),

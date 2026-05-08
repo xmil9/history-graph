@@ -110,12 +110,13 @@ export abstract class LabelLayoutCalculator {
 	}
 
 	private clampRowHeight(rowHeight: number): number {
-		const maxRowHeight = this.estimateTextHeight() * 2;
+		const heightEstimate = this.estimateTextHeight();
+		const maxRowHeight = heightEstimate * 2;
 		if (rowHeight > maxRowHeight) {
 			rowHeight = maxRowHeight;
 		}
 
-		const minRowHeight = 10;
+		const minRowHeight = heightEstimate;
 		if (rowHeight < minRowHeight) {
 			rowHeight = minRowHeight;
 		}
@@ -273,7 +274,7 @@ class HorizontalLeftLabelCalculator extends LabelLayoutCalculator {
 		const startX = eventPos.start.x;
 		const startY = eventPos.start.y;
 		// We want to connect to the right-center side of the text.
-		const endX = labelPos.coord.x + textWidth + 5;
+		const endX = labelPos.coord.x + textWidth - 20;
 		const endY = labelPos.coord.y - textHeight / 3;
 
 		if (endX < startX) {
