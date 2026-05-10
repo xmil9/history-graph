@@ -1,4 +1,4 @@
-import { Point2D, Rect2D, Size2D } from "../graphics/gfx-coord-2d";
+import { Point2D, Rect2D, Size2D, Viewport2D } from "../graphics/gfx-coord-2d";
 import { DEFAULT_LINE_STYLE, DEFAULT_TEXT_STYLE, LineStyle, TextStyle } from "../graphics/gfx-style";
 import { DEFAULT_DATE_FORMAT, HDateFormat } from "../model/historic-date";
 import { EventGraphic } from "./graphic-types";
@@ -41,6 +41,8 @@ export class OverviewLayout {
 }
 
 export class TimelinesLayout {
+	// Viewport shared by all timelines.
+	viewport = Viewport2D.identity();
 	// On-screen bounds of the entire timelines display area.
 	bounds = Rect2D.empty();
 	// Individual timeline layouts.

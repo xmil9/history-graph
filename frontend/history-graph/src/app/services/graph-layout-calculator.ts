@@ -53,7 +53,7 @@ class BaseGraphLayoutCalculator implements GraphLayoutCalculator {
 		layout.timelines.bounds = this.calcTimelinesAreaBounds(viewSize, timelines.length);
 		layout.timelines.items = timelines.map(
 			(tlGraphic, timelineIdx) => this.createTimelineLayout(
-				layout.timelines.items[timelineIdx]?.projection.viewport ?? Viewport2D.identity(),
+				layout.timelines.viewport,
 				viewSize,
 				timelineIdx,
 				tlGraphic,
@@ -61,11 +61,8 @@ class BaseGraphLayoutCalculator implements GraphLayoutCalculator {
 			)
 		);
 
-		const anyTimelineProjection = layout.timelines.items.length > 0 ?
-			layout.timelines.items[0].projection :
-			DEFAULT_DATE_PROJECTION;
 		layout.overview.viewedBounds = this.calcOverviewViewedBounds(
-			anyTimelineProjection,
+			layout.timelines.viewport,
 			layout.timelines.bounds,
 			overviewTimeline,
 			layout.overview.axisBounds
@@ -79,7 +76,8 @@ class BaseGraphLayoutCalculator implements GraphLayoutCalculator {
 		overviewTimeline: TimelineGraphic,
 		layout: HgLayout
 	) {
-		console.log('updateViewport', JSON.stringify(viewport), JSON.stringify(viewSize));
+		layout.timelines.viewport = viewport;
+
 		layout.timelines.items = timelines.map(
 			(tlGraphic, timelineIdx) => this.createTimelineLayout(
 				viewport,
@@ -90,11 +88,8 @@ class BaseGraphLayoutCalculator implements GraphLayoutCalculator {
 			)
 		);
 
-		const anyTimelineProjection = layout.timelines.items.length > 0 ?
-			layout.timelines.items[0].projection :
-			DEFAULT_DATE_PROJECTION;
 		layout.overview.viewedBounds = this.calcOverviewViewedBounds(
-			anyTimelineProjection,
+			layout.timelines.viewport,
 			layout.timelines.bounds,
 			overviewTimeline,
 			layout.overview.axisBounds
@@ -119,11 +114,17 @@ class BaseGraphLayoutCalculator implements GraphLayoutCalculator {
 	}
 
 	protected calcOverviewViewedBounds(
-		tlProjection: DateProjection,
+		tlViewport: Viewport2D,
 		tlAreaBounds: Rect2D,
 		ovTimeline: TimelineGraphic,
 		ovAxisBounds: Rect2D
 	): Rect2D {
+		const tlProjection = new DateProjection(
+			tlViewport,
+			tlAreaBounds,
+			ovTimeline.timeline.period
+		);
+
 		// Calculate the virtual start and end position of the combined timelines.
 		const combinedStartPos = tlProjection.toPosition(ovTimeline.timeline.period.from);
 		const combinedEndPos = tlProjection.toPosition(ovTimeline.timeline.period.to);
