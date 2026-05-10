@@ -1,4 +1,4 @@
-import { inject, Injectable, signal, WritableSignal, Signal } from "@angular/core";
+import { inject, Injectable, signal } from "@angular/core";
 import { LayoutFormat } from "./preference-types";
 import { INVALID_POSITION_SENTINEL, Point2D, Viewport2D } from "../graphics/gfx-coord-2d";
 import { DEFAULT_LAYOUT_INPUT, HgLayout, LayoutInput } from "./layout-types";
@@ -6,7 +6,6 @@ import { TimelineService } from "./timeline.service";
 import { AxisLayoutCalculator, createAxisLayoutCalculator } from "./axis-layout-calculator";
 import { Tick, TickCalculator, TickFormat } from "./tick-calculator";
 import { LabelLayoutCalculator, createLabelLayoutCalculator } from "./label-layout-calculator";
-import { HDate } from "../model/historic-date";
 import { GraphLayoutCalculator, createGraphLayoutCalculator } from "./graph-layout-calculator";
 import { EventGraphic } from "./graphic-types";
 import { DateProjection } from "../model/projection";
@@ -61,6 +60,10 @@ export class LayoutService {
 			this.timelineService.combinedTimeline(),
 			this.layout
 		);
+
+		// Not recalculating the tick interval avoids jumpy ticks.
+		const recalcInterval = false;
+		this.calculateTicks(recalcInterval);
 	}
 
 	setTickFormat(format: TickFormat): void {
@@ -206,7 +209,7 @@ export class LayoutService {
 			this.layout
 		);
 
-		// Not recalculating the tick interval avoids jumpy ticks when panning.
+		// Not recalculating the tick interval avoids jumpy ticks.
 		this.calculateTicks(false);
 	}
 

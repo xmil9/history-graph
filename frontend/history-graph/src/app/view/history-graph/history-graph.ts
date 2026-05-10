@@ -118,11 +118,10 @@ export class HistoryGraph implements AfterViewInit {
 	private updateViewSize(): void {
 		if (this.timelineAreaElem?.nativeElement) {
 			const rect = this.timelineAreaElem.nativeElement.getBoundingClientRect();
-			console.log('viewSize', rect);
 			this.viewSize.set(new Size2D(rect.width, rect.height));
 		}
 	}
-
+	
 	onPromptEntered(prompt: string): void {
 		this.timelineService.addTimeline(prompt);
 	}

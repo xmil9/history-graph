@@ -66,12 +66,7 @@ class BaseAxisLayoutCalculator implements AxisLayoutCalculator {
 		overviewTimeline: TimelineGraphic,
 	): void {
 		// Each timeline starts and ends with the same dates as the overview timeline.
-		console.log('projection:', JSON.stringify(tlLayout.projection));
-		console.log('axis start before:', tlLayout.axis.startPosition);
-		console.log('start date ratio before:', tlLayout.projection.toRatio(overviewTimeline.timeline.period.from));
 		tlLayout.axis.startPosition = tlLayout.projection.toPosition(overviewTimeline.timeline.period.from);
-		console.log('axis start after:', tlLayout.axis.startPosition);
-		console.log('start date ratio after:', tlLayout.projection.toRatio(overviewTimeline.timeline.period.from));
 		tlLayout.axis.endPosition = tlLayout.projection.toPosition(overviewTimeline.timeline.period.to);
 		tlLayout.axis.startLabelPosition = this.calcLabelPosition(tlLayout.axis.startPosition, tlLayout);
 		tlLayout.axis.endLabelPosition = this.calcLabelPosition(tlLayout.axis.endPosition, tlLayout);
