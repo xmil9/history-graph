@@ -185,8 +185,6 @@ class VerticalGraphLayoutCalculator extends BaseGraphLayoutCalculator {
 ///////////////////
 
 class HorizontalLeftGraphLayoutCalculator extends BaseGraphLayoutCalculator {
-	protected override overviewAreaMargins = Rect2D.fromCoordinates(300, 25, 50, 0);
-	protected override timelinesAreaMargins = Rect2D.fromCoordinates(300, 60, 50, 0);
 }
 
 ///////////////////
