@@ -72,11 +72,10 @@ export class TimelineService {
 			combinedEvents.push(...tlGraphic.eventGraphics);
 		});
 
-		if (!combinedStart) {
-			combinedStart = HDate.now();
-		}
-		if (!combinedEnd) {
-			combinedEnd = HDate.now();
+		if (this.hgGraphic().timelines.length === 0) {
+			const year = HDate.now().year;
+			combinedStart = new HDate(year - 1);
+			combinedEnd = new HDate(year);
 		}
 
 		// Sort the combined events.
@@ -86,7 +85,7 @@ export class TimelineService {
 		const combinedTimeline = new Timeline(
 			0,
 			combinedTitle,
-			new HPeriod(combinedStart, combinedEnd),
+			new HPeriod(combinedStart!, combinedEnd!),
 			combinedEvents.map(eventGraphic => eventGraphic.hEvent)
 		);
 
