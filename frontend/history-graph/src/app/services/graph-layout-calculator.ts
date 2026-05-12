@@ -78,6 +78,11 @@ class BaseGraphLayoutCalculator implements GraphLayoutCalculator {
 	) {
 		layout.timelines.viewport = viewport;
 
+		const hasNumberOfTimelinesChanged = layout.timelines.items.length !== timelines.length;
+		if (hasNumberOfTimelinesChanged) {
+			layout.timelines.bounds = this.calcTimelinesAreaBounds(viewSize, timelines.length);
+		}
+
 		layout.timelines.items = timelines.map(
 			(tlGraphic, timelineIdx) => this.createTimelineLayout(
 				viewport,
