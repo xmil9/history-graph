@@ -80,6 +80,12 @@ class BaseGraphLayoutCalculator implements GraphLayoutCalculator {
 
 		const hasNumberOfTimelinesChanged = layout.timelines.items.length !== timelines.length;
 		if (hasNumberOfTimelinesChanged) {
+			layout.overview.projection = new DateProjection(
+				layout.overview.projection.viewport,
+				layout.overview.axisBounds,
+				overviewTimeline.timeline.period
+			);
+
 			layout.timelines.bounds = this.calcTimelinesAreaBounds(viewSize, timelines.length);
 		}
 
