@@ -2,7 +2,7 @@ import { LayoutFormat } from "./preference-types";
 import { DEFAULT_LAYOUT_INPUT, EventPosition, HgLayout, LabelLayout, LabelPosition, LabelsLayout, LayoutInput, SvgPath, TimelineLayout } from "./layout-types";
 import { EventGraphic, TimelineGraphic } from "./graphic-types";
 import { INVALID_POSITION_SENTINEL, Point2D, Rect2D } from "../graphics/gfx-coord-2d";
-import { formatEventLabel, makeFont } from "./layout-utils";
+import { makeFont } from "./layout-utils";
 
 ///////////////////
 
@@ -265,7 +265,7 @@ class HorizontalLeftLabelCalculator extends LabelLayoutCalculator {
 			return '';
 		}
 
-		const labelText = formatEventLabel(eventGraphic.hEvent, this.input.dateFormat);
+		const labelText = eventGraphic.hEvent.label;
 		const textMetrics = context.measureText(labelText);
 		const textWidth = textMetrics.width;
 		// Approximation usually sufficient for vertical center.
@@ -274,7 +274,7 @@ class HorizontalLeftLabelCalculator extends LabelLayoutCalculator {
 		const startX = eventPos.start.x;
 		const startY = eventPos.start.y;
 		// We want to connect to the right-center side of the text.
-		const endX = labelPos.coord.x + textWidth - 20;
+		const endX = labelPos.coord.x + textWidth + 10;
 		const endY = labelPos.coord.y - textHeight / 3;
 
 		if (endX < startX) {
@@ -331,7 +331,7 @@ class HorizontalCenterLabelCalculator extends LabelLayoutCalculator {
 			// Calculate the position of the label.
 			let labelPt = Point2D.invalid();
 			if (isLabelVisible) {
-				const labelText = formatEventLabel(eventGraphic.hEvent, this.input.dateFormat);
+				const labelText = eventGraphic.hEvent.label;
 				const textMetrics = context.measureText(labelText);
 				const textWidth = textMetrics.width;
 
